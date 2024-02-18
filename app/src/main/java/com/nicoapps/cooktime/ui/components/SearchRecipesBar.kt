@@ -12,10 +12,12 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.nicoapps.cooktime.ui.SearchBarState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +27,8 @@ fun SearchRecipesBar(
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
-    val searchBarState = remember { SearchBarState() }
+    var searchText by remember { mutableStateOf("") }
+    var isSearchActive by remember { mutableStateOf(false) }
 
     var boxModifier = modifier
         .windowInsetsPadding(
@@ -35,7 +38,8 @@ fun SearchRecipesBar(
         )
         .fillMaxWidth()
 
-    if (searchBarState.isActive) {
+    if (isSearchActive) {
+        println("HERE!!")
         boxModifier = boxModifier.fillMaxHeight()
     }
 
@@ -44,17 +48,17 @@ fun SearchRecipesBar(
             modifier = modifier
                 .align(Alignment.TopCenter),
             placeholder = placeholder,
-            query = searchBarState.searchText,
+            query = searchText,
             onQueryChange = {
-                searchBarState.onSearchTextChanged(it)
+                searchText = it
             },
             onSearch = {
-                searchBarState.onSearchTextChanged(it)
+                searchText = it
             },
-            active = searchBarState.isActive,
+            active = isSearchActive,
             onActiveChange = {
                 onActiveChange?.invoke(it)
-                searchBarState.onIsActiveChanged(it)
+                isSearchActive = it
             },
             colors = SearchBarDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -62,7 +66,8 @@ fun SearchRecipesBar(
             leadingIcon = leadingIcon
         ) {
             SearchRecipesView(
-                searchBarState = searchBarState
+                onSearchTextChanged = { searchText = it },
+                onIsActiveChanged = { isSearchActive = it }
             )
         }
     }

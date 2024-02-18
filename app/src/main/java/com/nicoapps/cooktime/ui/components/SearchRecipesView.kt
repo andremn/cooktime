@@ -11,12 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nicoapps.cooktime.ui.SearchBarState
 
 @Composable
 fun SearchRecipesView(
     modifier: Modifier = Modifier,
-    searchBarState: SearchBarState
+    onSearchTextChanged: (String) -> Unit,
+    onIsActiveChanged: (Boolean) -> Unit
 ) {
     repeat(15) { index ->
         val resultText = "Recipe #${index + 1}"
@@ -32,8 +32,8 @@ fun SearchRecipesView(
             },
             modifier = modifier
                 .clickable {
-                    searchBarState.onSearchTextChanged(resultText)
-                    searchBarState.onIsActiveChanged(false)
+                    onSearchTextChanged(resultText)
+                    onIsActiveChanged(false)
                 }
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
