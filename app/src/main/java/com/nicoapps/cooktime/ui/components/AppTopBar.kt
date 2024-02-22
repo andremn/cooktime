@@ -23,10 +23,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.navigation.NavController
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
+import com.nicoapps.cooktime.ui.AppNavigationActions
+import com.nicoapps.cooktime.ui.components.search.SearchRecipesBar
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -37,7 +38,7 @@ fun AppTopBar(
     modifier: Modifier = Modifier,
     appNavGraphState: AppNavGraphState,
     drawerState: DrawerState,
-    navController: NavController,
+    appNavigationActions: AppNavigationActions,
     coroutineScope: CoroutineScope,
     onSearchBarActiveChanged: (Boolean) -> Unit
 ) {
@@ -83,7 +84,7 @@ fun AppTopBar(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.popBackStack() }
+                        onClick = { appNavigationActions.navigateBack() }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -100,6 +101,9 @@ fun AppTopBar(
                 modifier = modifier
                     .padding(bottom = dimensionResource(id = R.dimen.search_bar_padding)),
                 onActiveChange = { onSearchBarActiveChanged(it) },
+                onRecipeSelected = {
+                    appNavigationActions.navigateToViewRecipe(it)
+                },
                 placeholder = {
                     Text(
                         text = appNavGraphState.topBar.title

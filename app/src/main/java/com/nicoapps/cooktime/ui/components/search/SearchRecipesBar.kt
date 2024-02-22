@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.components
+package com.nicoapps.cooktime.ui.components.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -13,22 +13,23 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nicoapps.cooktime.model.Recipe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchRecipesBar(
     modifier: Modifier = Modifier,
+    viewModel: SearchRecipesViewModel = hiltViewModel(),
     onActiveChange: ((Boolean) -> Unit)? = null,
+    onRecipeSelected: (Recipe) -> Unit,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
-    var searchText by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
+    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     var boxModifier = modifier
         .windowInsetsPadding(
@@ -38,8 +39,7 @@ fun SearchRecipesBar(
         )
         .fillMaxWidth()
 
-    if (isSearchActive) {
-        println("HERE!!")
+    if (screenState.isSearchActive) {
         boxModifier = boxModifier.fillMaxHeight()
     }
 
@@ -48,17 +48,17 @@ fun SearchRecipesBar(
             modifier = modifier
                 .align(Alignment.TopCenter),
             placeholder = placeholder,
-            query = searchText,
+            query = screenState.searchText,
             onQueryChange = {
-                searchText = it
+                viewModel.onSearchTextChanged(it)
             },
             onSearch = {
-                searchText = it
+                viewModel.onSearchTextChanged(it)
             },
-            active = isSearchActive,
+            active = screenState.isSearchActive,
             onActiveChange = {
+                viewModel.onSearchActiveChanged(it)
                 onActiveChange?.invoke(it)
-                isSearchActive = it
             },
             colors = SearchBarDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -66,8 +66,9 @@ fun SearchRecipesBar(
             leadingIcon = leadingIcon
         ) {
             SearchRecipesView(
-                onSearchTextChanged = { searchText = it },
-                onIsActiveChanged = { isSearchActive = it }
+                recipes = screenState.recipes,
+                onIsActiveChanged = viewModel::onSearchActiveChanged,
+                onRecipeSelected = { onRecipeSelected(it) }
             )
         }
     }

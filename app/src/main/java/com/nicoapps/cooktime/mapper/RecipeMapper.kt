@@ -16,6 +16,7 @@ object RecipeMapper {
         RecipeEntity(
             id = id,
             name = name,
+            isStarred = isStarred,
             createdAt = createdAt.toEpochSecond(),
             lastUpdatedAt = lastUpdatedAt?.toEpochSecond()
         )
@@ -26,6 +27,7 @@ object RecipeMapper {
             name = recipe.name,
             ingredients = ingredients.map { it.toModel() },
             instructions = instructions.map { it.toModel() },
+            isStarred = recipe.isStarred,
             createdAt = ZonedDateTime.ofInstant(
                 Instant.ofEpochSecond(recipe.createdAt),
                 ZoneId.systemDefault()
@@ -47,6 +49,7 @@ object RecipeMapper {
             name = name,
             ingredients = ingredients.map { it.toModel() },
             instructions = instructions.map { it.toModel() },
+            isStarred = isStarred,
             createdAt = ZonedDateTime.ofInstant(
                 Instant.ofEpochSecond(createdAt),
                 ZoneId.systemDefault()

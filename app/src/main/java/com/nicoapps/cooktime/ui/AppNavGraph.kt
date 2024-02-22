@@ -85,7 +85,7 @@ fun AppNavGraph(
                     modifier = modifier,
                     appNavGraphState = appNavGraphState,
                     drawerState = drawerState,
-                    navController = navHostController,
+                    appNavigationActions = navigationActions,
                     coroutineScope = coroutineScope,
                     onSearchBarActiveChanged = { isSearchBarActive = it }
                 )

@@ -47,4 +47,8 @@ class AppNavigationActions(
             restoreState = true
         }
     }
+
+    fun navigateBack() {
+        navController.popBackStack()
+    }
 }

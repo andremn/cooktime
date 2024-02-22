@@ -7,6 +7,7 @@ data class Recipe(
     val name: String,
     val ingredients: List<Ingredient>,
     val instructions: List<Instruction>,
+    val isStarred: Boolean,
     val createdAt: ZonedDateTime = ZonedDateTime.now(),
     val lastUpdatedAt: ZonedDateTime? = null
 )

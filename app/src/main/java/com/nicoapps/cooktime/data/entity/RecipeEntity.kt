@@ -9,6 +9,7 @@ data class RecipeEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
+    val isStarred: Boolean,
     val createdAt: Long = Instant.now().epochSecond,
     val lastUpdatedAt: Long? = null
 )

@@ -139,7 +139,8 @@ class NewRecipeViewModel @Inject constructor(
                 Recipe(
                     name = screenState.value.recipeName,
                     ingredients = screenState.value.recipeIngredients,
-                    instructions = screenState.value.recipeInstructions
+                    instructions = screenState.value.recipeInstructions,
+                    isStarred = false
                 )
             )
 

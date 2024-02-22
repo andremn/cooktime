@@ -36,5 +36,7 @@ class LocalRecipeRepository @Inject constructor(
     override fun getAll() =
         database.recipeDao().getAll().map { recipes ->
             recipes.map { it.toModel() }
+        }.also {
+            println("getAll() called!")
         }
 }
