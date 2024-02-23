@@ -28,6 +28,10 @@ class LocalRecipeRepository @Inject constructor(
         }
     }
 
+    override suspend fun deleteById(id: Int) {
+        database.recipeDao().deleteById(id)
+    }
+
     override suspend fun updateIsStarred(id: Int, isStarred: Boolean) =
         database.recipeDao().updateIsStarred(id, isStarred)
 

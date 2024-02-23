@@ -12,7 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface RecipeEntityDao {
 
     @Insert
-    fun insert(recipe: RecipeEntity): Long
+    suspend fun insert(recipe: RecipeEntity): Long
+
+    @Query("DELETE FROM recipes WHERE id = :id")
+    suspend fun deleteById(id: Int)
 
     @Query("UPDATE recipes SET isStarred = :isStarred WHERE id = :id")
     suspend fun updateIsStarred(id: Int, isStarred: Boolean)

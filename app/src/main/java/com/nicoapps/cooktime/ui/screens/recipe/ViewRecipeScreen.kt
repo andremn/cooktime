@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,11 +36,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.AppNavGraphBottomBarState
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
+import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppTabIndicator
 import com.nicoapps.cooktime.ui.screens.recipe.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.tabs.ViewRecipeInstructionsTab
@@ -48,6 +52,7 @@ import com.nicoapps.cooktime.ui.screens.recipe.tabs.ViewRecipeInstructionsTab
 fun ViewRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ViewRecipeViewModel = hiltViewModel(),
+    appNavigationActions: AppNavigationActions,
     onComposing: (AppNavGraphState) -> Unit
 ) {
     val tabs = setOf(
@@ -57,6 +62,12 @@ fun ViewRecipeScreen(
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { tabs.size }
+
+    LaunchedEffect(Unit) {
+        viewModel.setDeleteConfirmationListener {
+            appNavigationActions.navigateBack()
+        }
+    }
 
     LaunchedEffect(screenState) {
         onComposing(
@@ -75,7 +86,9 @@ fun ViewRecipeScreen(
                             )
                         }
 
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = {
+                            viewModel.onRecipeDeleteRequest()
+                        }) {
                             Icon(
                                 Icons.Default.Delete,
                                 contentDescription = "Localized description",
@@ -128,6 +141,42 @@ fun ViewRecipeScreen(
                 ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(pagerState.currentPage)
             )
         }
+    }
+
+    if (screenState.isDeleteConfirmationDialogOpen) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.dismissDeleteConfirmationDialog(confirmed = false)
+            },
+            title = {
+                Text(
+                    text = "Confirm delete"
+                )
+            },
+            text = {
+                Text(
+                    text = "Do you really want to delete this recipe?"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.dismissDeleteConfirmationDialog(confirmed = true)
+                }) {
+                    Text(
+                        text = "Yes, delete it"
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.dismissDeleteConfirmationDialog(confirmed = false)
+                }) {
+                    Text(
+                        text = "No, keep it"
+                    )
+                }
+            }
+        )
     }
 
     Column(
@@ -210,6 +259,7 @@ fun ViewRecipeScreen(
 @Composable
 fun ViewRecipeScreenPreview() {
     ViewRecipeScreen(
-        onComposing = {}
+        onComposing = {},
+        appNavigationActions = AppNavigationActions(rememberNavController())
     )
 }

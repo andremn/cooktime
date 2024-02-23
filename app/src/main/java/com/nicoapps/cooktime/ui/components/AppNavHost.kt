@@ -108,6 +108,7 @@ fun AppNavHost(
         ) {
             ViewRecipeScreen(
                 modifier = modifier.padding(paddingValues),
+                appNavigationActions = navigationActions,
                 onComposing = { onDestinationComposing(it) }
             )
         }

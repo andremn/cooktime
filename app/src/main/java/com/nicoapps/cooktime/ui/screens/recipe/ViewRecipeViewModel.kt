@@ -27,13 +27,11 @@ class ViewRecipeViewModel @Inject constructor(
     private val recipeFlow = recipeRepository.findById(recipeId)
         .filterNotNull()
 
-    private val selectedTabFlow = MutableStateFlow(ViewRecipeScreenTab.INGREDIENTS)
+    private var deleteConfirmationListener: (() -> Unit)? = null
+    private val _screenState = MutableStateFlow(ViewRecipeScreenState())
 
-    val screenState = combine(selectedTabFlow, recipeFlow) { selectedTab, recipe ->
-        ViewRecipeScreenState(
-            selectedTab = selectedTab,
-            recipeName = recipe.name,
-            isRecipeStarred = recipe.isStarred,
+    val screenState = _screenState.combine(recipeFlow) { screenState, recipe ->
+        screenState.copy(
             recipeInstructions = recipe.instructions,
             recipeIngredients = recipe.ingredients
         )
@@ -44,12 +42,42 @@ class ViewRecipeViewModel @Inject constructor(
     )
 
     fun onSelectedTabChanged(tab: ViewRecipeScreenTab) {
-        selectedTabFlow.update { tab }
+        _screenState.update {
+            it.copy(
+                selectedTab = tab
+            )
+        }
     }
 
     fun onRecipeStarredChanged(isStarred: Boolean) {
         viewModelScope.launch {
             recipeRepository.updateIsStarred(recipeId, isStarred)
+        }
+    }
+
+    fun setDeleteConfirmationListener(listener: () -> Unit) {
+        deleteConfirmationListener = listener
+    }
+
+    fun onRecipeDeleteRequest() =
+        _screenState.update {
+            it.copy(
+                isDeleteConfirmationDialogOpen = true
+            )
+        }
+
+    fun dismissDeleteConfirmationDialog(confirmed: Boolean) {
+        _screenState.update {
+            it.copy(
+                isDeleteConfirmationDialogOpen = false
+            )
+        }
+
+        if (confirmed) {
+            viewModelScope.launch {
+                recipeRepository.deleteById(recipeId)
+                deleteConfirmationListener?.invoke()
+            }
         }
     }
 
@@ -62,6 +90,7 @@ class ViewRecipeViewModel @Inject constructor(
         val selectedTab: ViewRecipeScreenTab = ViewRecipeScreenTab.INGREDIENTS,
         val recipeName: String = "",
         val isRecipeStarred: Boolean = false,
+        val isDeleteConfirmationDialogOpen: Boolean = false,
         val recipeIngredients: List<Ingredient> = emptyList(),
         val recipeInstructions: List<Instruction> = emptyList()
     )
