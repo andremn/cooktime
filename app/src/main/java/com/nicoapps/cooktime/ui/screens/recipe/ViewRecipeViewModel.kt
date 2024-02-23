@@ -27,7 +27,6 @@ class ViewRecipeViewModel @Inject constructor(
     private val recipeFlow = recipeRepository.findById(recipeId)
         .filterNotNull()
 
-    private var deleteConfirmationListener: (() -> Unit)? = null
     private val _screenState = MutableStateFlow(ViewRecipeScreenState())
 
     val screenState = _screenState.combine(recipeFlow) { screenState, recipe ->
@@ -55,10 +54,6 @@ class ViewRecipeViewModel @Inject constructor(
         }
     }
 
-    fun setDeleteConfirmationListener(listener: () -> Unit) {
-        deleteConfirmationListener = listener
-    }
-
     fun onRecipeDeleteRequest() =
         _screenState.update {
             it.copy(
@@ -67,16 +62,16 @@ class ViewRecipeViewModel @Inject constructor(
         }
 
     fun dismissDeleteConfirmationDialog(confirmed: Boolean) {
-        _screenState.update {
-            it.copy(
-                isDeleteConfirmationDialogOpen = false
-            )
-        }
-
         if (confirmed) {
             viewModelScope.launch {
                 recipeRepository.deleteById(recipeId)
-                deleteConfirmationListener?.invoke()
+
+                _screenState.update {
+                    it.copy(
+                        isDeleteConfirmationDialogOpen = false,
+                        isRecipeDeleted = true
+                    )
+                }
             }
         }
     }
@@ -89,6 +84,7 @@ class ViewRecipeViewModel @Inject constructor(
     data class ViewRecipeScreenState(
         val selectedTab: ViewRecipeScreenTab = ViewRecipeScreenTab.INGREDIENTS,
         val recipeName: String = "",
+        val isRecipeDeleted: Boolean = false,
         val isRecipeStarred: Boolean = false,
         val isDeleteConfirmationDialogOpen: Boolean = false,
         val recipeIngredients: List<Ingredient> = emptyList(),

@@ -63,72 +63,73 @@ fun ViewRecipeScreen(
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { tabs.size }
 
-    LaunchedEffect(Unit) {
-        viewModel.setDeleteConfirmationListener {
-            appNavigationActions.navigateBack()
-        }
-    }
-
     LaunchedEffect(screenState) {
-        onComposing(
-            AppNavGraphState(
-                topBar = AppNavGraphTopBarState(
-                    mode = AppNavGraphTopBarContentType.TITLE_ONLY,
-                    title = screenState.recipeName
-                ),
-                bottomBar = AppNavGraphBottomBarState(
-                    visible = true,
-                    actions = {
-                        IconButton(onClick = { }) {
-                            Icon(
-                                Icons.Default.Edit,
-                                contentDescription = "Localized description",
-                            )
-                        }
-
-                        IconButton(onClick = {
-                            viewModel.onRecipeDeleteRequest()
-                        }) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Localized description",
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                viewModel.onRecipeStarredChanged(screenState.isRecipeStarred.not())
-                            }) {
-                            Icon(
-                                imageVector =
-                                if (screenState.isRecipeStarred)
-                                    Icons.Default.Favorite
-                                else
-                                    Icons.Outlined.FavoriteBorder,
-                                contentDescription = "Localized description",
-                            )
-                        }
-
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Default.Share, contentDescription = "Localized description")
-                        }
-                    },
-                    floatingActionButton = {
-                        ExtendedFloatingActionButton(
-                            onClick = { },
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                            text = {
-                                Text(text = stringResource(id = R.string.start_recipe_button_text))
-                            },
-                            icon = {
-                                Icon(Icons.Default.PlayArrow, "Localized description")
+        if (screenState.isRecipeDeleted) {
+            appNavigationActions.navigateBack()
+        } else {
+            onComposing(
+                AppNavGraphState(
+                    topBar = AppNavGraphTopBarState(
+                        mode = AppNavGraphTopBarContentType.TITLE_ONLY,
+                        title = screenState.recipeName
+                    ),
+                    bottomBar = AppNavGraphBottomBarState(
+                        visible = true,
+                        actions = {
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Localized description",
+                                )
                             }
-                        )
-                    }
+
+                            IconButton(onClick = {
+                                viewModel.onRecipeDeleteRequest()
+                            }) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Localized description",
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    viewModel.onRecipeStarredChanged(screenState.isRecipeStarred.not())
+                                }) {
+                                Icon(
+                                    imageVector =
+                                    if (screenState.isRecipeStarred)
+                                        Icons.Default.Favorite
+                                    else
+                                        Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "Localized description",
+                                )
+                            }
+
+                            IconButton(onClick = { }) {
+                                Icon(
+                                    Icons.Default.Share,
+                                    contentDescription = "Localized description"
+                                )
+                            }
+                        },
+                        floatingActionButton = {
+                            ExtendedFloatingActionButton(
+                                onClick = { },
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                                text = {
+                                    Text(text = stringResource(id = R.string.start_recipe_button_text))
+                                },
+                                icon = {
+                                    Icon(Icons.Default.PlayArrow, "Localized description")
+                                }
+                            )
+                        }
+                    )
                 )
             )
-        )
+        }
     }
 
     LaunchedEffect(screenState.selectedTab) {
