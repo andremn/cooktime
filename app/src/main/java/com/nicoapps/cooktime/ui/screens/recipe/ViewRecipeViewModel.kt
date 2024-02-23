@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,6 +33,7 @@ class ViewRecipeViewModel @Inject constructor(
         ViewRecipeScreenState(
             selectedTab = selectedTab,
             recipeName = recipe.name,
+            isRecipeStarred = recipe.isStarred,
             recipeInstructions = recipe.instructions,
             recipeIngredients = recipe.ingredients
         )
@@ -45,25 +47,32 @@ class ViewRecipeViewModel @Inject constructor(
         selectedTabFlow.update { tab }
     }
 
+    fun onRecipeStarredChanged(isStarred: Boolean) {
+        viewModelScope.launch {
+            recipeRepository.updateIsStarred(recipeId, isStarred)
+        }
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
-}
 
-@Immutable
-data class ViewRecipeScreenState(
-    val selectedTab: ViewRecipeScreenTab = ViewRecipeScreenTab.INGREDIENTS,
-    val recipeName: String = "",
-    val recipeIngredients: List<Ingredient> = emptyList(),
-    val recipeInstructions: List<Instruction> = emptyList()
-)
+    @Immutable
+    data class ViewRecipeScreenState(
+        val selectedTab: ViewRecipeScreenTab = ViewRecipeScreenTab.INGREDIENTS,
+        val recipeName: String = "",
+        val isRecipeStarred: Boolean = false,
+        val recipeIngredients: List<Ingredient> = emptyList(),
+        val recipeInstructions: List<Instruction> = emptyList()
+    )
 
-enum class ViewRecipeScreenTab(val index: Int) {
-    INGREDIENTS(0),
-    INSTRUCTIONS(1);
+    enum class ViewRecipeScreenTab(val index: Int) {
+        INGREDIENTS(0),
+        INSTRUCTIONS(1);
 
-    companion object {
-        fun fromIndex(index: Int) =
-            entries[index]
+        companion object {
+            fun fromIndex(index: Int) =
+                entries[index]
+        }
     }
 }

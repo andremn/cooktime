@@ -28,6 +28,9 @@ class LocalRecipeRepository @Inject constructor(
         }
     }
 
+    override suspend fun updateIsStarred(id: Int, isStarred: Boolean) =
+        database.recipeDao().updateIsStarred(id, isStarred)
+
     override fun findById(id: Int) =
         database.recipeDao().getWithDetailsById(id)
             .filterNotNull()

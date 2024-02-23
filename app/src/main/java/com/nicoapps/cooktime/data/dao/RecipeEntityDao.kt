@@ -14,6 +14,9 @@ interface RecipeEntityDao {
     @Insert
     fun insert(recipe: RecipeEntity): Long
 
+    @Query("UPDATE recipes SET isStarred = :isStarred WHERE id = :id")
+    suspend fun updateIsStarred(id: Int, isStarred: Boolean)
+
     @Query("SELECT * FROM recipes")
     fun getAll(): Flow<List<RecipeEntity>>
 

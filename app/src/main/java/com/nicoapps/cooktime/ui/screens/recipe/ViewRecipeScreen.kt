@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -69,27 +70,34 @@ fun ViewRecipeScreen(
                     actions = {
                         IconButton(onClick = { }) {
                             Icon(
-                                Icons.Filled.Edit,
+                                Icons.Default.Edit,
                                 contentDescription = "Localized description",
                             )
                         }
 
                         IconButton(onClick = { }) {
                             Icon(
-                                Icons.Filled.Delete,
+                                Icons.Default.Delete,
                                 contentDescription = "Localized description",
                             )
                         }
 
-                        IconButton(onClick = { }) {
+                        IconButton(
+                            onClick = {
+                                viewModel.onRecipeStarredChanged(screenState.isRecipeStarred.not())
+                            }) {
                             Icon(
-                                Icons.Filled.Favorite,
+                                imageVector =
+                                if (screenState.isRecipeStarred)
+                                    Icons.Default.Favorite
+                                else
+                                    Icons.Outlined.FavoriteBorder,
                                 contentDescription = "Localized description",
                             )
                         }
 
                         IconButton(onClick = { }) {
-                            Icon(Icons.Filled.Share, contentDescription = "Localized description")
+                            Icon(Icons.Default.Share, contentDescription = "Localized description")
                         }
                     },
                     floatingActionButton = {
@@ -101,7 +109,7 @@ fun ViewRecipeScreen(
                                 Text(text = stringResource(id = R.string.start_recipe_button_text))
                             },
                             icon = {
-                                Icon(Icons.Filled.PlayArrow, "Localized description")
+                                Icon(Icons.Default.PlayArrow, "Localized description")
                             }
                         )
                     }
@@ -116,7 +124,9 @@ fun ViewRecipeScreen(
 
     LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
         if (!pagerState.isScrollInProgress) {
-            viewModel.onSelectedTabChanged(ViewRecipeScreenTab.fromIndex(pagerState.currentPage))
+            viewModel.onSelectedTabChanged(
+                ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(pagerState.currentPage)
+            )
         }
     }
 
@@ -146,14 +156,14 @@ fun ViewRecipeScreen(
                     unselectedContentColor = MaterialTheme.colorScheme.inversePrimary,
                     icon = {
                         when (index) {
-                            ViewRecipeScreenTab.INGREDIENTS.index -> {
+                            ViewRecipeViewModel.ViewRecipeScreenTab.INGREDIENTS.index -> {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ingredients_icon),
                                     contentDescription = null
                                 )
                             }
 
-                            ViewRecipeScreenTab.INSTRUCTIONS.index -> {
+                            ViewRecipeViewModel.ViewRecipeScreenTab.INSTRUCTIONS.index -> {
                                 Icon(
                                     imageVector = Icons.Default.List,
                                     contentDescription = null
@@ -163,7 +173,9 @@ fun ViewRecipeScreen(
                     },
                     selected = screenState.selectedTab.index == index,
                     onClick = {
-                        viewModel.onSelectedTabChanged(ViewRecipeScreenTab.fromIndex(index))
+                        viewModel.onSelectedTabChanged(
+                            ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(index)
+                        )
                     }
                 )
             }
@@ -175,15 +187,15 @@ fun ViewRecipeScreen(
             state = pagerState,
             verticalAlignment = Alignment.Top
         ) { page ->
-            when (ViewRecipeScreenTab.fromIndex(page)) {
-                ViewRecipeScreenTab.INGREDIENTS -> {
+            when (ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(page)) {
+                ViewRecipeViewModel.ViewRecipeScreenTab.INGREDIENTS -> {
                     ViewRecipeIngredientsTab(
                         modifier = Modifier.padding(top = 10.dp),
                         recipeIngredients = screenState.recipeIngredients
                     )
                 }
 
-                ViewRecipeScreenTab.INSTRUCTIONS -> {
+                ViewRecipeViewModel.ViewRecipeScreenTab.INSTRUCTIONS -> {
                     ViewRecipeInstructionsTab(
                         modifier = Modifier.padding(top = 10.dp),
                         recipeInstructions = screenState.recipeInstructions
