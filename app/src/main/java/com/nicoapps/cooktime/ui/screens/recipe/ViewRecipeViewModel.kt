@@ -64,16 +64,14 @@ class ViewRecipeViewModel @Inject constructor(
         }
 
     fun dismissDeleteConfirmationDialog(confirmed: Boolean) {
-        if (confirmed) {
-            viewModelScope.launch {
-                recipeRepository.deleteById(recipeId)
+        viewModelScope.launch {
+            recipeRepository.deleteById(recipeId)
 
-                _screenState.update {
-                    it.copy(
-                        isDeleteConfirmationDialogOpen = false,
-                        isRecipeDeleted = true
-                    )
-                }
+            _screenState.update {
+                it.copy(
+                    isDeleteConfirmationDialogOpen = false,
+                    isRecipeDeleted = confirmed
+                )
             }
         }
     }
