@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -103,13 +102,6 @@ fun ViewRecipeScreen(
                                     else
                                         Icons.Outlined.FavoriteBorder,
                                     contentDescription = "Localized description",
-                                )
-                            }
-
-                            IconButton(onClick = { }) {
-                                Icon(
-                                    Icons.Default.Share,
-                                    contentDescription = "Localized description"
                                 )
                             }
                         },
