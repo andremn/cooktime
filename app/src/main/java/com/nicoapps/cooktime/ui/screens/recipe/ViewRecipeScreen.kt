@@ -151,12 +151,16 @@ fun ViewRecipeScreen(
             },
             title = {
                 Text(
-                    text = "Confirm delete"
+                    text = stringResource(
+                        id = R.string.view_recipe_delete_confirmation_dialog_title
+                    )
                 )
             },
             text = {
                 Text(
-                    text = "Do you really want to delete this recipe?"
+                    text = stringResource(
+                        id = R.string.view_recipe_delete_confirmation_dialog_description
+                    )
                 )
             },
             confirmButton = {
@@ -164,7 +168,9 @@ fun ViewRecipeScreen(
                     viewModel.dismissDeleteConfirmationDialog(confirmed = true)
                 }) {
                     Text(
-                        text = "Yes, delete it"
+                        text = stringResource(
+                            id = R.string.view_recipe_delete_confirmation_dialog_confirm
+                        )
                     )
                 }
             },
@@ -173,7 +179,9 @@ fun ViewRecipeScreen(
                     viewModel.dismissDeleteConfirmationDialog(confirmed = false)
                 }) {
                     Text(
-                        text = "No, keep it"
+                        text = stringResource(
+                            id = R.string.view_recipe_delete_confirmation_dialog_cancel
+                        )
                     )
                 }
             }

@@ -31,4 +31,8 @@
     <string name="new_recipe_saved_message">Recipe saved!</string>
     <string name="view_recipe_ingredients_tab">Ingredients</string>
     <string name="view_recipe_instructions_tab">Instructions</string>
+    <string name="view_recipe_delete_confirmation_dialog_title">Confirm delete</string>
+    <string name="view_recipe_delete_confirmation_dialog_description">Do you really want to delete this recipe?</string>
+    <string name="view_recipe_delete_confirmation_dialog_confirm">Yes, delete it</string>
+    <string name="view_recipe_delete_confirmation_dialog_cancel">No, keep it</string>
 </resources>

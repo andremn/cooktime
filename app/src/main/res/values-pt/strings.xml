@@ -31,4 +31,8 @@
     <string name="view_recipe_ingredients_tab">Ingredientes</string>
     <string name="view_recipe_instructions_tab">Modo de preparo</string>
     <string name="home_recipes_empty">Adicione uma receita para que ela apareça aqui!</string>
+    <string name="view_recipe_delete_confirmation_dialog_title">Confirme deleção</string>
+    <string name="view_recipe_delete_confirmation_dialog_description">Você realmente quer deletar essa receita?</string>
+    <string name="view_recipe_delete_confirmation_dialog_confirm">Sim, pode deletar</string>
+    <string name="view_recipe_delete_confirmation_dialog_cancel">Não, deixa ela aí</string>
 </resources>
