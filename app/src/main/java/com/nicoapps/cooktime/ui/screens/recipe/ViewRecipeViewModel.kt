@@ -32,7 +32,9 @@ class ViewRecipeViewModel @Inject constructor(
     val screenState = _screenState.combine(recipeFlow) { screenState, recipe ->
         screenState.copy(
             recipeInstructions = recipe.instructions,
-            recipeIngredients = recipe.ingredients
+            recipeIngredients = recipe.ingredients,
+            recipeName = recipe.name,
+            isRecipeStarred = recipe.isStarred
         )
     }.stateIn(
         scope = viewModelScope,
