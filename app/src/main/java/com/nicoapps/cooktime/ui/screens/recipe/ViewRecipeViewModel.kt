@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,17 +26,30 @@ class ViewRecipeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val recipeId: Int = checkNotNull(savedStateHandle["recipeId"])
-    private val recipeFlow = recipeRepository.findById(recipeId)
-        .filterNotNull()
-
+    private val recipeState = MutableStateFlow(RecipeState())
     private val _screenState = MutableStateFlow(ViewRecipeScreenState())
 
-    val screenState = _screenState.combine(recipeFlow) { screenState, recipe ->
+    init {
+        recipeRepository.findById(recipeId)
+            .filterNotNull()
+            .onEach { recipe ->
+                recipeState.update {
+                    it.copy(
+                        name = recipe.name,
+                        isStarred = recipe.isStarred,
+                        ingredients = recipe.ingredients,
+                        instructions = recipe.instructions
+                    )
+                }
+            }.launchIn(viewModelScope)
+    }
+
+    val screenState = _screenState.combine(recipeState) { screenState, recipeState ->
         screenState.copy(
-            recipeInstructions = recipe.instructions,
-            recipeIngredients = recipe.ingredients,
-            recipeName = recipe.name,
-            isRecipeStarred = recipe.isStarred
+            recipeInstructions = recipeState.instructions,
+            recipeIngredients = recipeState.ingredients,
+            recipeName = recipeState.name,
+            isRecipeStarred = recipeState.isStarred
         )
     }.stateIn(
         scope = viewModelScope,
@@ -76,14 +91,77 @@ class ViewRecipeViewModel @Inject constructor(
         }
     }
 
+    fun onEditClick() {
+        _screenState.update {
+            it.copy(
+                isEditing = true
+            )
+        }
+    }
+
+    fun onFinishEditing(saveChanges: Boolean) {
+        _screenState.update {
+            it.copy(
+                isEditing = false
+            )
+        }
+    }
+
+    fun onRecipeNameChanged(recipeName: String) {
+        _screenState.update {
+            it.copy(
+                recipeName = recipeName
+            )
+        }
+    }
+
+    fun onRecipeIngredientAdded(ingredient: Ingredient) {
+        recipeState.update {
+            it.copy(
+                ingredients = it.ingredients + ingredient
+            )
+        }
+    }
+
+    fun onRecipeIngredientRemoved(ingredient: Ingredient) {
+        recipeState.update {
+            it.copy(
+                ingredients = it.ingredients - ingredient
+            )
+        }
+    }
+
+    fun onRecipeIngredientUpdated(index: Int, ingredient: Ingredient) {
+        recipeState.update {
+            if (index in 0..<it.ingredients.size) {
+                val ingredients = it.ingredients.toMutableList()
+
+                ingredients[index] = ingredient
+
+                it.copy(
+                    ingredients = ingredients
+                )
+            } else it
+        }
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
     @Immutable
+    private data class RecipeState(
+        val name: String = "",
+        val isStarred: Boolean = false,
+        val ingredients: List<Ingredient> = emptyList(),
+        val instructions: List<Instruction> = emptyList()
+    )
+
+    @Immutable
     data class ViewRecipeScreenState(
         val selectedTab: ViewRecipeScreenTab = ViewRecipeScreenTab.INGREDIENTS,
         val recipeName: String = "",
+        val isEditing: Boolean = false,
         val isRecipeDeleted: Boolean = false,
         val isRecipeStarred: Boolean = false,
         val isDeleteConfirmationDialogOpen: Boolean = false,

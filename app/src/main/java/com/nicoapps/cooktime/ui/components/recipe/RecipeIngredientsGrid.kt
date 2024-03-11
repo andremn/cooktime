@@ -1,9 +1,9 @@
 package com.nicoapps.cooktime.ui.components.recipe
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -34,9 +34,10 @@ import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
 fun RecipeIngredientsGrid(
     modifier: Modifier = Modifier,
     ingredients: List<Ingredient>,
+    mode: RecipeIngredientsGridMode,
     onIngredientAdded: (Ingredient) -> Unit,
     onIngredientUpdated: (Int, Ingredient) -> Unit,
-    onIngredientRemoved: (Ingredient) -> Unit,
+    onIngredientRemoved: (Ingredient) -> Unit
 ) {
     var isNewIngredientDialogOpen by remember { mutableStateOf(false) }
     var editingIngredientIndex by remember { mutableIntStateOf(-1) }
@@ -85,12 +86,15 @@ fun RecipeIngredientsGrid(
                         RecipeIngredientCard(
                             modifier = modifier,
                             ingredient = ingredient,
+                            showRemoveIcon = mode.isEditing(),
                             onClick = {
-                                editingIngredientIndex = index
-                                name = ingredient.name
-                                quantity = ingredient.quantity.formatQuantity()
-                                measurementUnit = ingredient.measurementUnit.orEmpty()
-                                isNewIngredientDialogOpen = true
+                                if (mode.isEditing()) {
+                                    editingIngredientIndex = index
+                                    name = ingredient.name
+                                    quantity = ingredient.quantity.formatQuantity()
+                                    measurementUnit = ingredient.measurementUnit.orEmpty()
+                                    isNewIngredientDialogOpen = true
+                                }
                             },
                             onRemoveClick = { onIngredientRemoved(it) }
                         )
@@ -99,17 +103,17 @@ fun RecipeIngredientsGrid(
             }
         }
 
-        Spacer(
-            modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.spacer_padding))
-        )
-
-        ElevatedButton(
-            onClick = { showQuantityDialog() }
+        AnimatedVisibility(
+            modifier = Modifier.padding(top = dimensionResource(id = R.dimen.spacer_padding)),
+            visible = mode.isEditing()
         ) {
-            Text(
-                text = "+ ${stringResource(id = R.string.new_recipe_add_ingredient)}"
-            )
+            ElevatedButton(
+                onClick = { showQuantityDialog() }
+            ) {
+                Text(
+                    text = "+ ${stringResource(id = R.string.new_recipe_add_ingredient)}"
+                )
+            }
         }
 
         NewIngredientDialog(

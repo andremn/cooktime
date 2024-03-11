@@ -30,9 +30,10 @@ import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
 @Composable
 fun RecipeIngredientCard(
     modifier: Modifier = Modifier,
+    showRemoveIcon: Boolean,
     ingredient: Ingredient,
-    onRemoveClick: (Ingredient) -> Unit,
-    onClick: (Ingredient) -> Unit
+    onClick: (Ingredient) -> Unit,
+    onRemoveClick: ((Ingredient) -> Unit)?
 ) {
     Card(
         onClick = { onClick(ingredient) }
@@ -41,17 +42,19 @@ fun RecipeIngredientCard(
             modifier = modifier
                 .fillMaxSize()
         ) {
-            IconButton(
-                modifier = Modifier
-                    .align(Alignment.TopEnd),
-                onClick = {
-                    onRemoveClick(ingredient)
+            if (showRemoveIcon) {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd),
+                    onClick = {
+                        onRemoveClick?.invoke(ingredient)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = null
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = null
-                )
             }
 
             Column(

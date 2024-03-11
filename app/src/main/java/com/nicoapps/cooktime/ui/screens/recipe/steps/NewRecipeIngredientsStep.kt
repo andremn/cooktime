@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.ui.components.recipe.RecipeIngredientsGrid
+import com.nicoapps.cooktime.ui.components.recipe.RecipeIngredientsGridMode
 
 @Composable
 fun NewRecipeIngredientsStep(
@@ -28,6 +29,7 @@ fun NewRecipeIngredientsStep(
     RecipeIngredientsGrid(
         modifier = modifier,
         ingredients = ingredients,
+        mode = RecipeIngredientsGridMode.EDIT,
         onIngredientAdded = { onIngredientAdded(it) },
         onIngredientUpdated = { index, ingredient ->
             onIngredientUpdated(index, ingredient)

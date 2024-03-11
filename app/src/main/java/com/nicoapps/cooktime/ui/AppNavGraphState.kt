@@ -17,7 +17,8 @@ data class AppNavGraphState(
 )
 
 data class AppNavGraphTopBarState(
-    val mode: AppNavGraphTopBarContentType = AppNavGraphTopBarContentType.NONE,
+    val contentType: AppNavGraphTopBarContentType = AppNavGraphTopBarContentType.NONE,
+    val showActions: Boolean = false,
     val title: String = "",
     val actions: (@Composable RowScope.() -> Unit)? = null,
     val searchBarContent: (@Composable () -> Unit)? = null

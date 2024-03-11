@@ -7,19 +7,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -32,7 +26,6 @@ import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
     modifier: Modifier = Modifier,
@@ -43,7 +36,7 @@ fun AppTopBar(
     onSearchBarActiveChanged: (Boolean) -> Unit
 ) {
     AnimatedContent(
-        targetState = appNavGraphState.topBar.mode,
+        targetState = appNavGraphState.topBar.contentType,
         label = "topAppBarAnimation",
         transitionSpec = {
             if (initialState == AppNavGraphTopBarContentType.TITLE_ONLY
@@ -74,27 +67,13 @@ fun AppTopBar(
                 SizeTransform(clip = true)
             )
         }
-    ) { headerMode ->
-        if (headerMode == AppNavGraphTopBarContentType.TITLE_ONLY) {
-            CenterAlignedTopAppBar(
-                title = { Text(text = appNavGraphState.topBar.title) },
-                modifier = Modifier.fillMaxWidth(),
-                actions = {
-                    appNavGraphState.topBar.actions?.invoke(this)
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { appNavigationActions.navigateBack() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+    ) { contentType ->
+        if (contentType == AppNavGraphTopBarContentType.TITLE_ONLY) {
+            AppTitleTopBar(
+                showActions = appNavGraphState.topBar.showActions,
+                title = appNavGraphState.topBar.title,
+                onNavigationIconClick = { appNavigationActions.navigateBack() },
+                actions = appNavGraphState.topBar.actions
             )
         } else {
             SearchRecipesBar(

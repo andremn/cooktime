@@ -49,7 +49,7 @@ fun NewRecipeScreen(
         onComposing(
             AppNavGraphState(
                 topBar = AppNavGraphTopBarState(
-                    mode = AppNavGraphTopBarContentType.TITLE_ONLY,
+                    contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
                     title = context.resources.getString(R.string.new_recipe_title)
                 )
             )
@@ -61,7 +61,7 @@ fun NewRecipeScreen(
             onComposing(
                 AppNavGraphState(
                     topBar = AppNavGraphTopBarState(
-                        mode = AppNavGraphTopBarContentType.TITLE_ONLY,
+                        contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
                         title = screenState.recipeName.ifBlank {
                             context.resources.getString(R.string.new_recipe_title)
                         }

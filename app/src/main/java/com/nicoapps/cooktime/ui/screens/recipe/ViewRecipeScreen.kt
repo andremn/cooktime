@@ -1,5 +1,6 @@
 package com.nicoapps.cooktime.ui.screens.recipe
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
@@ -69,15 +72,39 @@ fun ViewRecipeScreen(
             onComposing(
                 AppNavGraphState(
                     topBar = AppNavGraphTopBarState(
-                        mode = AppNavGraphTopBarContentType.TITLE_ONLY,
-                        title = screenState.recipeName
+                        contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
+                        showActions = screenState.isEditing,
+                        title = screenState.recipeName,
+                        actions = {
+                            IconButton(
+                                onClick = {
+                                    viewModel.onFinishEditing(saveChanges = false)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Localized description"
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    viewModel.onFinishEditing(saveChanges = true)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Localized description"
+                                )
+                            }
+                        }
                     ),
                     bottomBar = AppNavGraphBottomBarState(
-                        visible = true,
+                        visible = screenState.isEditing.not(),
                         actions = {
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = { viewModel.onEditClick() }) {
                                 Icon(
-                                    Icons.Default.Edit,
+                                    imageVector = Icons.Default.Edit,
                                     contentDescription = "Localized description",
                                 )
                             }
@@ -86,7 +113,7 @@ fun ViewRecipeScreen(
                                 viewModel.onRecipeDeleteRequest()
                             }) {
                                 Icon(
-                                    Icons.Default.Delete,
+                                    imageVector = Icons.Default.Delete,
                                     contentDescription = "Localized description",
                                 )
                             }
@@ -134,6 +161,10 @@ fun ViewRecipeScreen(
                 ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(pagerState.currentPage)
             )
         }
+    }
+
+    BackHandler(enabled = screenState.isEditing) {
+        viewModel.onFinishEditing(saveChanges = false)
     }
 
     if (screenState.isDeleteConfirmationDialogOpen) {
@@ -241,7 +272,13 @@ fun ViewRecipeScreen(
                 ViewRecipeViewModel.ViewRecipeScreenTab.INGREDIENTS -> {
                     ViewRecipeIngredientsTab(
                         modifier = Modifier.padding(top = 10.dp),
-                        recipeIngredients = screenState.recipeIngredients
+                        isEditing = screenState.isEditing,
+                        ingredients = screenState.recipeIngredients,
+                        onIngredientAdded = { viewModel.onRecipeIngredientAdded(it) },
+                        onIngredientUpdated = { index, ingredient ->
+                            viewModel.onRecipeIngredientUpdated(index, ingredient)
+                        },
+                        onIngredientRemoved = { viewModel.onRecipeIngredientRemoved(it) },
                     )
                 }
 

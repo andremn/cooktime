@@ -26,7 +26,7 @@ fun SettingsScreen(
         onComposing(
             AppNavGraphState(
                 topBar = AppNavGraphTopBarState(
-                    mode = AppNavGraphTopBarContentType.TITLE_ONLY,
+                    contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
                     title = context.resources.getString(R.string.settings_title)
                 )
             )
