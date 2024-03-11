@@ -99,11 +99,9 @@ class NewRecipeViewModel @Inject constructor(
         }
     }
 
-    fun onRecipeIngredientUpdated(ingredient: Ingredient) {
-        val indexOf = _ingredients.indexOf(ingredient)
-
-        if (indexOf >= 0) {
-            _ingredients[indexOf] = ingredient
+    fun onRecipeIngredientUpdated(index: Int, ingredient: Ingredient) {
+        if (index in 0..<_ingredients.size) {
+            _ingredients[index] = ingredient
         }
     }
 

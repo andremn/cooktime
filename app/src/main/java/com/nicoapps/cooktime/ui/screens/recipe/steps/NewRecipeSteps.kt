@@ -35,7 +35,7 @@ import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.screens.recipe.NewRecipeScreenStep
 
 @Composable
-fun NewRecipeStep(
+fun NewRecipeSteps(
     modifier: Modifier = Modifier,
     currentStep: NewRecipeScreenStep,
     recipeName: String,
@@ -48,7 +48,7 @@ fun NewRecipeStep(
     onCurrentTitleChanged: (String) -> Unit,
     onRecipeNameChanged: (String) -> Unit,
     onRecipeIngredientAdded: (Ingredient) -> Unit,
-    onRecipeIngredientUpdated: (Ingredient) -> Unit,
+    onRecipeIngredientUpdated: (Int, Ingredient) -> Unit,
     onRecipeIngredientRemoved: (Ingredient) -> Unit,
     onRecipeInstructionAdded: (Instruction) -> Unit,
     onRecipeInstructionUpdated: (Int, Instruction) -> Unit,
@@ -115,7 +115,9 @@ fun NewRecipeStep(
                             onCurrentTitleChanged = { onCurrentTitleChanged(it) },
                             ingredients = recipeIngredients,
                             onIngredientAdded = { onRecipeIngredientAdded(it) },
-                            onIngredientUpdated = { onRecipeIngredientUpdated(it) },
+                            onIngredientUpdated = { index, ingredient ->
+                                onRecipeIngredientUpdated(index, ingredient)
+                            },
                             onIngredientRemoved = { onRecipeIngredientRemoved(it) },
                         )
                     }

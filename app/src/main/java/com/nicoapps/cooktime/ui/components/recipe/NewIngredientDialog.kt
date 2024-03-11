@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.components
+package com.nicoapps.cooktime.ui.components.recipe
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

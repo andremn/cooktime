@@ -25,7 +25,7 @@ import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
-import com.nicoapps.cooktime.ui.screens.recipe.steps.NewRecipeStep
+import com.nicoapps.cooktime.ui.screens.recipe.steps.NewRecipeSteps
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -95,7 +95,7 @@ fun NewRecipeScreen(
             progress = animatedProgress
         )
 
-        NewRecipeStep(
+        NewRecipeSteps(
             recipeName = screenState.recipeName,
             recipeIngredients = screenState.recipeIngredients,
             recipeInstructions = screenState.recipeInstructions,
@@ -107,7 +107,9 @@ fun NewRecipeScreen(
             onCurrentTitleChanged = { viewModel.onCurrentTitleChanged(it) },
             onRecipeNameChanged = { viewModel.onRecipeNameChanged(it) },
             onRecipeIngredientAdded = { viewModel.onRecipeIngredientAdded(it) },
-            onRecipeIngredientUpdated = { viewModel.onRecipeIngredientUpdated(it) },
+            onRecipeIngredientUpdated = { index, ingredient ->
+                viewModel.onRecipeIngredientUpdated(index, ingredient)
+            },
             onRecipeIngredientRemoved = { viewModel.onRecipeIngredientRemoved(it) },
             onRecipeInstructionAdded = { viewModel.onRecipeInstructionAdded(it) },
             onRecipeInstructionUpdated = { index, instruction ->
