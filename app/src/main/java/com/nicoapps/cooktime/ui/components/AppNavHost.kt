@@ -23,7 +23,7 @@ import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.screens.home.HomeScreen
 import com.nicoapps.cooktime.ui.screens.recipe.NewRecipeScreen
-import com.nicoapps.cooktime.ui.screens.recipe.ViewRecipeScreen
+import com.nicoapps.cooktime.ui.screens.recipe.edit.ViewRecipeScreen
 import com.nicoapps.cooktime.ui.screens.settings.SettingsScreen
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -35,4 +35,6 @@
     <string name="view_recipe_delete_confirmation_dialog_description">Do you really want to delete this recipe?</string>
     <string name="view_recipe_delete_confirmation_dialog_confirm">Yes, delete it</string>
     <string name="view_recipe_delete_confirmation_dialog_cancel">No, keep it</string>
+    <string name="change_recipe_name_dialog_title">Change recipe name</string>
+    <string name="change_recipe_name_placeholder">Recipe name</string>
 </resources>

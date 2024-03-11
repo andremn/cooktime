@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe
+package com.nicoapps.cooktime.ui.screens.recipe.edit
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
@@ -8,6 +8,7 @@ import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.data.RecipeRepository
 import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.model.Instruction
+import com.nicoapps.cooktime.model.Recipe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,6 +19,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Clock
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,9 +28,11 @@ class ViewRecipeViewModel @Inject constructor(
     @LocalRepository private val recipeRepository: RecipeRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val recipeId: Int = checkNotNull(savedStateHandle["recipeId"])
+    private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
     private val recipeState = MutableStateFlow(RecipeState())
     private val _screenState = MutableStateFlow(ViewRecipeScreenState())
+
+    private var recipeStateBeforeChanges = RecipeState()
 
     init {
         recipeRepository.findById(recipeId)
@@ -97,6 +102,8 @@ class ViewRecipeViewModel @Inject constructor(
                 isEditing = true
             )
         }
+
+        recipeStateBeforeChanges = recipeState.value
     }
 
     fun onFinishEditing(saveChanges: Boolean) {
@@ -105,12 +112,53 @@ class ViewRecipeViewModel @Inject constructor(
                 isEditing = false
             )
         }
+
+        if (saveChanges) {
+            viewModelScope.launch {
+                recipeRepository.save(
+                    Recipe(
+                        id = recipeId,
+                        name = recipeState.value.name,
+                        ingredients = recipeState.value.ingredients,
+                        instructions = recipeState.value.instructions,
+                        isStarred = recipeState.value.isStarred,
+                        createdAt = recipeState.value.createdAt,
+                        lastUpdatedAt = ZonedDateTime.now(Clock.systemUTC())
+                    )
+                )
+            }
+        } else {
+            recipeState.update {
+                it.copy(
+                    name = recipeStateBeforeChanges.name,
+                    isStarred = recipeStateBeforeChanges.isStarred,
+                    ingredients = recipeStateBeforeChanges.ingredients,
+                    instructions = recipeStateBeforeChanges.instructions,
+                )
+            }
+        }
+    }
+
+    fun onEditNameClick() {
+        _screenState.update {
+            it.copy(
+                isChangeNameDialogOpen = true
+            )
+        }
+    }
+
+    fun dismissChangeNameDialog() {
+        _screenState.update {
+            it.copy(
+                isChangeNameDialogOpen = false
+            )
+        }
     }
 
     fun onRecipeNameChanged(recipeName: String) {
-        _screenState.update {
+        recipeState.update {
             it.copy(
-                recipeName = recipeName
+                name = recipeName
             )
         }
     }
@@ -154,7 +202,8 @@ class ViewRecipeViewModel @Inject constructor(
         val name: String = "",
         val isStarred: Boolean = false,
         val ingredients: List<Ingredient> = emptyList(),
-        val instructions: List<Instruction> = emptyList()
+        val instructions: List<Instruction> = emptyList(),
+        val createdAt: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
     )
 
     @Immutable
@@ -164,6 +213,7 @@ class ViewRecipeViewModel @Inject constructor(
         val isEditing: Boolean = false,
         val isRecipeDeleted: Boolean = false,
         val isRecipeStarred: Boolean = false,
+        val isChangeNameDialogOpen: Boolean = false,
         val isDeleteConfirmationDialogOpen: Boolean = false,
         val recipeIngredients: List<Ingredient> = emptyList(),
         val recipeInstructions: List<Instruction> = emptyList()

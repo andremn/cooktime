@@ -1,11 +1,11 @@
 package com.nicoapps.cooktime.data.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
+import androidx.room.Upsert
 import com.nicoapps.cooktime.data.entity.IngredientEntity
 
 @Dao
 abstract class IngredientEntityDao {
-    @Insert
-    abstract fun insertAll(ingredients: List<IngredientEntity>)
+    @Upsert
+    abstract fun upsertAll(ingredients: List<IngredientEntity>)
 }

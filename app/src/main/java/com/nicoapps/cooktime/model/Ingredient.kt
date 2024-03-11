@@ -3,7 +3,7 @@ package com.nicoapps.cooktime.model
 import java.time.ZonedDateTime
 
 data class Ingredient(
-    val id: Int = 0,
+    val id: Long = 0,
     val name: String,
     val quantity: Float,
     val measurementUnit: String?,

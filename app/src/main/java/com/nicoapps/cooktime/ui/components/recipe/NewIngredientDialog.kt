@@ -12,8 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nicoapps.cooktime.R
+import com.nicoapps.cooktime.ui.dialogSurfaceColor
+import com.nicoapps.cooktime.ui.dialogTextFieldColors
 
 @Composable
 fun NewIngredientDialog(
@@ -164,20 +164,6 @@ fun NewIngredientDialog(
         }
     }
 }
-
-@Composable
-private fun dialogSurfaceColor() =
-    MaterialTheme.colorScheme.surfaceColorAtElevation(
-        dimensionResource(id = R.dimen.dialog_elevation)
-    )
-
-@Composable
-private fun dialogTextFieldColors() =
-    TextFieldDefaults.colors(
-        focusedContainerColor = dialogSurfaceColor(),
-        unfocusedContainerColor = dialogSurfaceColor(),
-        errorContainerColor = dialogSurfaceColor()
-    )
 
 @Preview
 @Composable

@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.Flow
 interface RecipeRepository {
     suspend fun save(recipe: Recipe)
 
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: Long)
 
-    suspend fun updateIsStarred(id: Int, isStarred: Boolean)
+    suspend fun updateIsStarred(id: Long, isStarred: Boolean)
 
-    fun findById(id: Int): Flow<Recipe?>
+    fun findById(id: Long): Flow<Recipe?>
 
     fun getAll(): Flow<List<Recipe>>
 }

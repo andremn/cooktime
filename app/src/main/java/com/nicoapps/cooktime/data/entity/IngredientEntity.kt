@@ -7,8 +7,8 @@ import java.time.Instant
 @Entity("ingredients")
 data class IngredientEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val recipeId: Int = 0,
+    val id: Long = 0,
+    val recipeId: Long = 0,
     val quantity: Float,
     val measurementUnit: String?,
     val name: String,

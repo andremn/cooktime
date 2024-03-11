@@ -16,26 +16,30 @@ class LocalRecipeRepository @Inject constructor(
 
     override suspend fun save(recipe: Recipe) {
         database.withTransaction {
-            val recipeId = database.recipeDao().insert(recipe.toEntity())
+            var recipeId = database.recipeDao().upsert(recipe.toEntity())
 
-            database.ingredientDao().insertAll(
-                recipe.ingredients.map { it.toEntity(recipeId.toInt()) }
+            if (recipe.id > 0) {
+                recipeId = recipe.id
+            }
+
+            database.ingredientDao().upsertAll(
+                recipe.ingredients.map { it.toEntity(recipeId) }
             )
 
-            database.instructionDao().insertAll(
-                recipe.instructions.map { it.toEntity(recipeId.toInt()) }
+            database.instructionDao().upsertAll(
+                recipe.instructions.map { it.toEntity(recipeId) }
             )
         }
     }
 
-    override suspend fun deleteById(id: Int) {
+    override suspend fun deleteById(id: Long) {
         database.recipeDao().deleteById(id)
     }
 
-    override suspend fun updateIsStarred(id: Int, isStarred: Boolean) =
+    override suspend fun updateIsStarred(id: Long, isStarred: Boolean) =
         database.recipeDao().updateIsStarred(id, isStarred)
 
-    override fun findById(id: Int) =
+    override fun findById(id: Long) =
         database.recipeDao().getWithDetailsById(id)
             .filterNotNull()
             .map { it.toModel() }

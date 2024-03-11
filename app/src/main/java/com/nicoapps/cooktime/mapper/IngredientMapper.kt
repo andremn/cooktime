@@ -7,7 +7,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 object IngredientMapper {
-    fun Ingredient.toEntity(recipeId: Int = 0) =
+    fun Ingredient.toEntity(recipeId: Long = 0) =
         IngredientEntity(
             id = id,
             recipeId = recipeId,
