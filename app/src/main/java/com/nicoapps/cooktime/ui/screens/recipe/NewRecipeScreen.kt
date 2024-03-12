@@ -89,10 +89,12 @@ fun NewRecipeScreen(
         modifier = modifier
     ) {
         LinearProgressIndicator(
+            progress = {
+                animatedProgress
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp)),
-            progress = animatedProgress
         )
 
         NewRecipeSteps(

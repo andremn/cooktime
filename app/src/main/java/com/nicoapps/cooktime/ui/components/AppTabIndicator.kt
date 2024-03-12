@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.TabPosition
-import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -39,7 +39,7 @@ fun AppTabIndicator(
         currentTabPosition.left
     }
 
-    TabRowDefaults.Indicator(
+    SecondaryIndicator(
         Modifier
             .fillMaxWidth()
             .wrapContentSize(Alignment.BottomStart)
