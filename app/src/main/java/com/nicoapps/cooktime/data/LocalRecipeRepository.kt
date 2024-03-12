@@ -16,10 +16,13 @@ class LocalRecipeRepository @Inject constructor(
 
     override suspend fun save(recipe: Recipe) {
         database.withTransaction {
+            val isUpdating = recipe.id > 0
             var recipeId = database.recipeDao().upsert(recipe.toEntity())
 
-            if (recipe.id > 0) {
+            if (isUpdating) {
                 recipeId = recipe.id
+
+                deleteRemovedIngredients(recipe)
             }
 
             database.ingredientDao().upsertAll(
@@ -50,4 +53,15 @@ class LocalRecipeRepository @Inject constructor(
         }.also {
             println("getAll() called!")
         }
+
+    private fun deleteRemovedIngredients(recipe: Recipe) {
+        val existingIngredients = database.ingredientDao().getAllByRecipeId(recipe.id)
+        val ingredientsToRemove = existingIngredients.filterNot { entity ->
+            recipe.ingredients.any { it.id == entity.id }
+        }
+
+        if (ingredientsToRemove.isNotEmpty()) {
+            database.ingredientDao().deleteAll(ingredientsToRemove)
+        }
+    }
 }

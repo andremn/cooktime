@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,6 +42,7 @@ fun RecipeIngredientsGrid(
 ) {
     var isNewIngredientDialogOpen by remember { mutableStateOf(false) }
     var editingIngredientIndex by remember { mutableIntStateOf(-1) }
+    var editingIngredientId by remember { mutableLongStateOf(0) }
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var measurementUnit by remember { mutableStateOf("") }
@@ -90,6 +92,7 @@ fun RecipeIngredientsGrid(
                             onClick = {
                                 if (mode.isEditing()) {
                                     editingIngredientIndex = index
+                                    editingIngredientId = ingredient.id
                                     name = ingredient.name
                                     quantity = ingredient.quantity.formatQuantity()
                                     measurementUnit = ingredient.measurementUnit.orEmpty()
@@ -127,6 +130,7 @@ fun RecipeIngredientsGrid(
             onCloseRequest = { confirmed ->
                 if (confirmed) {
                     val addedOrUpdatedIngredient = Ingredient(
+                        id = editingIngredientId,
                         name = name,
                         quantity = quantity.toFloatOrNull() ?: 0f,
                         measurementUnit = measurementUnit

@@ -156,7 +156,7 @@ fun ViewRecipeScreen(
     LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
         if (!pagerState.isScrollInProgress) {
             viewModel.onSelectedTabChanged(
-                ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(pagerState.currentPage)
+                ViewRecipeScreenTab.fromIndex(pagerState.currentPage)
             )
         }
     }
@@ -315,14 +315,14 @@ fun ViewRecipeScreen(
                     unselectedContentColor = MaterialTheme.colorScheme.inversePrimary,
                     icon = {
                         when (index) {
-                            ViewRecipeViewModel.ViewRecipeScreenTab.INGREDIENTS.index -> {
+                            ViewRecipeScreenTab.INGREDIENTS.index -> {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ingredients_icon),
                                     contentDescription = null
                                 )
                             }
 
-                            ViewRecipeViewModel.ViewRecipeScreenTab.INSTRUCTIONS.index -> {
+                            ViewRecipeScreenTab.INSTRUCTIONS.index -> {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
                                     contentDescription = null
@@ -333,7 +333,7 @@ fun ViewRecipeScreen(
                     selected = screenState.selectedTab.index == index,
                     onClick = {
                         viewModel.onSelectedTabChanged(
-                            ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(index)
+                            ViewRecipeScreenTab.fromIndex(index)
                         )
                     }
                 )
@@ -346,8 +346,8 @@ fun ViewRecipeScreen(
             state = pagerState,
             verticalAlignment = Alignment.Top
         ) { page ->
-            when (ViewRecipeViewModel.ViewRecipeScreenTab.fromIndex(page)) {
-                ViewRecipeViewModel.ViewRecipeScreenTab.INGREDIENTS -> {
+            when (ViewRecipeScreenTab.fromIndex(page)) {
+                ViewRecipeScreenTab.INGREDIENTS -> {
                     ViewRecipeIngredientsTab(
                         modifier = Modifier.padding(top = 10.dp),
                         isEditing = screenState.isEditing,
@@ -360,7 +360,7 @@ fun ViewRecipeScreen(
                     )
                 }
 
-                ViewRecipeViewModel.ViewRecipeScreenTab.INSTRUCTIONS -> {
+                ViewRecipeScreenTab.INSTRUCTIONS -> {
                     ViewRecipeInstructionsTab(
                         modifier = Modifier.padding(top = 10.dp),
                         recipeInstructions = screenState.recipeInstructions

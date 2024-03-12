@@ -30,9 +30,9 @@ class ViewRecipeViewModel @Inject constructor(
 ) : ViewModel() {
     private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
     private val recipeState = MutableStateFlow(RecipeState())
-    private val _screenState = MutableStateFlow(ViewRecipeScreenState())
+    private val _screenState = MutableStateFlow(ScreenState())
 
-    private var recipeStateBeforeChanges = RecipeState()
+    private lateinit var editingRecipe: Recipe
 
     init {
         recipeRepository.findById(recipeId)
@@ -50,12 +50,7 @@ class ViewRecipeViewModel @Inject constructor(
     }
 
     val screenState = _screenState.combine(recipeState) { screenState, recipeState ->
-        screenState.copy(
-            recipeInstructions = recipeState.instructions,
-            recipeIngredients = recipeState.ingredients,
-            recipeName = recipeState.name,
-            isRecipeStarred = recipeState.isStarred
-        )
+        createViewRecipeScreenState(screenState, recipeState)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -103,7 +98,7 @@ class ViewRecipeViewModel @Inject constructor(
             )
         }
 
-        recipeStateBeforeChanges = recipeState.value
+        editingRecipe = recipeState.value.toRecipe()
     }
 
     fun onFinishEditing(saveChanges: Boolean) {
@@ -116,26 +111,11 @@ class ViewRecipeViewModel @Inject constructor(
         if (saveChanges) {
             viewModelScope.launch {
                 recipeRepository.save(
-                    Recipe(
-                        id = recipeId,
-                        name = recipeState.value.name,
-                        ingredients = recipeState.value.ingredients,
-                        instructions = recipeState.value.instructions,
-                        isStarred = recipeState.value.isStarred,
-                        createdAt = recipeState.value.createdAt,
-                        lastUpdatedAt = ZonedDateTime.now(Clock.systemUTC())
-                    )
+                    recipe = recipeState.value.toRecipe(recipeId)
                 )
             }
         } else {
-            recipeState.update {
-                it.copy(
-                    name = recipeStateBeforeChanges.name,
-                    isStarred = recipeStateBeforeChanges.isStarred,
-                    ingredients = recipeStateBeforeChanges.ingredients,
-                    instructions = recipeStateBeforeChanges.instructions,
-                )
-            }
+            rollbackChanges()
         }
     }
 
@@ -193,6 +173,35 @@ class ViewRecipeViewModel @Inject constructor(
         }
     }
 
+    private fun createViewRecipeScreenState(
+        screenState: ScreenState,
+        recipeState: RecipeState
+    ) =
+        ViewRecipeScreenState(
+            selectedTab = screenState.selectedTab,
+            isChangeNameDialogOpen = screenState.isChangeNameDialogOpen,
+            isDeleteConfirmationDialogOpen = screenState.isDeleteConfirmationDialogOpen,
+            isRecipeDeleted = screenState.isRecipeDeleted,
+            isEditing = screenState.isEditing,
+            recipeName = recipeState.name,
+            isRecipeStarred = recipeState.isStarred,
+            recipeIngredients = recipeState.ingredients,
+            recipeInstructions = recipeState.instructions
+        )
+
+    private fun rollbackChanges() {
+        if (::editingRecipe.isInitialized) {
+            recipeState.update {
+                it.copy(
+                    name = editingRecipe.name,
+                    isStarred = editingRecipe.isStarred,
+                    ingredients = editingRecipe.ingredients,
+                    instructions = editingRecipe.instructions,
+                )
+            }
+        }
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -204,28 +213,25 @@ class ViewRecipeViewModel @Inject constructor(
         val ingredients: List<Ingredient> = emptyList(),
         val instructions: List<Instruction> = emptyList(),
         val createdAt: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
-    )
+    ) {
+        fun toRecipe(id: Long = 0) =
+            Recipe(
+                id = id,
+                name = name,
+                isStarred = isStarred,
+                ingredients = ingredients,
+                instructions = instructions,
+                createdAt = createdAt,
+                lastUpdatedAt = ZonedDateTime.now(Clock.systemUTC())
+            )
+    }
 
     @Immutable
-    data class ViewRecipeScreenState(
+    private data class ScreenState(
         val selectedTab: ViewRecipeScreenTab = ViewRecipeScreenTab.INGREDIENTS,
-        val recipeName: String = "",
         val isEditing: Boolean = false,
         val isRecipeDeleted: Boolean = false,
-        val isRecipeStarred: Boolean = false,
         val isChangeNameDialogOpen: Boolean = false,
-        val isDeleteConfirmationDialogOpen: Boolean = false,
-        val recipeIngredients: List<Ingredient> = emptyList(),
-        val recipeInstructions: List<Instruction> = emptyList()
+        val isDeleteConfirmationDialogOpen: Boolean = false
     )
-
-    enum class ViewRecipeScreenTab(val index: Int) {
-        INGREDIENTS(0),
-        INSTRUCTIONS(1);
-
-        companion object {
-            fun fromIndex(index: Int) =
-                entries[index]
-        }
-    }
 }

@@ -28,5 +28,5 @@ interface RecipeEntityDao {
     fun getWithDetailsById(id: Long): Flow<RecipeWithDetailsEntity?>
 
     @Query("SELECT * FROM recipes WHERE id = :id")
-    fun getById(id: Int): Flow<RecipeEntity?>
+    fun getById(id: Long): Flow<RecipeEntity?>
 }
