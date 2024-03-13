@@ -23,6 +23,7 @@ class LocalRecipeRepository @Inject constructor(
                 recipeId = recipe.id
 
                 deleteRemovedIngredients(recipe)
+                deleteRemovedInstructions(recipe)
             }
 
             database.ingredientDao().upsertAll(
@@ -62,6 +63,17 @@ class LocalRecipeRepository @Inject constructor(
 
         if (ingredientsToRemove.isNotEmpty()) {
             database.ingredientDao().deleteAll(ingredientsToRemove)
+        }
+    }
+
+    private fun deleteRemovedInstructions(recipe: Recipe) {
+        val existingInstructions = database.instructionDao().getAllByRecipeId(recipe.id)
+        val instructionsToRemove = existingInstructions.filterNot { entity ->
+            recipe.instructions.any { it.id == entity.id }
+        }
+
+        if (instructionsToRemove.isNotEmpty()) {
+            database.instructionDao().deleteAll(instructionsToRemove)
         }
     }
 }

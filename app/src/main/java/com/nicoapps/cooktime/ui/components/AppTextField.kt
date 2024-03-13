@@ -2,6 +2,7 @@ package com.nicoapps.cooktime.ui.components
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
@@ -9,14 +10,17 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun AppTextField(
     modifier: Modifier = Modifier,
     value: String,
     singleLine: Boolean = false,
+    enabled: Boolean = true,
     isError: Boolean = false,
     colors: TextFieldColors = TextFieldDefaults.appColors(),
+    textStyle: TextStyle = LocalTextStyle.current,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     leadingIcon: (@Composable () -> Unit)? = null,
@@ -33,10 +37,12 @@ fun AppTextField(
         isError = isError,
         supportingText = supportingText,
         colors = colors,
+        textStyle = textStyle,
         singleLine = singleLine,
         value = value,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
+        enabled = enabled,
         onValueChange = onValueChange
     )
 }
@@ -48,7 +54,9 @@ fun TextFieldDefaults.appColors(
     errorContainerColor: Color = MaterialTheme.colorScheme.surface,
     focusedIndicatorColor: Color = MaterialTheme.colorScheme.primary,
     unfocusedIndicatorColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    disabledIndicatorColor: Color = MaterialTheme.colorScheme.onSurface
+    disabledIndicatorColor: Color = MaterialTheme.colorScheme.onSurface,
+    disabledContainerColor: Color = MaterialTheme.colorScheme.surface,
+    disabledTextColor: Color = MaterialTheme.colorScheme.onSurface
 ) =
     colors(
         focusedContainerColor = focusedContainerColor,
@@ -56,5 +64,7 @@ fun TextFieldDefaults.appColors(
         errorContainerColor = errorContainerColor,
         focusedIndicatorColor = focusedIndicatorColor,
         unfocusedIndicatorColor = unfocusedIndicatorColor,
-        disabledIndicatorColor = disabledIndicatorColor
+        disabledIndicatorColor = disabledIndicatorColor,
+        disabledContainerColor = disabledContainerColor,
+        disabledTextColor = disabledTextColor
     )

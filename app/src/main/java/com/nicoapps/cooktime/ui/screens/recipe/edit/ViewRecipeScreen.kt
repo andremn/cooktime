@@ -352,18 +352,20 @@ fun ViewRecipeScreen(
                         modifier = Modifier.padding(top = 10.dp),
                         isEditing = screenState.isEditing,
                         ingredients = screenState.recipeIngredients,
-                        onIngredientAdded = { viewModel.onRecipeIngredientAdded(it) },
-                        onIngredientUpdated = { index, ingredient ->
-                            viewModel.onRecipeIngredientUpdated(index, ingredient)
-                        },
-                        onIngredientRemoved = { viewModel.onRecipeIngredientRemoved(it) },
+                        onIngredientAdded = viewModel::onRecipeIngredientAdded,
+                        onIngredientUpdated = viewModel::onRecipeIngredientUpdated,
+                        onIngredientRemoved = viewModel::onRecipeIngredientRemoved,
                     )
                 }
 
                 ViewRecipeScreenTab.INSTRUCTIONS -> {
                     ViewRecipeInstructionsTab(
                         modifier = Modifier.padding(top = 10.dp),
-                        recipeInstructions = screenState.recipeInstructions
+                        isEditing = screenState.isEditing,
+                        recipeInstructions = screenState.recipeInstructions,
+                        onInstructionAdded = viewModel::onRecipeInstructionAdded,
+                        onInstructionUpdated = viewModel::onRecipeInstructionUpdated,
+                        onInstructionRemoved = viewModel::onRecipeInstructionRemoved
                     )
                 }
             }

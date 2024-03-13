@@ -173,6 +173,36 @@ class ViewRecipeViewModel @Inject constructor(
         }
     }
 
+    fun onRecipeInstructionAdded(instruction: Instruction) {
+        recipeState.update {
+            it.copy(
+                instructions = it.instructions + instruction
+            )
+        }
+    }
+
+    fun onRecipeInstructionRemoved(instruction: Instruction) {
+        recipeState.update {
+            it.copy(
+                instructions = it.instructions - instruction
+            )
+        }
+    }
+
+    fun onRecipeInstructionUpdated(index: Int, instruction: Instruction) {
+        recipeState.update {
+            if (index in 0..<it.instructions.size) {
+                val instructions = it.instructions.toMutableList()
+
+                instructions[index] = instruction
+
+                it.copy(
+                    instructions = instructions
+                )
+            } else it
+        }
+    }
+
     private fun createViewRecipeScreenState(
         screenState: ScreenState,
         recipeState: RecipeState
