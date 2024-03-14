@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,7 +40,6 @@ fun HomeScreen(
     appNavigationActions: AppNavigationActions,
     onComposing: (AppNavGraphState) -> Unit
 ) {
-    val context = LocalContext.current
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -63,9 +61,7 @@ fun HomeScreen(
                     }
                 ),
                 topBar = AppNavGraphTopBarState(
-                    title = context.resources.getString(
-                        R.string.search_recipes_placeholder
-                    )
+                    title = ""
                 )
             )
         )

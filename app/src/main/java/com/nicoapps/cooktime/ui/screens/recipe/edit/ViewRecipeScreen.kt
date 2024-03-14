@@ -13,18 +13,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Tab
@@ -60,6 +52,8 @@ import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppTabIndicator
 import com.nicoapps.cooktime.ui.dialogSurfaceColor
 import com.nicoapps.cooktime.ui.dialogTextFieldColors
+import com.nicoapps.cooktime.ui.screens.recipe.edit.actions.ViewRecipeAppBottomBarActions
+import com.nicoapps.cooktime.ui.screens.recipe.edit.actions.ViewRecipeAppBottomBarFab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
 
@@ -87,60 +81,34 @@ fun ViewRecipeScreen(
                 AppNavGraphState(
                     topBar = AppNavGraphTopBarState(
                         contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                        showActions = screenState.isEditing,
                         title = screenState.recipeName,
-                        actions = {
-                            ViewRecipeAppTitleTopBarActions(
-                                onDoneClick = { viewModel.onFinishEditing(saveChanges = true) },
-                                onCancelClick = { viewModel.onFinishEditing(saveChanges = false) },
-                                onChangeNameClick = { viewModel.onEditNameClick() }
-                            )
-                        }
                     ),
                     bottomBar = AppNavGraphBottomBarState(
-                        visible = screenState.isEditing.not(),
+                        visible = true,
                         actions = {
-                            IconButton(onClick = { viewModel.onEditClick() }) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Localized description",
-                                )
-                            }
-
-                            IconButton(onClick = {
-                                viewModel.onRecipeDeleteRequest()
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Localized description",
-                                )
-                            }
-
-                            IconButton(
-                                onClick = {
-                                    viewModel.onRecipeStarredChanged(screenState.isRecipeStarred.not())
-                                }) {
-                                Icon(
-                                    imageVector =
-                                    if (screenState.isRecipeStarred)
-                                        Icons.Default.Favorite
-                                    else
-                                        Icons.Outlined.FavoriteBorder,
-                                    contentDescription = "Localized description",
-                                )
-                            }
+                            ViewRecipeAppBottomBarActions(
+                                isEditing = screenState.isEditing,
+                                isStarred = screenState.isRecipeStarred,
+                                onEditClick = viewModel::onEditClick,
+                                onDeleteClick = viewModel::onRecipeDeleteRequest,
+                                onStarClick = {
+                                    viewModel.onRecipeStarredChanged(
+                                        screenState.isRecipeStarred.not()
+                                    )
+                                },
+                                onEditDoneClick = {
+                                    viewModel.onFinishEditing(saveChanges = true)
+                                },
+                                onEditCancelClick = {
+                                    viewModel.onFinishEditing(saveChanges = false)
+                                },
+                                onChangeNameClick = { viewModel.onEditNameClick() }
+                            )
                         },
                         floatingActionButton = {
-                            ExtendedFloatingActionButton(
-                                onClick = { },
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                                text = {
-                                    Text(text = stringResource(id = R.string.start_recipe_button_text))
-                                },
-                                icon = {
-                                    Icon(Icons.Default.PlayArrow, "Localized description")
-                                }
+                            ViewRecipeAppBottomBarFab(
+                                isVisible = screenState.isEditing.not(),
+                                onClick = {}
                             )
                         }
                     )
