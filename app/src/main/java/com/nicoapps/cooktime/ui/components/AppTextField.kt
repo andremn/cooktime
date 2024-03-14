@@ -18,6 +18,7 @@ fun AppTextField(
     value: String,
     singleLine: Boolean = false,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     isError: Boolean = false,
     colors: TextFieldColors = TextFieldDefaults.appColors(),
     textStyle: TextStyle = LocalTextStyle.current,
@@ -43,6 +44,7 @@ fun AppTextField(
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         enabled = enabled,
+        readOnly = readOnly,
         onValueChange = onValueChange
     )
 }

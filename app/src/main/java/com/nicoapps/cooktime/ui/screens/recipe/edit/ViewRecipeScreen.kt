@@ -4,42 +4,26 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
@@ -50,10 +34,11 @@ import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppTabIndicator
-import com.nicoapps.cooktime.ui.dialogSurfaceColor
-import com.nicoapps.cooktime.ui.dialogTextFieldColors
-import com.nicoapps.cooktime.ui.screens.recipe.edit.actions.ViewRecipeAppBottomBarActions
-import com.nicoapps.cooktime.ui.screens.recipe.edit.actions.ViewRecipeAppBottomBarFab
+import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
+import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarFab
+import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppTopBarTitle
+import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.DeleteRecipeAlertDialog
+import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
 
@@ -81,7 +66,13 @@ fun ViewRecipeScreen(
                 AppNavGraphState(
                     topBar = AppNavGraphTopBarState(
                         contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                        title = screenState.recipeName,
+                        title = {
+                            ViewRecipeAppTopBarTitle(
+                                titleText = screenState.recipeName,
+                                isEditing = screenState.isEditing,
+                                onEditClick = viewModel::onEditNameClick
+                            )
+                        },
                     ),
                     bottomBar = AppNavGraphBottomBarState(
                         visible = true,
@@ -101,8 +92,7 @@ fun ViewRecipeScreen(
                                 },
                                 onEditCancelClick = {
                                     viewModel.onFinishEditing(saveChanges = false)
-                                },
-                                onChangeNameClick = { viewModel.onEditNameClick() }
+                                }
                             )
                         },
                         floatingActionButton = {
@@ -134,127 +124,21 @@ fun ViewRecipeScreen(
     }
 
     if (screenState.isDeleteConfirmationDialogOpen) {
-        AlertDialog(
-            onDismissRequest = {
-                viewModel.dismissDeleteConfirmationDialog(confirmed = false)
-            },
-            title = {
-                Text(
-                    text = stringResource(
-                        id = R.string.view_recipe_delete_confirmation_dialog_title
-                    )
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(
-                        id = R.string.view_recipe_delete_confirmation_dialog_description
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.dismissDeleteConfirmationDialog(confirmed = true)
-                }) {
-                    Text(
-                        text = stringResource(
-                            id = R.string.view_recipe_delete_confirmation_dialog_confirm
-                        )
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    viewModel.dismissDeleteConfirmationDialog(confirmed = false)
-                }) {
-                    Text(
-                        text = stringResource(
-                            id = R.string.view_recipe_delete_confirmation_dialog_cancel
-                        )
-                    )
-                }
-            }
+        DeleteRecipeAlertDialog(
+            onDismissRequest = viewModel::dismissDeleteConfirmationDialog,
+            onConfirmed = viewModel::deleteRecipe
         )
     }
 
     if (screenState.isChangeNameDialogOpen) {
-
-        Dialog(
-            onDismissRequest = {
+        EditRecipeNameDialog(
+            recipeName = screenState.recipeName,
+            onDismissRequest = viewModel::dismissChangeNameDialog,
+            onConfirmed = {
+                viewModel.onRecipeNameChanged(it)
                 viewModel.dismissChangeNameDialog()
             }
-        ) {
-            Card(
-                modifier = modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = dialogSurfaceColor()
-                )
-            ) {
-                var recipeName by remember { mutableStateOf(screenState.recipeName) }
-
-                Text(
-                    modifier = Modifier.padding(
-                        dimensionResource(id = R.dimen.dialog_title_spacing)
-                    ),
-                    text = stringResource(id = R.string.change_recipe_name_dialog_title),
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                OutlinedTextField(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = R.dimen.text_input_padding)),
-                    placeholder = {
-                        Text(
-                            text = stringResource(
-                                R.string.change_recipe_name_placeholder
-                            )
-                        )
-                    },
-                    colors = dialogTextFieldColors(),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    singleLine = true,
-                    value = recipeName,
-                    onValueChange = {
-                        recipeName = it
-                    }
-                )
-
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(
-                        modifier = Modifier.padding(
-                            dimensionResource(id = R.dimen.dialog_buttons_spacing)
-                        ),
-                        onClick = { viewModel.dismissChangeNameDialog() }
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.new_recipe_add_ingredient_cancel)
-                        )
-                    }
-
-                    TextButton(
-                        modifier = Modifier.padding(
-                            dimensionResource(id = R.dimen.dialog_buttons_spacing)
-                        ),
-                        enabled = recipeName.isNotBlank(),
-                        onClick = {
-                            viewModel.onRecipeNameChanged(recipeName)
-                            viewModel.dismissChangeNameDialog()
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.new_recipe_add_ingredient_done)
-                        )
-                    }
-                }
-            }
-        }
+        )
     }
 
     Column(

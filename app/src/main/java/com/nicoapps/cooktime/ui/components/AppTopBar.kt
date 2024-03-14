@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -71,7 +70,7 @@ fun AppTopBar(
         if (contentType == AppNavGraphTopBarContentType.TITLE_ONLY) {
             AppTitleTopBar(
                 showActions = appNavGraphState.topBar.showActions,
-                title = appNavGraphState.topBar.title,
+                title = appNavGraphState.topBar.title ?: {},
                 onNavigationIconClick = { appNavigationActions.navigateBack() },
                 actions = appNavGraphState.topBar.actions
             )
@@ -83,11 +82,7 @@ fun AppTopBar(
                 onRecipeSelected = {
                     appNavigationActions.navigateToViewRecipe(it)
                 },
-                placeholder = {
-                    Text(
-                        text = appNavGraphState.topBar.title
-                    )
-                },
+                placeholder = appNavGraphState.topBar.title,
                 leadingIcon = {
                     IconButton(
                         onClick = {

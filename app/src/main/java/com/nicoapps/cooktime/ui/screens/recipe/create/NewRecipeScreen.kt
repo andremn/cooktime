@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +51,11 @@ fun NewRecipeScreen(
             AppNavGraphState(
                 topBar = AppNavGraphTopBarState(
                     contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                    title = context.resources.getString(R.string.new_recipe_title)
+                    title = {
+                        Text(
+                            text = context.resources.getString(R.string.new_recipe_title)
+                        )
+                    }
                 )
             )
         )
@@ -62,8 +67,12 @@ fun NewRecipeScreen(
                 AppNavGraphState(
                     topBar = AppNavGraphTopBarState(
                         contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                        title = screenState.recipeName.ifBlank {
-                            context.resources.getString(R.string.new_recipe_title)
+                        title = {
+                            Text(
+                                text = screenState.recipeName.ifBlank {
+                                    context.resources.getString(R.string.new_recipe_title)
+                                }
+                            )
                         }
                     )
                 )

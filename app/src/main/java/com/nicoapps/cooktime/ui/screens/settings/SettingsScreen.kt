@@ -27,7 +27,11 @@ fun SettingsScreen(
             AppNavGraphState(
                 topBar = AppNavGraphTopBarState(
                     contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                    title = context.resources.getString(R.string.settings_title)
+                    title = {
+                        Text(
+                            text = context.resources.getString(R.string.settings_title)
+                        )
+                    }
                 )
             )
         )

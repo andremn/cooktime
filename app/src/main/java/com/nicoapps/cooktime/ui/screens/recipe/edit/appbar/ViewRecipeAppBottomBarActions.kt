@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe.edit.actions
+package com.nicoapps.cooktime.ui.screens.recipe.edit.appbar
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Row
@@ -8,19 +8,10 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.nicoapps.cooktime.ui.defaultTransitionSpec
 
@@ -33,8 +24,7 @@ fun ViewRecipeAppBottomBarActions(
     onDeleteClick: () -> Unit,
     onStarClick: () -> Unit,
     onEditDoneClick: () -> Unit,
-    onEditCancelClick: () -> Unit,
-    onChangeNameClick: () -> Unit
+    onEditCancelClick: () -> Unit
 ) {
     AnimatedContent(
         targetState = isEditing,
@@ -44,15 +34,7 @@ fun ViewRecipeAppBottomBarActions(
         Row(
             modifier = modifier
         ) {
-            var isDropdownExpanded by remember { mutableStateOf(false) }
             if (editing) {
-                IconButton(onClick = { isDropdownExpanded = true }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Localized description"
-                    )
-                }
-
                 IconButton(
                     onClick = { onEditDoneClick() }
                 ) {
@@ -68,27 +50,6 @@ fun ViewRecipeAppBottomBarActions(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Localized description"
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = isDropdownExpanded,
-                    onDismissRequest = { isDropdownExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Change name")
-                        },
-                        onClick = {
-                            isDropdownExpanded = false
-                            onChangeNameClick()
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Outlined.Edit,
-                                contentDescription = "Localized description"
-                            )
-                        }
                     )
                 }
             } else {

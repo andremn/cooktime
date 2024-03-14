@@ -55,7 +55,7 @@ fun RecipeInstructionGridItem(
                 .fillMaxWidth(.9f)
                 .animatePlacement(),
             value = text,
-            enabled = isEditing,
+            readOnly = isEditing.not(),
             onValueChange = {
                 onTextChange(it)
             },
@@ -66,8 +66,7 @@ fun RecipeInstructionGridItem(
             ),
             colors = TextFieldDefaults.appColors(
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent
             ),
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start)
         )

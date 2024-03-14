@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.AppNavGraphFloatingActionButtonState
 import com.nicoapps.cooktime.ui.AppNavGraphState
-import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 
 @Composable
@@ -59,9 +58,6 @@ fun HomeScreen(
                             )
                         }
                     }
-                ),
-                topBar = AppNavGraphTopBarState(
-                    title = ""
                 )
             )
         )

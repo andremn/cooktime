@@ -15,8 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.dimensionResource
 import com.nicoapps.cooktime.R
 
-fun <T> defaultAnimationSpec(durationMillis: Int = 350) = tween<T>(
-    durationMillis = durationMillis
+const val DEFAULT_ANIMATION_DURATION_MILLIS = 350
+const val DEFAULT_DELAY_MILLIS = 0
+
+fun <T> defaultAnimationSpec(
+    durationMillis: Int = DEFAULT_ANIMATION_DURATION_MILLIS,
+    delayMillis: Int = DEFAULT_DELAY_MILLIS
+) = tween<T>(
+    durationMillis = durationMillis,
+    delayMillis = delayMillis
 )
 
 fun AnimatedContentTransitionScope<Boolean>.defaultTransitionSpec() =

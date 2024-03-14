@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe.edit.actions
+package com.nicoapps.cooktime.ui.screens.recipe.edit.appbar
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons

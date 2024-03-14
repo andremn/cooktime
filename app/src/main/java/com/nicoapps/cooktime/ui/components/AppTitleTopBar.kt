@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -29,17 +28,10 @@ import com.nicoapps.cooktime.ui.defaultTransitionSpec
 fun AppTitleTopBar(
     modifier: Modifier = Modifier,
     showActions: Boolean,
-    title: String,
+    title: @Composable () -> Unit,
     onNavigationIconClick: () -> Unit,
     actions: (@Composable (RowScope) -> Unit)? = null
 ) {
-    @Composable
-    fun TopAppBarTitle() {
-        Text(
-            text = title
-        )
-    }
-
     @Composable
     fun NavigationIcon() {
         IconButton(
@@ -67,7 +59,7 @@ fun AppTitleTopBar(
             TopAppBar(
                 modifier = modifier
                     .fillMaxWidth(),
-                title = { TopAppBarTitle() },
+                title = { title() },
                 actions = {
                     AnimatedVisibility(
                         visible = showActions,
@@ -92,7 +84,7 @@ fun AppTitleTopBar(
             )
         } else {
             CenterAlignedTopAppBar(
-                title = { TopAppBarTitle() },
+                title = { title() },
                 modifier = modifier.fillMaxWidth(),
                 navigationIcon = { NavigationIcon() },
                 colors = topAppBarColors()
