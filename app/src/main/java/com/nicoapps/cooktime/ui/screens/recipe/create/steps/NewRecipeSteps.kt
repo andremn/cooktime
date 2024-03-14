@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe.steps
+package com.nicoapps.cooktime.ui.screens.recipe.create.steps
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
@@ -32,7 +32,7 @@ import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.model.Instruction
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
-import com.nicoapps.cooktime.ui.screens.recipe.NewRecipeScreenStep
+import com.nicoapps.cooktime.ui.screens.recipe.create.NewRecipeScreenStep
 
 @Composable
 fun NewRecipeSteps(

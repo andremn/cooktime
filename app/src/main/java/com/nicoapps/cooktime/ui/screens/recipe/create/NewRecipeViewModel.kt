@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe
+package com.nicoapps.cooktime.ui.screens.recipe.create
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel

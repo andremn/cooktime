@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe.tabs
+package com.nicoapps.cooktime.ui.screens.recipe.edit.tabs
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable

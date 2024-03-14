@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe
+package com.nicoapps.cooktime.ui.screens.recipe.create
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,7 +25,7 @@ import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
-import com.nicoapps.cooktime.ui.screens.recipe.steps.NewRecipeSteps
+import com.nicoapps.cooktime.ui.screens.recipe.create.steps.NewRecipeSteps
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 

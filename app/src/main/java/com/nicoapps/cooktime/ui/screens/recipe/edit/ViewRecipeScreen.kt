@@ -60,8 +60,8 @@ import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppTabIndicator
 import com.nicoapps.cooktime.ui.dialogSurfaceColor
 import com.nicoapps.cooktime.ui.dialogTextFieldColors
-import com.nicoapps.cooktime.ui.screens.recipe.tabs.ViewRecipeIngredientsTab
-import com.nicoapps.cooktime.ui.screens.recipe.tabs.ViewRecipeInstructionsTab
+import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
+import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

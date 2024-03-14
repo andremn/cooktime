@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.recipe.steps
+package com.nicoapps.cooktime.ui.screens.recipe.create.steps
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
