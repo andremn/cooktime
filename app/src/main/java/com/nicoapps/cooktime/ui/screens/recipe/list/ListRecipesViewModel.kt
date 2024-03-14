@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.screens.home
+package com.nicoapps.cooktime.ui.screens.recipe.list
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
