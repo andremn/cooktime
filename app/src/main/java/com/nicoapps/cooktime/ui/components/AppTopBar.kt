@@ -74,7 +74,7 @@ fun AppTopBar(
                 onNavigationIconClick = { appNavigationActions.navigateBack() },
                 actions = appNavGraphState.topBar.actions
             )
-        } else {
+        } else if (contentType == AppNavGraphTopBarContentType.SEARCH_BAR) {
             SearchRecipesBar(
                 modifier = modifier
                     .padding(bottom = dimensionResource(id = R.dimen.search_bar_padding)),
@@ -82,7 +82,7 @@ fun AppTopBar(
                 onRecipeSelected = {
                     appNavigationActions.navigateToViewRecipe(it)
                 },
-                placeholder = appNavGraphState.topBar.title,
+                placeholder = appNavGraphState.topBar.searchBarPlaceholder,
                 leadingIcon = {
                     IconButton(
                         onClick = {

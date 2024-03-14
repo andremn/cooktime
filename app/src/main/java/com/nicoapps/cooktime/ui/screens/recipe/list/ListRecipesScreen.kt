@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.AppNavGraphFloatingActionButtonState
 import com.nicoapps.cooktime.ui.AppNavGraphState
+import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
+import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 
 @Composable
@@ -39,6 +42,8 @@ fun HomeScreen(
     appNavigationActions: AppNavigationActions,
     onComposing: (AppNavGraphState) -> Unit
 ) {
+    val context = LocalContext.current
+
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -57,6 +62,14 @@ fun HomeScreen(
                                 stringResource(id = R.string.new_recipe_button_text)
                             )
                         }
+                    }
+                ),
+                topBar = AppNavGraphTopBarState(
+                    contentType = AppNavGraphTopBarContentType.SEARCH_BAR,
+                    searchBarPlaceholder = {
+                        Text(
+                            text = context.getString(R.string.search_recipes_placeholder)
+                        )
                     }
                 )
             )
