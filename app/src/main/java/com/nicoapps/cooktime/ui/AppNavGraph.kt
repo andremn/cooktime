@@ -2,7 +2,6 @@ package com.nicoapps.cooktime.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.material3.DrawerState
@@ -70,11 +69,11 @@ fun AppNavGraph(
                 AnimatedVisibility(
                     visible = isFloatingActionButtonVisible,
                     enter = slideInVertically(
-                        initialOffsetY = { it * 2 }
-                    ),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it }
-                    )
+                        animationSpec = defaultAnimationSpec(
+                            delayMillis = DEFAULT_ANIMATION_DURATION_MILLIS
+                        )
+                    ) { height -> height * 3 },
+                    exit = defaultExitAnimation()
                 )
                 {
                     appNavGraphState.floatingActionButton.content?.invoke()
