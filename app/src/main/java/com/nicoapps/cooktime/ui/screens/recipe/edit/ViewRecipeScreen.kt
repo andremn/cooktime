@@ -33,6 +33,7 @@ import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
+import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
 import com.nicoapps.cooktime.ui.components.AppTabIndicator
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarFab
@@ -41,6 +42,7 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.DeleteRecipeAlertDia
 import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -76,6 +78,7 @@ fun ViewRecipeScreen(
                     ),
                     bottomBar = AppNavGraphBottomBarState(
                         visible = true,
+                        delayToBecomeVisible = DEFAULT_ANIMATION_DURATION_MILLIS.milliseconds,
                         actions = {
                             ViewRecipeAppBottomBarActions(
                                 isEditing = screenState.isEditing,

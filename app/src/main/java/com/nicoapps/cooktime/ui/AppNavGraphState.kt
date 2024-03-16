@@ -2,6 +2,7 @@ package com.nicoapps.cooktime.ui
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import kotlin.time.Duration
 
 enum class AppNavGraphTopBarContentType {
     NONE,
@@ -27,12 +28,13 @@ data class AppNavGraphTopBarState(
 
 data class AppNavGraphBottomBarState(
     val visible: Boolean = false,
-    val title: String = "",
+    val delayToBecomeVisible: Duration = Duration.ZERO,
     val actions: (@Composable RowScope.() -> Unit)? = null,
     val floatingActionButton: (@Composable () -> Unit)? = null
 )
 
 data class AppNavGraphFloatingActionButtonState(
     val visible: Boolean = false,
-    val content: (@Composable () -> Unit)? = null
+    val content: (@Composable () -> Unit)? = null,
+    val onClick: (() -> Unit)? = null
 )

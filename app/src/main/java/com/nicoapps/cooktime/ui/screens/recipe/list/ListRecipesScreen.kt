@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,17 +51,12 @@ fun HomeScreen(
                 floatingActionButton = AppNavGraphFloatingActionButtonState(
                     visible = true,
                     content = {
-                        FloatingActionButton(
-                            onClick = {
-                                appNavigationActions.navigateToNewRecipe()
-                            },
-                        ) {
-                            Icon(
-                                Icons.Filled.Add,
-                                stringResource(id = R.string.new_recipe_button_text)
-                            )
-                        }
-                    }
+                        Icon(
+                            Icons.Filled.Add,
+                            stringResource(id = R.string.new_recipe_button_text)
+                        )
+                    },
+                    onClick = { appNavigationActions.navigateToNewRecipe() }
                 ),
                 topBar = AppNavGraphTopBarState(
                     contentType = AppNavGraphTopBarContentType.SEARCH_BAR,

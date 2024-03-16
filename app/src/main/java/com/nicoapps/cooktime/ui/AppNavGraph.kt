@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
@@ -62,6 +63,7 @@ fun AppNavGraph(
             appNavGraphState.floatingActionButton.visible && !isSearchBarActive
 
         Scaffold(
+            modifier = modifier,
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             },
@@ -76,7 +78,13 @@ fun AppNavGraph(
                     exit = defaultExitAnimation()
                 )
                 {
-                    appNavGraphState.floatingActionButton.content?.invoke()
+                    FloatingActionButton(
+                        onClick = {
+                            appNavGraphState.floatingActionButton.onClick?.invoke()
+                        },
+                    ) {
+                        appNavGraphState.floatingActionButton.content?.invoke()
+                    }
                 }
             },
             topBar = {
@@ -96,8 +104,7 @@ fun AppNavGraph(
                 )
             },
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-                .only(sides = WindowInsetsSides.Bottom),
-            modifier = modifier
+                .only(sides = WindowInsetsSides.Bottom)
         ) { paddingValues ->
             AppNavHost(
                 modifier = modifier,

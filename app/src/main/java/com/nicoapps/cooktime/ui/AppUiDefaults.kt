@@ -35,18 +35,24 @@ fun AnimatedContentTransitionScope<Boolean>.defaultTransitionSpec() =
         SizeTransform(clip = true)
     )
 
-fun defaultEnterAnimation(animationDirection: AnimationDirection = AnimationDirection.UPWARDS) =
+fun defaultEnterAnimation(
+    animationDirection: AnimationDirection = AnimationDirection.UPWARDS,
+    delayMillis: Int = DEFAULT_DELAY_MILLIS
+) =
     slideInVertically(
-        animationSpec = defaultAnimationSpec()
+        animationSpec = defaultAnimationSpec(delayMillis = delayMillis)
     ) { height -> height * animationDirection.direction } + fadeIn(
-        animationSpec = defaultAnimationSpec()
+        animationSpec = defaultAnimationSpec(delayMillis = delayMillis)
     )
 
-fun defaultExitAnimation(animationDirection: AnimationDirection = AnimationDirection.UPWARDS) =
+fun defaultExitAnimation(
+    animationDirection: AnimationDirection = AnimationDirection.UPWARDS,
+    delayMillis: Int = DEFAULT_DELAY_MILLIS
+) =
     slideOutVertically(
-        animationSpec = defaultAnimationSpec()
+        animationSpec = defaultAnimationSpec(delayMillis = delayMillis)
     ) { height -> height * animationDirection.direction } + fadeOut(
-        animationSpec = defaultAnimationSpec()
+        animationSpec = defaultAnimationSpec(delayMillis = delayMillis)
     )
 
 @Composable
