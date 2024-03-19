@@ -101,7 +101,11 @@ fun ViewRecipeScreen(
                         floatingActionButton = {
                             ViewRecipeAppBottomBarFab(
                                 isVisible = screenState.isEditing.not(),
-                                onClick = {}
+                                onClick = {
+                                    appNavigationActions.navigateToExecuteRecipe(
+                                        recipeId = screenState.recipeId
+                                    )
+                                }
                             )
                         }
                     )

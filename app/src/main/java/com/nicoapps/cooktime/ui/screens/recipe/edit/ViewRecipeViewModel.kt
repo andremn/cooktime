@@ -221,6 +221,7 @@ class ViewRecipeViewModel @Inject constructor(
             isDeleteConfirmationDialogOpen = screenState.isDeleteConfirmationDialogOpen,
             isRecipeDeleted = screenState.isRecipeDeleted,
             isEditing = screenState.isEditing,
+            recipeId = recipeId,
             recipeName = recipeState.name,
             isRecipeStarred = recipeState.isStarred,
             recipeIngredients = recipeState.ingredients,

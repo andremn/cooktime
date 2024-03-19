@@ -11,6 +11,7 @@ data class ViewRecipeScreenState(
     val isDeleteConfirmationDialogOpen: Boolean = false,
     val isRecipeDeleted: Boolean = false,
     val isEditing: Boolean = false,
+    val recipeId: Long = 0L,
     val recipeName: String = "",
     val isRecipeStarred: Boolean = false,
     val recipeIngredients: List<Ingredient> = emptyList(),

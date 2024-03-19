@@ -21,9 +21,10 @@ import com.nicoapps.cooktime.ui.AllDestinations
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
-import com.nicoapps.cooktime.ui.screens.recipe.list.HomeScreen
 import com.nicoapps.cooktime.ui.screens.recipe.create.NewRecipeScreen
 import com.nicoapps.cooktime.ui.screens.recipe.edit.ViewRecipeScreen
+import com.nicoapps.cooktime.ui.screens.recipe.execute.ExecuteRecipeScreen
+import com.nicoapps.cooktime.ui.screens.recipe.list.HomeScreen
 import com.nicoapps.cooktime.ui.screens.settings.SettingsScreen
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -99,7 +100,7 @@ fun AppNavHost(
         composable(
             route = "${AllDestinations.VIEW_RECIPE}/{recipeId}?recipeTitle={recipeTitle}",
             arguments = listOf(
-                navArgument("recipeId") { type = NavType.IntType },
+                navArgument("recipeId") { type = NavType.LongType },
                 navArgument("recipeTitle") {
                     type = NavType.StringType
                     defaultValue = ""
@@ -107,6 +108,19 @@ fun AppNavHost(
             )
         ) {
             ViewRecipeScreen(
+                modifier = modifier.padding(paddingValues),
+                appNavigationActions = navigationActions,
+                onComposing = { onDestinationComposing(it) }
+            )
+        }
+
+        composable(
+            route = "${AllDestinations.EXECUTE_RECIPE}/{recipeId}",
+            arguments = listOf(
+                navArgument("recipeId") { type = NavType.LongType }
+            )
+        ) {
+            ExecuteRecipeScreen(
                 modifier = modifier.padding(paddingValues),
                 appNavigationActions = navigationActions,
                 onComposing = { onDestinationComposing(it) }
