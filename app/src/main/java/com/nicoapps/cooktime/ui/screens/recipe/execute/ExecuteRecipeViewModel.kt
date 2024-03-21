@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.data.RecipeRepository
-import com.nicoapps.cooktime.model.Ingredient
-import com.nicoapps.cooktime.model.Instruction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -99,23 +97,23 @@ class ExecuteRecipeViewModel @Inject constructor(
         }
     }
 
-    data class ExecuteRecipeScreenState(
-        val recipeName: String = "",
-        val ingredients: List<IngredientState> = emptyList(),
-        val instructions: List<InstructionState> = emptyList()
-    )
+    fun onBackPressed() {
+        _screenState.update {
+            it.copy(
+                isSaveExecutionDialogOpen = true
+            )
+        }
+    }
 
-    data class IngredientState(
-        val ingredient: Ingredient,
-        val isChecked: Boolean
-    )
+    fun dismissSaveExecutionDialog() {
+        _screenState.update {
+            it.copy(
+                isSaveExecutionDialogOpen = false
+            )
+        }
+    }
 
-    data class InstructionState(
-        val instruction: Instruction,
-        val isChecked: Boolean
-    )
-
-    companion object {
+    private companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 }

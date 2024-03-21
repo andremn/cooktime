@@ -1,5 +1,6 @@
 package com.nicoapps.cooktime.ui.screens.recipe.execute
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,12 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -30,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
+import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.ui.AppNavGraphBottomBarState
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
@@ -37,6 +34,8 @@ import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AnimatedLineThroughText
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarActions
+import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarFab
+import com.nicoapps.cooktime.ui.screens.recipe.execute.dialogs.SaveExecutionDialog
 import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
 
 @Composable
@@ -46,46 +45,6 @@ fun ExecuteRecipeScreen(
     appNavigationActions: AppNavigationActions,
     onComposing: (AppNavGraphState) -> Unit
 ) {
-    @Composable
-    fun MainText(text: String, isChecked: Boolean, supportingText: AnnotatedString? = null) {
-        val textStyle = if (isChecked) MaterialTheme.typography.titleMedium.copy(
-            color = TextFieldDefaults.colors().disabledTextColor
-        ) else MaterialTheme.typography.titleMedium
-
-        AnimatedLineThroughText(
-            text = buildAnnotatedString { append(text) },
-            textAlign = TextAlign.Center,
-            style = textStyle,
-            isLinedThrough = isChecked
-        )
-
-        supportingText?.let {
-            val supportingTextStyle = if (isChecked) MaterialTheme.typography.bodyLarge.copy(
-                color = TextFieldDefaults.colors().disabledTextColor
-            ) else MaterialTheme.typography.bodyLarge
-
-            AnimatedLineThroughText(
-                text = supportingText,
-                style = supportingTextStyle,
-                isLinedThrough = isChecked
-            )
-        }
-    }
-
-    @Composable
-    fun Section(@StringRes textResourceId: Int, spaceBefore: Boolean = false) {
-        if (spaceBefore) {
-            Spacer(modifier = Modifier.padding(15.dp))
-        }
-
-        Text(
-            text = stringResource(id = textResourceId),
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.padding(5.dp))
-    }
-
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -104,21 +63,30 @@ fun ExecuteRecipeScreen(
                         )
                     },
                     floatingActionButton = {
-                        FloatingActionButton(
+                        ExecuteRecipeBottomAppBarFab(
                             onClick = {
                                 appNavigationActions.navigateBack()
-                            },
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Done,
-                                contentDescription = "Localized description"
-                            )
-                        }
+                            }
+                        )
                     }
                 )
             )
+        )
+    }
+
+    BackHandler(enabled = screenState.isSaveExecutionDialogOpen.not()) {
+        viewModel.onBackPressed()
+    }
+
+    if (screenState.isSaveExecutionDialogOpen) {
+        SaveExecutionDialog(
+            onDismissRequest = {
+                viewModel.dismissSaveExecutionDialog()
+                appNavigationActions.navigateBack()
+            },
+            onConfirmed = {
+                viewModel.dismissSaveExecutionDialog()
+            }
         )
     }
 
@@ -145,24 +113,14 @@ fun ExecuteRecipeScreen(
                     MainText(
                         text = ingredientState.ingredient.name,
                         isChecked = ingredientState.isChecked,
-                        supportingText = buildAnnotatedString {
-                            append(ingredientState.ingredient.quantity.formatQuantity())
-                            append(" ")
-                            append(
-                                ingredientState.ingredient.measurementUnit.orEmpty().ifEmpty {
-                                    stringResource(
-                                        id = R.string.new_recipe_new_ingredient_unitary
-                                    )
-                                }.lowercase()
-                            )
-                        }
+                        supportingText = ingredientState.ingredient.buildAnnotatedString()
                     )
                 }
             }
         }
 
         item(key = "instructionsSection") {
-            Section(R.string.view_recipe_instructions_tab, spaceBefore = true)
+            Section(R.string.view_recipe_instructions_tab, spacerBeforeText = true)
         }
 
         itemsIndexed(screenState.instructions) { index, instructionState ->
@@ -181,4 +139,58 @@ fun ExecuteRecipeScreen(
             }
         }
     }
+}
+
+
+@Composable
+private fun MainText(text: String, isChecked: Boolean, supportingText: AnnotatedString? = null) {
+    val textStyle = if (isChecked) MaterialTheme.typography.titleMedium.copy(
+        color = TextFieldDefaults.colors().disabledTextColor
+    ) else MaterialTheme.typography.titleMedium
+
+    AnimatedLineThroughText(
+        text = buildAnnotatedString { append(text) },
+        textAlign = TextAlign.Center,
+        style = textStyle,
+        isLinedThrough = isChecked
+    )
+
+    supportingText?.let {
+        val supportingTextStyle = if (isChecked) MaterialTheme.typography.bodyLarge.copy(
+            color = TextFieldDefaults.colors().disabledTextColor
+        ) else MaterialTheme.typography.bodyLarge
+
+        AnimatedLineThroughText(
+            text = supportingText,
+            style = supportingTextStyle,
+            isLinedThrough = isChecked
+        )
+    }
+}
+
+@Composable
+private fun Section(@StringRes textResourceId: Int, spacerBeforeText: Boolean = false) {
+    if (spacerBeforeText) {
+        Spacer(modifier = Modifier.padding(15.dp))
+    }
+
+    Text(
+        text = stringResource(id = textResourceId),
+        style = MaterialTheme.typography.headlineSmall
+    )
+
+    Spacer(modifier = Modifier.padding(5.dp))
+}
+
+@Composable
+private fun Ingredient.buildAnnotatedString() = buildAnnotatedString {
+    append(quantity.formatQuantity())
+    append(" ")
+    append(
+        measurementUnit.orEmpty().ifEmpty {
+            stringResource(
+                id = R.string.new_recipe_new_ingredient_unitary
+            )
+        }.lowercase()
+    )
 }

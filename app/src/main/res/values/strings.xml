@@ -37,4 +37,8 @@
     <string name="view_recipe_delete_confirmation_dialog_cancel">No, keep it</string>
     <string name="change_recipe_name_dialog_title">Change recipe name</string>
     <string name="change_recipe_name_placeholder">Recipe name</string>
+    <string name="execute_recipe_save_execution_dialog_title">Save recipe execution?</string>
+    <string name="execute_recipe_save_execution_dialog_description">Do you want to save the execution of this recipe so it gets added to your history?</string>
+    <string name="execute_recipe_save_execution_dialog_confirm">Yes, save it</string>
+    <string name="execute_recipe_save_execution_dialog_cancel">No, just go back to the previous screen</string>
 </resources>
