@@ -51,10 +51,10 @@ class ExecuteRecipeViewModel @Inject constructor(
     }
 
     val screenState = _screenState.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = ExecuteRecipeScreenState()
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = ExecuteRecipeScreenState()
+    )
 
     fun onIngredientCheckChanged(ingredientIndex: Int, isChecked: Boolean) {
         _screenState.update {
@@ -82,6 +82,19 @@ class ExecuteRecipeViewModel @Inject constructor(
 
             it.copy(
                 instructions = mutableInstructions
+            )
+        }
+    }
+
+    fun onReset() {
+        _screenState.update {
+            it.copy(
+                ingredients = it.ingredients.map { state ->
+                    state.copy(isChecked = false)
+                },
+                instructions = it.instructions.map { state ->
+                    state.copy(isChecked = false)
+                }
             )
         }
     }

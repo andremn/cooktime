@@ -1,31 +1,43 @@
 package com.nicoapps.cooktime.ui.screens.recipe.execute
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
+import com.nicoapps.cooktime.ui.AppNavGraphBottomBarState
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
+import com.nicoapps.cooktime.ui.components.AnimatedLineThroughText
+import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarActions
+import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
 
 @Composable
 fun ExecuteRecipeScreen(
@@ -34,6 +46,46 @@ fun ExecuteRecipeScreen(
     appNavigationActions: AppNavigationActions,
     onComposing: (AppNavGraphState) -> Unit
 ) {
+    @Composable
+    fun MainText(text: String, isChecked: Boolean, supportingText: AnnotatedString? = null) {
+        val textStyle = if (isChecked) MaterialTheme.typography.titleMedium.copy(
+            color = TextFieldDefaults.colors().disabledTextColor
+        ) else MaterialTheme.typography.titleMedium
+
+        AnimatedLineThroughText(
+            text = buildAnnotatedString { append(text) },
+            textAlign = TextAlign.Center,
+            style = textStyle,
+            isLinedThrough = isChecked
+        )
+
+        supportingText?.let {
+            val supportingTextStyle = if (isChecked) MaterialTheme.typography.bodyLarge.copy(
+                color = TextFieldDefaults.colors().disabledTextColor
+            ) else MaterialTheme.typography.bodyLarge
+
+            AnimatedLineThroughText(
+                text = supportingText,
+                style = supportingTextStyle,
+                isLinedThrough = isChecked
+            )
+        }
+    }
+
+    @Composable
+    fun Section(@StringRes textResourceId: Int, spaceBefore: Boolean = false) {
+        if (spaceBefore) {
+            Spacer(modifier = Modifier.padding(15.dp))
+        }
+
+        Text(
+            text = stringResource(id = textResourceId),
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.padding(5.dp))
+    }
+
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -41,16 +93,26 @@ fun ExecuteRecipeScreen(
             AppNavGraphState(
                 topBar = AppNavGraphTopBarState(
                     contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                    title = { Text(text = screenState.recipeName) },
-                    showActions = true,
+                    title = { Text(text = screenState.recipeName) }
+                ),
+                bottomBar = AppNavGraphBottomBarState(
+                    visible = true,
                     actions = {
-                        IconButton(
+                        ExecuteRecipeBottomAppBarActions(
+                            onResetClick = viewModel::onReset,
+                            onAlarmClick = { }
+                        )
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(
                             onClick = {
                                 appNavigationActions.navigateBack()
-                            }
+                            },
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = Icons.Default.Done,
                                 contentDescription = "Localized description"
                             )
                         }
@@ -62,20 +124,14 @@ fun ExecuteRecipeScreen(
 
     LazyColumn(
         modifier = modifier
+            .padding(horizontal = 10.dp)
     ) {
         item(key = "ingredientsSection") {
-            Text(
-                text = stringResource(id = R.string.view_recipe_ingredients_tab)
-            )
-
-            Spacer(modifier = Modifier.padding(5.dp))
+            Section(R.string.view_recipe_ingredients_tab)
         }
 
         itemsIndexed(screenState.ingredients) { index, ingredientState ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
+            Row {
                 Checkbox(
                     checked = ingredientState.isChecked,
                     onCheckedChange = {
@@ -83,18 +139,30 @@ fun ExecuteRecipeScreen(
                     }
                 )
 
-                Text(text = ingredientState.ingredient.name)
+                Column(
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    MainText(
+                        text = ingredientState.ingredient.name,
+                        isChecked = ingredientState.isChecked,
+                        supportingText = buildAnnotatedString {
+                            append(ingredientState.ingredient.quantity.formatQuantity())
+                            append(" ")
+                            append(
+                                ingredientState.ingredient.measurementUnit.orEmpty().ifEmpty {
+                                    stringResource(
+                                        id = R.string.new_recipe_new_ingredient_unitary
+                                    )
+                                }.lowercase()
+                            )
+                        }
+                    )
+                }
             }
         }
 
         item(key = "instructionsSection") {
-            Spacer(modifier = Modifier.padding(15.dp))
-
-            Text(
-                text = stringResource(id = R.string.view_recipe_instructions_tab)
-            )
-
-            Spacer(modifier = Modifier.padding(5.dp))
+            Section(R.string.view_recipe_instructions_tab, spaceBefore = true)
         }
 
         itemsIndexed(screenState.instructions) { index, instructionState ->
@@ -106,9 +174,10 @@ fun ExecuteRecipeScreen(
                     checked = instructionState.isChecked,
                     onCheckedChange = {
                         viewModel.onInstructionCheckChanged(index, it)
-                    })
+                    }
+                )
 
-                Text(text = instructionState.instruction.text)
+                MainText(instructionState.instruction.text, instructionState.isChecked)
             }
         }
     }
