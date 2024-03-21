@@ -10,7 +10,8 @@ import com.nicoapps.cooktime.R
 @Composable
 fun SaveExecutionDialog(
     onDismissRequest: () -> Unit,
-    onConfirmed: () -> Unit
+    onConfirmed: () -> Unit,
+    onRejected: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
@@ -40,7 +41,7 @@ fun SaveExecutionDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = { onDismissRequest() }) {
+            TextButton(onClick = { onRejected() }) {
                 Text(
                     text = stringResource(
                         id = R.string.execute_recipe_save_execution_dialog_cancel
