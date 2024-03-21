@@ -42,10 +42,12 @@ fun AppBottomBar(
                 modifier = modifier
                     .animateContentSize(),
                 actions = {
-                    appNavGraphState.bottomBar.actions?.invoke(this)
+                    AppBottomBarActionsContainer(appNavGraphState.bottomBar.actions)
                 },
                 floatingActionButton = {
-                    appNavGraphState.bottomBar.floatingActionButton?.invoke()
+                    AppBottomBarFabContainer(
+                        appNavGraphState.bottomBar.floatingActionButton
+                    )
                 }
             )
         }
