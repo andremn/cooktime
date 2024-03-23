@@ -90,7 +90,8 @@ fun ExecuteRecipeScreen(
 
     LazyColumn(
         modifier = modifier
-            .padding(horizontal = 10.dp)
+            .padding(horizontal = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item(key = "ingredientsSection") {
             Section(R.string.view_recipe_ingredients_tab)
@@ -148,7 +149,7 @@ private fun MainText(text: String, isChecked: Boolean, supportingText: Annotated
 
     AnimatedLineThroughText(
         text = buildAnnotatedString { append(text) },
-        textAlign = TextAlign.Center,
+        textAlign = TextAlign.Justify,
         style = textStyle,
         isLinedThrough = isChecked
     )
