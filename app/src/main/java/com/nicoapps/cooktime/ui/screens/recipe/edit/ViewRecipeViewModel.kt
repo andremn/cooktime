@@ -10,6 +10,7 @@ import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.model.Instruction
 import com.nicoapps.cooktime.model.Recipe
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -26,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ViewRecipeViewModel @Inject constructor(
     @LocalRepository private val recipeRepository: RecipeRepository,
+    private val databaseCoroutineScope: CoroutineScope,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
@@ -66,7 +68,7 @@ class ViewRecipeViewModel @Inject constructor(
     }
 
     fun onRecipeStarredChanged(isStarred: Boolean) {
-        viewModelScope.launch {
+        databaseCoroutineScope.launch {
             recipeRepository.updateIsStarred(recipeId, isStarred)
         }
     }
@@ -87,7 +89,7 @@ class ViewRecipeViewModel @Inject constructor(
     }
 
     fun deleteRecipe() {
-        viewModelScope.launch {
+        databaseCoroutineScope.launch {
             recipeRepository.deleteById(recipeId)
 
             _screenState.update {
@@ -117,7 +119,7 @@ class ViewRecipeViewModel @Inject constructor(
         }
 
         if (saveChanges) {
-            viewModelScope.launch {
+            databaseCoroutineScope.launch {
                 recipeRepository.save(
                     recipe = recipeState.value.toRecipe(recipeId)
                 )

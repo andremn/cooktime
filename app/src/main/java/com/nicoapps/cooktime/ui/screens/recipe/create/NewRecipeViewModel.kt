@@ -9,6 +9,7 @@ import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.model.Instruction
 import com.nicoapps.cooktime.model.Recipe
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewRecipeViewModel @Inject constructor(
-    @LocalRepository private val recipeRepository: RecipeRepository
+    @LocalRepository private val recipeRepository: RecipeRepository,
+    private val databaseCoroutineScope: CoroutineScope
 ) : ViewModel() {
     private val _ingredients = mutableStateListOf<Ingredient>()
     private val _instructions = mutableStateListOf<Instruction>()
@@ -132,7 +134,7 @@ class NewRecipeViewModel @Inject constructor(
     }
 
     fun saveRecipe() {
-        viewModelScope.launch {
+        databaseCoroutineScope.launch {
             recipeRepository.save(
                 Recipe(
                     name = screenState.value.recipeName,
