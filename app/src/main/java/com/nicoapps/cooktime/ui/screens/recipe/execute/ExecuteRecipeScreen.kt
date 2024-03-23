@@ -64,9 +64,7 @@ fun ExecuteRecipeScreen(
                     },
                     floatingActionButton = {
                         ExecuteRecipeBottomAppBarFab(
-                            onClick = {
-                                appNavigationActions.navigateBack()
-                            }
+                            onClick = viewModel::onSaveExecutionDialogConfirmed
                         )
                     }
                 )
@@ -76,6 +74,10 @@ fun ExecuteRecipeScreen(
 
     BackHandler {
         viewModel.onBackPressed()
+    }
+
+    if (screenState.isExecutionSaved) {
+        appNavigationActions.navigateBack()
     }
 
     if (screenState.isSaveExecutionDialogOpen) {

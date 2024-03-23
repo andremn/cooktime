@@ -4,8 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nicoapps.cooktime.LocalRepository
+import com.nicoapps.cooktime.data.RecipeExecutionRepository
 import com.nicoapps.cooktime.data.RecipeRepository
+import com.nicoapps.cooktime.data.entity.RecipeExecutionEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
@@ -13,11 +16,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExecuteRecipeViewModel @Inject constructor(
     @LocalRepository private val recipeRepository: RecipeRepository,
+    @LocalRepository private val recipeExecutionRepository: RecipeExecutionRepository,
+    private val databaseCoroutineScope: CoroutineScope,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
@@ -110,6 +116,23 @@ class ExecuteRecipeViewModel @Inject constructor(
             it.copy(
                 isSaveExecutionDialogOpen = false
             )
+        }
+    }
+
+    fun onSaveExecutionDialogConfirmed() {
+        databaseCoroutineScope.launch {
+            recipeExecutionRepository.save(
+                RecipeExecutionEntity(
+                    recipeId = recipeId
+                )
+            )
+
+            _screenState.update {
+                it.copy(
+                    isSaveExecutionDialogOpen = false,
+                    isExecutionSaved = true
+                )
+            }
         }
     }
 
