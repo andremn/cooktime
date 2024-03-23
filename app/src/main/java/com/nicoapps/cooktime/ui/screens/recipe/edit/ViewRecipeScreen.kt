@@ -60,7 +60,11 @@ fun ViewRecipeScreen(
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { tabs.size }
 
-    LaunchedEffect(screenState.recipeName, screenState.isEditing) {
+    LaunchedEffect(
+        screenState.recipeName,
+        screenState.isEditing,
+        screenState.isRecipeDeleted
+    ) {
         if (screenState.isRecipeDeleted) {
             appNavigationActions.navigateBack()
         } else {
