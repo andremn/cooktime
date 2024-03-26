@@ -7,12 +7,11 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
 import com.nicoapps.cooktime.ui.defaultTransitionSpec
 
 @Composable
@@ -69,13 +68,8 @@ fun ViewRecipeAppBottomBarActions(
 
                 IconButton(
                     onClick = { onStarClick() }) {
-                    Icon(
-                        imageVector =
-                        if (isStarred)
-                            Icons.Default.Favorite
-                        else
-                            Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Localized description",
+                    StarredRecipeIcon(
+                        isStarred = isStarred
                     )
                 }
             }

@@ -3,16 +3,18 @@ package com.nicoapps.cooktime.ui.screens.recipe.list
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
+import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
 
 @Composable
 fun HomeScreen(
@@ -84,10 +87,9 @@ fun HomeScreen(
             )
         }
     } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = modifier
                 .fillMaxSize()
                 .padding(horizontal = 10.dp)
@@ -96,16 +98,34 @@ fun HomeScreen(
                 key(recipe.id) {
                     ElevatedCard(
                         modifier = Modifier
-                            .size(width = 120.dp, height = 200.dp)
                             .padding(vertical = 5.dp)
                             .clickable {
                                 appNavigationActions.navigateToViewRecipe(recipe)
                             }
                     ) {
-                        Text(
-                            modifier = Modifier.padding(16.dp),
-                            text = recipe.name
-                        )
+                        Column(
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Text(
+                                text = recipe.name,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.onStarChanged(
+                                            recipe.id,
+                                            recipe.isStarred.not()
+                                        )
+                                    }
+                                ) {
+                                    StarredRecipeIcon(
+                                        isStarred = recipe.isStarred
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
