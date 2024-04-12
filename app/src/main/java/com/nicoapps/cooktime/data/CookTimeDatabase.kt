@@ -3,8 +3,6 @@ package com.nicoapps.cooktime.data
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nicoapps.cooktime.data.dao.IngredientEntityDao
 import com.nicoapps.cooktime.data.dao.InstructionEntityDao
 import com.nicoapps.cooktime.data.dao.RecipeEntityDao
