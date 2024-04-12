@@ -2,6 +2,8 @@ package com.nicoapps.cooktime
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nicoapps.cooktime.data.CookTimeDatabase
 import dagger.Module
 import dagger.Provides
@@ -17,6 +19,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class DatabaseApplicationModule {
 
+    private val migration2to3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE recipes ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0"
+            )
+        }
+    }
+
     @Singleton
     @Provides
     fun providesCoroutineScope() =
@@ -29,7 +39,7 @@ class DatabaseApplicationModule {
             appContext,
             CookTimeDatabase::class.java,
             DATA_BASE_NAME
-        ).build()
+        ).addMigrations(migration2to3).build()
     }
 
     companion object {

@@ -10,6 +10,7 @@ data class RecipeEntity(
     val id: Long = 0,
     val name: String,
     val isStarred: Boolean,
+    val isDeleted: Boolean = false,
     val createdAt: Long = Instant.now().epochSecond,
     val lastUpdatedAt: Long? = null
 )

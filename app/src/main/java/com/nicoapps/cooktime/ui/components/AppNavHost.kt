@@ -1,7 +1,6 @@
 package com.nicoapps.cooktime.ui.components
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -27,7 +26,6 @@ import com.nicoapps.cooktime.ui.screens.recipe.execute.ExecuteRecipeScreen
 import com.nicoapps.cooktime.ui.screens.recipe.list.HomeScreen
 import com.nicoapps.cooktime.ui.screens.settings.SettingsScreen
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
@@ -109,6 +107,7 @@ fun AppNavHost(
         ) {
             ViewRecipeScreen(
                 modifier = modifier.padding(paddingValues),
+                snackbarState = appSnackbarState,
                 appNavigationActions = navigationActions,
                 onComposing = { onDestinationComposing(it) }
             )

@@ -15,16 +15,18 @@ data class AppSnackbarState(
 ) {
     fun show(
         message: String,
+        actionLabel: String? = null,
         duration: SnackbarDuration = SnackbarDuration.Short,
-        onDismissed: ((SnackbarResult) -> Unit)? = null
+        onDismissed: (CoroutineScope.(SnackbarResult) -> Unit)? = null
     ) {
         coroutineScope.launch {
             val result = snackbarHostState.showSnackbar(
                 message = message,
+                actionLabel = actionLabel,
                 duration = duration
             )
 
-            onDismissed?.invoke(result)
+            onDismissed?.invoke(coroutineScope, result)
         }
     }
 }

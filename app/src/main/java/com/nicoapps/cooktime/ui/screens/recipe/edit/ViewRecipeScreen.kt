@@ -12,14 +12,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,12 +32,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.nicoapps.cooktime.R
+import com.nicoapps.cooktime.data.RecipeRepositoryProvider
 import com.nicoapps.cooktime.ui.AppNavGraphBottomBarState
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
+import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.AppTabIndicator
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarFab
@@ -42,6 +48,7 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.DeleteRecipeAlertDia
 import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -49,6 +56,7 @@ import kotlin.time.Duration.Companion.milliseconds
 fun ViewRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ViewRecipeViewModel = hiltViewModel(),
+    snackbarState: AppSnackbarState,
     appNavigationActions: AppNavigationActions,
     onComposing: (AppNavGraphState) -> Unit
 ) {
@@ -59,6 +67,7 @@ fun ViewRecipeScreen(
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { tabs.size }
+    val context = LocalContext.current
 
     LaunchedEffect(
         screenState.recipeName,
@@ -66,6 +75,22 @@ fun ViewRecipeScreen(
         screenState.isRecipeDeleted
     ) {
         if (screenState.isRecipeDeleted) {
+            val recipeId = screenState.recipeId
+
+            snackbarState.show(
+                "Recipe deleted",
+                actionLabel = "Undo",
+                onDismissed = {
+                    if (it == SnackbarResult.ActionPerformed) {
+                        launch {
+                            RecipeRepositoryProvider
+                                .getRecipeRepository(context)
+                                .undeleteById(recipeId)
+                        }
+                    }
+                }
+            )
+
             appNavigationActions.navigateBack()
         } else {
             onComposing(
@@ -241,6 +266,7 @@ fun ViewRecipeScreen(
 fun ViewRecipeScreenPreview() {
     ViewRecipeScreen(
         onComposing = {},
+        snackbarState = AppSnackbarState(SnackbarHostState(), rememberCoroutineScope()),
         appNavigationActions = AppNavigationActions(rememberNavController())
     )
 }

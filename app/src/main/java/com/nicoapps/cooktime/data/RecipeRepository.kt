@@ -8,6 +8,8 @@ interface RecipeRepository {
 
     suspend fun deleteById(id: Long)
 
+    suspend fun undeleteById(id: Long)
+
     suspend fun updateIsStarred(id: Long, isStarred: Boolean)
 
     fun findById(id: Long): Flow<Recipe?>

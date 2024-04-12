@@ -3,6 +3,8 @@ package com.nicoapps.cooktime.data
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nicoapps.cooktime.data.dao.IngredientEntityDao
 import com.nicoapps.cooktime.data.dao.InstructionEntityDao
 import com.nicoapps.cooktime.data.dao.RecipeEntityDao
@@ -19,7 +21,7 @@ import com.nicoapps.cooktime.data.entity.RecipeExecutionEntity
         InstructionEntity::class,
         RecipeExecutionEntity::class
     ],
-    version = 2,
+    version = 3,
     autoMigrations = [
         AutoMigration(from = 1, to = 2)
     ],
