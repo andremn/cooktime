@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Início</string>
+    <string name="settings_title">Configurações</string>
+    <string name="new_recipe_name_step_title">Primeiro, vamos dar um nome para sua receita</string>
+    <string name="new_recipe_ingredients_step_title">Boa, agora adicione os ingredientes necessários</string>
+    <string name="new_recipe_instructions_step_title">E por fim, descreva o modo de preparo</string>
+    <string name="new_recipe_name_step_placeholder">Digite um nome para sua deliciosa receita</string>
+    <string name="user_profile_content_description">Foto de perfil</string>
+    <string name="new_recipe_button_text">Salvar receita</string>
+    <string name="search_recipes_placeholder">Procurar receitas</string>
+    <string name="save_new_recipe_button_text">Salvar</string>
+    <string name="start_recipe_button_text">Iniciar receita</string>
+    <string name="new_recipe_title">Nova receita</string>
+    <string name="new_recipe_name_step_finish">Finalizar</string>
+    <string name="new_recipe_name_step_next">Próximo</string>
+    <string name="new_recipe_steps_step_title">Ah, antes de finalizar, você pode adicionar notas a sua receita aqui</string>
+    <string name="new_recipe_name_empty_error">A receita precisa de um nome</string>
+    <string name="new_recipe_add_ingredient">Adicionar ingrediente</string>
+    <string name="new_recipe_new_ingredient_dialog_title">Novo ingrediente</string>
+    <string name="new_recipe_add_ingredient_name_placeholder">Nome</string>
+    <string name="new_recipe_add_ingredient_quantity_placeholder">Quantidade</string>
+    <string name="new_recipe_add_ingredient_unit_placeholder">Unidade</string>
+    <string name="new_recipe_add_ingredient_done">Pronto</string>
+    <string name="new_recipe_add_ingredient_cancel">Cancelar</string>
+    <string name="new_recipe_new_ingredient_unitary">Unidades</string>
+    <string name="new_recipe_add_ingredient_empty">Seus ingredientes vão aparecer aqui quando você adicioná-los</string>
+    <string name="new_recipe_add_instruction_empty">Adicione os passos digitando eles no campo abaixo</string>
+    <string name="new_recipe_add_instruction_placeholder">Adicionar passo</string>
+    <string name="new_recipe_saved_message">Receita salva!</string>
+    <string name="view_recipe_ingredients_tab">Ingredientes</string>
+    <string name="view_recipe_instructions_tab">Modo de preparo</string>
+    <string name="home_recipes_empty">Adicione uma receita para que ela apareça aqui!</string>
+    <string name="view_recipe_delete_confirmation_dialog_title">Confirme deleção</string>
+    <string name="view_recipe_delete_confirmation_dialog_description">Você realmente quer deletar essa receita?</string>
+    <string name="view_recipe_delete_confirmation_dialog_confirm">Sim, pode deletar</string>
+    <string name="view_recipe_delete_confirmation_dialog_cancel">Não, deixa ela aí</string>
+    <string name="change_recipe_name_dialog_title">Mude o nome da receita</string>
+    <string name="change_recipe_name_placeholder">Nome da receita</string>
+    <string name="execute_recipe_save_execution_dialog_title">Salvar execução da receita?</string>
+    <string name="execute_recipe_save_execution_dialog_description">Você deseja salvar a execução dessa receita para que fique registrado no seu histórico?</string>
+    <string name="execute_recipe_save_execution_dialog_confirm">Sim, pode salvar</string>
+    <string name="execute_recipe_save_execution_dialog_cancel">Não, só feche a tela</string>
+</resources>
