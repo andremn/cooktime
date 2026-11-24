@@ -1,23 +1,30 @@
 package com.nicoapps.cooktime.ui.components.search
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.SearchBarValue
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.model.Recipe
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,46 +37,64 @@ fun SearchRecipesBar(
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val searchBarState = rememberSearchBarState()
+    val textFieldState = rememberTextFieldState(initialText = screenState.searchText)
+    val coroutineScope = rememberCoroutineScope()
+    val currentOnActiveChange by rememberUpdatedState(onActiveChange)
 
-    var boxModifier = modifier
-        .windowInsetsPadding(
-            TopAppBarDefaults.windowInsets.only(
-                WindowInsetsSides.Bottom
-            )
-        )
-        .fillMaxWidth()
-
-    if (screenState.isSearchActive) {
-        boxModifier = boxModifier.fillMaxHeight()
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { textFieldState.text.toString() }
+            .collect { viewModel.onSearchTextChanged(it) }
     }
 
-    Box(modifier = boxModifier) {
-        SearchBar(
-            modifier = modifier
-                .align(Alignment.TopCenter),
+    LaunchedEffect(searchBarState) {
+        snapshotFlow { searchBarState.currentValue == SearchBarValue.Expanded }
+            .distinctUntilChanged()
+            .drop(1)
+            .collect { isActive ->
+                viewModel.onSearchActiveChanged(isActive)
+                currentOnActiveChange?.invoke(isActive)
+            }
+    }
+
+    val colors = SearchBarDefaults.colors(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
+    )
+
+    val inputField = @Composable {
+        SearchBarDefaults.InputField(
+            textFieldState = textFieldState,
+            searchBarState = searchBarState,
+            onSearch = { viewModel.onSearchTextChanged(it) },
             placeholder = placeholder,
-            query = screenState.searchText,
-            onQueryChange = {
-                viewModel.onSearchTextChanged(it)
-            },
-            onSearch = {
-                viewModel.onSearchTextChanged(it)
-            },
-            active = screenState.isSearchActive,
-            onActiveChange = {
-                viewModel.onSearchActiveChanged(it)
-                onActiveChange?.invoke(it)
-            },
-            colors = SearchBarDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
             leadingIcon = leadingIcon
-        ) {
-            SearchRecipesView(
-                recipes = screenState.recipes,
-                onIsActiveChanged = viewModel::onSearchActiveChanged,
-                onRecipeSelected = { onRecipeSelected(it) }
-            )
-        }
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .windowInsetsPadding(SearchBarDefaults.windowInsets)
+            .fillMaxWidth()
+    ) {
+        SearchBar(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = searchBarState,
+            inputField = inputField,
+            colors = colors
+        )
+    }
+
+    ExpandedFullScreenSearchBar(
+        state = searchBarState,
+        inputField = inputField,
+        colors = colors
+    ) {
+        SearchRecipesView(
+            recipes = screenState.recipes,
+            onRecipeSelected = { recipe ->
+                coroutineScope.launch { searchBarState.animateToCollapsed() }
+                onRecipeSelected(recipe)
+            }
+        )
     }
 }

@@ -62,7 +62,7 @@ fun RecipeInstructionGridItem(
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Next,
                 capitalization = KeyboardCapitalization.Sentences,
-                autoCorrect = true
+                autoCorrectEnabled = true
             ),
             colors = TextFieldDefaults.appColors(
                 focusedIndicatorColor = Color.Transparent,

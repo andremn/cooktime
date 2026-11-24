@@ -15,7 +15,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.nicoapps.cooktime.R
@@ -40,7 +41,6 @@ import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
-import com.nicoapps.cooktime.ui.components.AppTabIndicator
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarFab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppTopBarTitle
@@ -183,12 +183,11 @@ fun ViewRecipeScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TabRow(
+        SecondaryTabRow(
             selectedTabIndex = pagerState.currentPage,
             indicator = {
-                AppTabIndicator(
-                    pagerState = pagerState,
-                    tabPositions = it
+                SecondaryIndicator(
+                    Modifier.tabIndicatorOffset(pagerState.currentPage)
                 )
             }
         ) {

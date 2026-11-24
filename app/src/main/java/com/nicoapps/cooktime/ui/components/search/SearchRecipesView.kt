@@ -1,6 +1,5 @@
 package com.nicoapps.cooktime.ui.components.search
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -19,16 +18,11 @@ import java.time.format.FormatStyle
 fun SearchRecipesView(
     modifier: Modifier = Modifier,
     recipes: List<Recipe>,
-    onIsActiveChanged: (Boolean) -> Unit,
     onRecipeSelected: (Recipe) -> Unit
 ) {
     recipes.forEach { recipe ->
         ListItem(
-            headlineContent = {
-                Text(
-                    text = recipe.name
-                )
-            },
+            onClick = { onRecipeSelected(recipe) },
             supportingContent = {
                 Text(
                     text = recipe.createdAt.format(
@@ -45,12 +39,12 @@ fun SearchRecipesView(
                 }
             },
             modifier = modifier
-                .clickable {
-                    onIsActiveChanged(false)
-                    onRecipeSelected(recipe)
-                }
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp)
-        )
+        ) {
+            Text(
+                text = recipe.name
+            )
+        }
     }
 }
