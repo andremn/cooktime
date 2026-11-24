@@ -156,7 +156,7 @@ fun RecipeInstructionsColumn(
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
                     capitalization = KeyboardCapitalization.Sentences,
-                    autoCorrect = true
+                    autoCorrectEnabled = true
                 ),
                 leadingIcon = {
                     Icon(
