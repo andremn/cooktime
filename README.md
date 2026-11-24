@@ -16,6 +16,10 @@ Cooktime is an Android application to manage recipes. This project is a work in 
 - **Jetpack Compose**: Android’s modern toolkit for building native UI.
 - **Room Database**: Persistence library in Android that provides an abstraction layer over SQLite.
 
+## AI Assistance
+
+Starting on November 24, 2026, this project has been developed with the help of AI coding agents. The first AI-assisted commit is [`2aa6c2c`](https://github.com/andremn/cooktime/commit/2aa6c2c027b1eb2b33393c508b7c0616d5155431) (from [PR #2](https://github.com/andremn/cooktime/pull/2)). Commits before it were written without AI assistance.
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
