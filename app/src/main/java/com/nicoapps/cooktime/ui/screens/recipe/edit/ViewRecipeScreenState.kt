@@ -15,5 +15,6 @@ data class ViewRecipeScreenState(
     val recipeName: String = "",
     val isRecipeStarred: Boolean = false,
     val recipeIngredients: List<Ingredient> = emptyList(),
-    val recipeInstructions: List<Instruction> = emptyList()
+    val recipeInstructions: List<Instruction> = emptyList(),
+    val canSaveChanges: Boolean = false
 )

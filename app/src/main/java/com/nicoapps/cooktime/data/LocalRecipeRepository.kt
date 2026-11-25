@@ -8,6 +8,7 @@ import com.nicoapps.cooktime.mapper.RecipeMapper.toModel
 import com.nicoapps.cooktime.model.Recipe
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import javax.inject.Inject
 
 class LocalRecipeRepository @Inject constructor(
@@ -17,13 +18,20 @@ class LocalRecipeRepository @Inject constructor(
     override suspend fun save(recipe: Recipe) {
         database.withTransaction {
             val isUpdating = recipe.id > 0
-            var recipeId = database.recipeDao().upsert(recipe.toEntity())
-
-            if (isUpdating) {
-                recipeId = recipe.id
+            val recipeId = if (isUpdating) {
+                database.recipeDao().updateDetails(
+                    id = recipe.id,
+                    name = recipe.name,
+                    isStarred = recipe.isStarred,
+                    lastUpdatedAt = Instant.now().epochSecond
+                )
 
                 deleteRemovedIngredients(recipe)
                 deleteRemovedInstructions(recipe)
+
+                recipe.id
+            } else {
+                database.recipeDao().insert(recipe.toEntity())
             }
 
             database.ingredientDao().upsertAll(

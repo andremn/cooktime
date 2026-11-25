@@ -6,6 +6,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.nicoapps.cooktime.R
 
 @Composable
@@ -18,7 +19,7 @@ fun ExecuteRecipeBottomAppBarActions(
     ) {
         Icon(
             imageVector = Icons.Default.Refresh,
-            contentDescription = "Localized description"
+            contentDescription = stringResource(R.string.cd_uncheck_all)
         )
     }
 
@@ -27,7 +28,7 @@ fun ExecuteRecipeBottomAppBarActions(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.baseline_timer_24),
-            contentDescription = "Localized description"
+            contentDescription = stringResource(R.string.cd_timer)
         )
     }
 }

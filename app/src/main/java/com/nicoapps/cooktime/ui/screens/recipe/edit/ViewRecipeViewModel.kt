@@ -20,8 +20,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Clock
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -112,6 +110,10 @@ class ViewRecipeViewModel @Inject constructor(
     }
 
     fun onFinishEditing(saveChanges: Boolean) {
+        if (saveChanges && !recipeState.value.isValid()) {
+            return
+        }
+
         _screenState.update {
             it.copy(
                 isEditing = false
@@ -227,7 +229,8 @@ class ViewRecipeViewModel @Inject constructor(
             recipeName = recipeState.name,
             isRecipeStarred = recipeState.isStarred,
             recipeIngredients = recipeState.ingredients,
-            recipeInstructions = recipeState.instructions
+            recipeInstructions = recipeState.instructions,
+            canSaveChanges = recipeState.isValid()
         )
 
     private fun rollbackChanges() {
@@ -252,18 +255,19 @@ class ViewRecipeViewModel @Inject constructor(
         val name: String = "",
         val isStarred: Boolean = false,
         val ingredients: List<Ingredient> = emptyList(),
-        val instructions: List<Instruction> = emptyList(),
-        val createdAt: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
+        val instructions: List<Instruction> = emptyList()
     ) {
+        /** Same rules the new-recipe wizard enforces step by step. */
+        fun isValid() =
+            name.isNotBlank() && ingredients.isNotEmpty() && instructions.isNotEmpty()
+
         fun toRecipe(id: Long = 0) =
             Recipe(
                 id = id,
                 name = name,
                 isStarred = isStarred,
                 ingredients = ingredients,
-                instructions = instructions,
-                createdAt = createdAt,
-                lastUpdatedAt = ZonedDateTime.now(Clock.systemUTC())
+                instructions = instructions
             )
     }
 

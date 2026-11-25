@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
+import com.nicoapps.cooktime.utils.FloatUtils.isSingularQuantity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,10 @@ fun RecipeIngredientCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = null
+                        contentDescription = stringResource(
+                            R.string.cd_remove_ingredient,
+                            ingredient.name
+                        )
                     )
                 }
             }
@@ -85,11 +89,7 @@ fun RecipeIngredientCard(
                     )
 
                     Text(
-                        text = ingredient.measurementUnit.orEmpty().ifEmpty {
-                            stringResource(
-                                id = R.string.new_recipe_new_ingredient_unitary
-                            )
-                        }.lowercase(),
+                        text = ingredient.unitLabel(),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -97,3 +97,16 @@ fun RecipeIngredientCard(
         }
     }
 }
+
+/** The ingredient's unit, or "unit"/"units" (localized, by plural rules) when it has none. */
+@Composable
+fun Ingredient.unitLabel(): String =
+    measurementUnit.orEmpty().lowercase().ifEmpty {
+        stringResource(
+            id = if (quantity.isSingularQuantity()) {
+                R.string.new_recipe_new_ingredient_unit_one
+            } else {
+                R.string.new_recipe_new_ingredient_unit_other
+            }
+        )
+    }

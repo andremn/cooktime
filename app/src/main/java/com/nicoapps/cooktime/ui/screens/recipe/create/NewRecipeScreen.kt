@@ -112,7 +112,7 @@ fun NewRecipeScreen(
             recipeInstructions = screenState.recipeInstructions,
             currentTitle = screenState.currentTitle,
             currentStep = screenState.currentStep,
-            nextButtonEnabled = screenState.nextButtonEnabled,
+            nextButtonEnabled = screenState.nextButtonEnabled && !screenState.isSaving,
             onNextClicked = { viewModel.nextStep() },
             onFinishClicked = { viewModel.saveRecipe() },
             onCurrentTitleChanged = { viewModel.onCurrentTitleChanged(it) },

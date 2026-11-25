@@ -7,6 +7,8 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.nicoapps.cooktime.R
 
 @Composable
 fun ExecuteRecipeBottomAppBarFab(
@@ -19,7 +21,7 @@ fun ExecuteRecipeBottomAppBarFab(
     ) {
         Icon(
             imageVector = Icons.Default.Done,
-            contentDescription = "Localized description"
+            contentDescription = stringResource(R.string.cd_finish_recipe)
         )
     }
 }

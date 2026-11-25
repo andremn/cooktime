@@ -39,7 +39,7 @@ fun ViewRecipeAppBottomBarFab(
             icon = {
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Localized description"
+                    contentDescription = null
                 )
             }
         )
