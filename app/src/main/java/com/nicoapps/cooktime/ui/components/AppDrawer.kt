@@ -113,13 +113,6 @@ fun DrawerHeader(modifier: Modifier) {
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
             )
-
-            Text(
-                text = "3 minutes ago",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onPrimary,
-            )
         }
     }
 }

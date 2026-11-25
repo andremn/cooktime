@@ -108,7 +108,7 @@ fun RecipeIngredientsGrid(
                 onClick = { showQuantityDialog() }
             ) {
                 Text(
-                    text = "+ ${stringResource(id = R.string.new_recipe_add_ingredient)}"
+                    text = stringResource(id = R.string.new_recipe_add_ingredient_button)
                 )
             }
         }

@@ -20,9 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.components.AppTextField
 import com.nicoapps.cooktime.ui.components.appColors
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
@@ -87,7 +89,10 @@ fun RecipeInstructionGridItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.Clear,
-                    contentDescription = null
+                    contentDescription = stringResource(
+                        R.string.cd_remove_instruction,
+                        index.inc()
+                    )
                 )
             }
         }

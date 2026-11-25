@@ -20,6 +20,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.defaultTransitionSpec
 
@@ -39,7 +41,7 @@ fun AppTitleTopBar(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = null
+                contentDescription = stringResource(R.string.cd_navigate_up)
             )
         }
     }

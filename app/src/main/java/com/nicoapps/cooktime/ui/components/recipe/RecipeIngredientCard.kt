@@ -53,7 +53,10 @@ fun RecipeIngredientCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = null
+                        contentDescription = stringResource(
+                            R.string.cd_remove_ingredient,
+                            ingredient.name
+                        )
                     )
                 }
             }

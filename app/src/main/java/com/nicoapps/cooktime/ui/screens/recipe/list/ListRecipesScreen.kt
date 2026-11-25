@@ -56,7 +56,7 @@ fun HomeScreen(
                     content = {
                         Icon(
                             Icons.Filled.Add,
-                            stringResource(id = R.string.new_recipe_button_text)
+                            stringResource(id = R.string.cd_new_recipe)
                         )
                     },
                     onClick = { appNavigationActions.navigateToNewRecipe() }

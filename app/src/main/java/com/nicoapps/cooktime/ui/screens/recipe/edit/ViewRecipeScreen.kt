@@ -68,6 +68,8 @@ fun ViewRecipeScreen(
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { tabs.size }
     val context = LocalContext.current
+    val recipeDeletedMessage = stringResource(R.string.view_recipe_deleted_message)
+    val undoLabel = stringResource(R.string.view_recipe_deleted_undo)
 
     LaunchedEffect(
         screenState.recipeName,
@@ -78,8 +80,8 @@ fun ViewRecipeScreen(
             val recipeId = screenState.recipeId
 
             snackbarState.show(
-                "Recipe deleted",
-                actionLabel = "Undo",
+                recipeDeletedMessage,
+                actionLabel = undoLabel,
                 onDismissed = {
                     if (it == SnackbarResult.ActionPerformed) {
                         launch {

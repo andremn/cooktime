@@ -7,7 +7,6 @@
     <string name="new_recipe_instructions_step_title">E por fim, descreva o modo de preparo</string>
     <string name="new_recipe_name_step_placeholder">Digite um nome para sua deliciosa receita</string>
     <string name="user_profile_content_description">Foto de perfil</string>
-    <string name="new_recipe_button_text">Salvar receita</string>
     <string name="search_recipes_placeholder">Procurar receitas</string>
     <string name="save_new_recipe_button_text">Salvar</string>
     <string name="start_recipe_button_text">Iniciar receita</string>
@@ -16,7 +15,6 @@
     <string name="new_recipe_name_step_next">Próximo</string>
     <string name="new_recipe_steps_step_title">Ah, antes de finalizar, você pode adicionar notas a sua receita aqui</string>
     <string name="new_recipe_name_empty_error">A receita precisa de um nome</string>
-    <string name="new_recipe_add_ingredient">Adicionar ingrediente</string>
     <string name="new_recipe_new_ingredient_dialog_title">Novo ingrediente</string>
     <string name="new_recipe_add_ingredient_name_placeholder">Nome</string>
     <string name="new_recipe_add_ingredient_quantity_placeholder">Quantidade</string>
@@ -43,4 +41,23 @@
     <string name="execute_recipe_save_execution_dialog_description">Você deseja salvar a execução dessa receita para que fique registrado no seu histórico?</string>
     <string name="execute_recipe_save_execution_dialog_confirm">Sim, pode salvar</string>
     <string name="execute_recipe_save_execution_dialog_cancel">Não, só feche a tela</string>
+    <string name="cd_new_recipe">Nova receita</string>
+    <string name="cd_open_menu">Abrir menu</string>
+    <string name="cd_navigate_up">Voltar</string>
+    <string name="cd_edit_recipe">Editar receita</string>
+    <string name="cd_delete_recipe">Deletar receita</string>
+    <string name="cd_add_to_favorites">Adicionar aos favoritos</string>
+    <string name="cd_remove_from_favorites">Remover dos favoritos</string>
+    <string name="cd_save_changes">Salvar alterações</string>
+    <string name="cd_discard_changes">Descartar alterações</string>
+    <string name="cd_rename_recipe">Renomear receita</string>
+    <string name="cd_remove_ingredient">Remover ingrediente %1$s</string>
+    <string name="cd_remove_instruction">Remover passo %1$d</string>
+    <string name="cd_uncheck_all">Desmarcar todos os itens</string>
+    <string name="cd_timer">Temporizador</string>
+    <string name="cd_finish_recipe">Concluir receita</string>
+    <string name="new_recipe_add_ingredient_button">+ Adicionar ingrediente</string>
+    <string name="view_recipe_deleted_message">Receita deletada</string>
+    <string name="view_recipe_deleted_undo">Desfazer</string>
+    <string name="settings_placeholder_description">Em breve esta tela terá um design</string>
 </resources>

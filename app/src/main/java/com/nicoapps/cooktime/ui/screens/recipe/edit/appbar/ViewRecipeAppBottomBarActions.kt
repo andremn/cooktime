@@ -11,6 +11,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
 import com.nicoapps.cooktime.ui.defaultTransitionSpec
 
@@ -41,7 +43,7 @@ fun ViewRecipeAppBottomBarActions(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Localized description"
+                        contentDescription = stringResource(R.string.cd_save_changes)
                     )
                 }
 
@@ -50,21 +52,21 @@ fun ViewRecipeAppBottomBarActions(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Localized description"
+                        contentDescription = stringResource(R.string.cd_discard_changes)
                     )
                 }
             } else {
                 IconButton(onClick = { onEditClick() }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Localized description",
+                        contentDescription = stringResource(R.string.cd_edit_recipe),
                     )
                 }
 
                 IconButton(onClick = { onDeleteClick() }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Localized description",
+                        contentDescription = stringResource(R.string.cd_delete_recipe),
                     )
                 }
 

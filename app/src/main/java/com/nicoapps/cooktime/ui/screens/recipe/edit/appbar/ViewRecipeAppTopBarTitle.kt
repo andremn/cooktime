@@ -4,17 +4,19 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 
 @Composable
@@ -41,11 +43,12 @@ fun ViewRecipeAppTopBarTitle(
             ),
             exit = scaleOut()
         ) {
-            Icon(
-                modifier = Modifier.clickable { onEditClick() },
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = "Localized description"
-            )
+            IconButton(onClick = onEditClick) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = stringResource(R.string.cd_rename_recipe)
+                )
+            }
         }
     }
 }

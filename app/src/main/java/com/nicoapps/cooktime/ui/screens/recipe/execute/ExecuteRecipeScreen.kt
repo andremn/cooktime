@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -101,12 +103,16 @@ fun ExecuteRecipeScreen(
         }
 
         itemsIndexed(screenState.ingredients) { index, ingredientState ->
-            Row {
+            Row(
+                modifier = Modifier.toggleable(
+                    value = ingredientState.isChecked,
+                    role = Role.Checkbox,
+                    onValueChange = { viewModel.onIngredientCheckChanged(index, it) }
+                )
+            ) {
                 Checkbox(
                     checked = ingredientState.isChecked,
-                    onCheckedChange = {
-                        viewModel.onIngredientCheckChanged(index, it)
-                    }
+                    onCheckedChange = null
                 )
 
                 Column(
@@ -127,14 +133,17 @@ fun ExecuteRecipeScreen(
 
         itemsIndexed(screenState.instructions) { index, instructionState ->
             Row(
+                modifier = Modifier.toggleable(
+                    value = instructionState.isChecked,
+                    role = Role.Checkbox,
+                    onValueChange = { viewModel.onInstructionCheckChanged(index, it) }
+                ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Checkbox(
                     checked = instructionState.isChecked,
-                    onCheckedChange = {
-                        viewModel.onInstructionCheckChanged(index, it)
-                    }
+                    onCheckedChange = null
                 )
 
                 MainText(instructionState.instruction.text, instructionState.isChecked)

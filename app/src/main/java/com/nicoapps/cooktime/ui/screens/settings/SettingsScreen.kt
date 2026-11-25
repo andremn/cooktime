@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.AppNavGraphState
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
@@ -42,9 +43,12 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Settings Screen", style = MaterialTheme.typography.headlineMedium)
         Text(
-            text = "This place will soon have a design",
+            text = stringResource(R.string.settings_title),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = stringResource(R.string.settings_placeholder_description),
             style = MaterialTheme.typography.bodyLarge
         )
     }
