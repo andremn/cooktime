@@ -24,6 +24,7 @@ class AppNavigationActions(
     fun navigateToHome() {
         navController.navigate(HOME) {
             popUpTo(HOME)
+            launchSingleTop = true
         }
     }
 
