@@ -1,5 +1,6 @@
 package com.nicoapps.cooktime.ui.components
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -34,6 +35,9 @@ fun AppTopBar(
     coroutineScope: CoroutineScope,
     onSearchBarActiveChanged: (Boolean) -> Unit
 ) {
+    val onBackPressedDispatcher =
+        checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
+
     AnimatedContent(
         targetState = appNavGraphState.topBar.contentType,
         label = "topAppBarAnimation",
@@ -71,7 +75,7 @@ fun AppTopBar(
             AppTitleTopBar(
                 showActions = appNavGraphState.topBar.showActions,
                 title = appNavGraphState.topBar.title ?: {},
-                onNavigationIconClick = { appNavigationActions.navigateBack() },
+                onNavigationIconClick = { onBackPressedDispatcher.onBackPressed() },
                 actions = appNavGraphState.topBar.actions
             )
         } else if (contentType == AppNavGraphTopBarContentType.SEARCH_BAR) {

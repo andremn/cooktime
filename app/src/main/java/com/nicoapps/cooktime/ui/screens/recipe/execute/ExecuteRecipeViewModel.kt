@@ -120,6 +120,12 @@ class ExecuteRecipeViewModel @Inject constructor(
     }
 
     fun onSaveExecutionDialogConfirmed() {
+        if (_screenState.value.isSaving) {
+            return
+        }
+
+        _screenState.update { it.copy(isSaving = true) }
+
         databaseCoroutineScope.launch {
             recipeExecutionRepository.save(
                 RecipeExecutionEntity(

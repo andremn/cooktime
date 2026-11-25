@@ -8,6 +8,7 @@ data class ExecuteRecipeScreenState(
     val ingredients: List<IngredientState> = emptyList(),
     val instructions: List<InstructionState> = emptyList(),
     val isSaveExecutionDialogOpen: Boolean = false,
+    val isSaving: Boolean = false,
     val isExecutionSaved: Boolean = false
 )
 

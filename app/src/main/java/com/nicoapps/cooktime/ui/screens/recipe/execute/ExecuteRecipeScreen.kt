@@ -76,14 +76,16 @@ fun ExecuteRecipeScreen(
         viewModel.onBackPressed()
     }
 
-    if (screenState.isExecutionSaved) {
-        appNavigationActions.navigateBack()
+    LaunchedEffect(screenState.isExecutionSaved) {
+        if (screenState.isExecutionSaved) {
+            appNavigationActions.navigateBack()
+        }
     }
 
     if (screenState.isSaveExecutionDialogOpen) {
         SaveExecutionDialog(
             onDismissRequest = viewModel::dismissSaveExecutionDialog,
-            onConfirmed = viewModel::dismissSaveExecutionDialog,
+            onConfirmed = viewModel::onSaveExecutionDialogConfirmed,
             onRejected = appNavigationActions::navigateBack
         )
     }
