@@ -20,8 +20,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Clock
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -252,8 +250,7 @@ class ViewRecipeViewModel @Inject constructor(
         val name: String = "",
         val isStarred: Boolean = false,
         val ingredients: List<Ingredient> = emptyList(),
-        val instructions: List<Instruction> = emptyList(),
-        val createdAt: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
+        val instructions: List<Instruction> = emptyList()
     ) {
         fun toRecipe(id: Long = 0) =
             Recipe(
@@ -261,9 +258,7 @@ class ViewRecipeViewModel @Inject constructor(
                 name = name,
                 isStarred = isStarred,
                 ingredients = ingredients,
-                instructions = instructions,
-                createdAt = createdAt,
-                lastUpdatedAt = ZonedDateTime.now(Clock.systemUTC())
+                instructions = instructions
             )
     }
 
