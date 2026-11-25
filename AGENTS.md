@@ -54,12 +54,14 @@ Package root: `app/src/main/java/com/nicoapps/cooktime/`.
 
 ### UI shell and navigation
 
-- `MainActivity` → `AppNavGraph`, a single `Scaffold` that owns the drawer, top bar, bottom bar, FAB and snackbar for every screen.
-- Screens don't own their own `Scaffold`. Each one reports what the shell should show by calling `onComposing(AppNavGraphState(...))` from a `LaunchedEffect`. That state covers the top bar type (title / search bar / none), title, actions, the bottom bar and the FAB. When adding a screen, follow this pattern (see `ListRecipesScreen`).
+- `MainActivity` → `AppNavGraph`, which owns only the navigation drawer, the `NavHost` and a shared `SnackbarHostState` (with the `CoroutineScope` that shows snackbars, so a message requested right before navigating away is still displayed on the destination).
+- Each screen owns its own Material 3 `Scaffold`, declaring its top bar, bottom bar and FAB directly in the composition, with no effect publishing UI state to a parent. Use `AppTitleTopBar` for a title with a back button. When adding a screen, follow this pattern (see `ViewRecipeScreen`).
+- The shared snackbar reaches screens as an explicit `AppSnackbarState` parameter; the screen that displays the message renders `SnackbarHost` with `appSnackbarState.snackbarHostState`.
+- Effects are reserved for events (showing a snackbar, navigating after saving or deleting, syncing the pager). Never publish UI state from an effect: predictive back composes the outgoing screen during the gesture, and stale shell state shows the previous screen's bars.
 - Routes are string constants in `AllDestinations`. Navigation goes through `AppNavigationActions`, and the destinations are registered in `ui/components/AppNavHost.kt`.
 - Screens live in `ui/screens/<feature>/<action>/` alongside their ViewModel and `*ScreenState`, with `appbar/`, `dialogs/`, `tabs/` and `steps/` subfolders as needed. Reusable composables go in `ui/components/`.
 - ViewModels are obtained with `hiltViewModel()` from `androidx.hilt.lifecycle.viewmodel.compose`.
-- The app is edge-to-edge (`enableEdgeToEdge()` in `MainActivity`), so new layouts must handle window insets themselves.
+- The app is edge-to-edge (`enableEdgeToEdge()` in `MainActivity`), so new layouts must handle window insets themselves. A `Scaffold`'s bars apply the system bar insets; content with text fields applies `imePadding()` after `consumeWindowInsets(paddingValues)` so the focused field stays above the keyboard, and the activity uses `adjustResize` so the system doesn't pan the whole window.
 
 ### Localization
 
