@@ -116,7 +116,7 @@ fun EditRecipeNameDialog(
                     modifier = modifier.padding(
                         dimensionResource(id = R.dimen.dialog_buttons_spacing)
                     ),
-                    enabled = recipeName.isNotBlank(),
+                    enabled = textFieldValue.text.isNotBlank(),
                     onClick = { onConfirmed(textFieldValue.text) }
                 ) {
                     Text(

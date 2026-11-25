@@ -110,6 +110,10 @@ class ViewRecipeViewModel @Inject constructor(
     }
 
     fun onFinishEditing(saveChanges: Boolean) {
+        if (saveChanges && !recipeState.value.isValid()) {
+            return
+        }
+
         _screenState.update {
             it.copy(
                 isEditing = false
@@ -225,7 +229,8 @@ class ViewRecipeViewModel @Inject constructor(
             recipeName = recipeState.name,
             isRecipeStarred = recipeState.isStarred,
             recipeIngredients = recipeState.ingredients,
-            recipeInstructions = recipeState.instructions
+            recipeInstructions = recipeState.instructions,
+            canSaveChanges = recipeState.isValid()
         )
 
     private fun rollbackChanges() {
@@ -252,6 +257,10 @@ class ViewRecipeViewModel @Inject constructor(
         val ingredients: List<Ingredient> = emptyList(),
         val instructions: List<Instruction> = emptyList()
     ) {
+        /** Same rules the new-recipe wizard enforces step by step. */
+        fun isValid() =
+            name.isNotBlank() && ingredients.isNotEmpty() && instructions.isNotEmpty()
+
         fun toRecipe(id: Long = 0) =
             Recipe(
                 id = id,

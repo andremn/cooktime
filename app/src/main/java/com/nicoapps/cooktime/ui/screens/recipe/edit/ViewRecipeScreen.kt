@@ -112,6 +112,7 @@ fun ViewRecipeScreen(
                             ViewRecipeAppBottomBarActions(
                                 isEditing = screenState.isEditing,
                                 isStarred = screenState.isRecipeStarred,
+                                isEditDoneEnabled = screenState.canSaveChanges,
                                 onEditClick = viewModel::onEditClick,
                                 onDeleteClick = viewModel::onRecipeDeleteRequest,
                                 onStarClick = {
