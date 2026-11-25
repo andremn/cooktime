@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
@@ -32,8 +33,13 @@ fun ViewRecipeAppTopBarTitle(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
+        // Leaves room for the rename button: a long name ellipsizes instead of pushing the
+        // button out of the bar.
         Text(
-            text = titleText
+            modifier = Modifier.weight(1f, fill = false),
+            text = titleText,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
 
         AnimatedVisibility(
