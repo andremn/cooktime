@@ -33,6 +33,9 @@ import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.create.steps.NewRecipeSteps
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import androidx.compose.material3.FloatingActionButtonDefaults
+import com.nicoapps.cooktime.ui.transitions.SharedElementKey
+import com.nicoapps.cooktime.ui.transitions.sharedContainer
 
 @Composable
 fun NewRecipeScreen(
@@ -70,7 +73,10 @@ fun NewRecipeScreen(
     }
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.sharedContainer(
+            key = SharedElementKey.NewRecipeContainer,
+            clipShape = FloatingActionButtonDefaults.shape
+        ),
         topBar = {
             AppTitleTopBar(
                 title = {

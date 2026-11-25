@@ -40,6 +40,9 @@ import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBotto
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarFab
 import com.nicoapps.cooktime.ui.screens.recipe.execute.dialogs.SaveExecutionDialog
 import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
+import androidx.compose.material3.FloatingActionButtonDefaults
+import com.nicoapps.cooktime.ui.transitions.SharedElementKey
+import com.nicoapps.cooktime.ui.transitions.sharedContainer
 
 @Composable
 fun ExecuteRecipeScreen(
@@ -71,7 +74,10 @@ fun ExecuteRecipeScreen(
     }
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.sharedContainer(
+            key = SharedElementKey.ExecuteRecipeContainer(screenState.recipeId),
+            clipShape = FloatingActionButtonDefaults.extendedFabShape
+        ),
         topBar = {
             AppTitleTopBar(
                 title = {

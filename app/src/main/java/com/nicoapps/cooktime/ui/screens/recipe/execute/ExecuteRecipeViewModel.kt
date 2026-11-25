@@ -28,7 +28,12 @@ class ExecuteRecipeViewModel @Inject constructor(
 ) : ViewModel() {
     private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
 
-    private val _screenState = MutableStateFlow(ExecuteRecipeScreenState())
+    private val _screenState = MutableStateFlow(
+        ExecuteRecipeScreenState(
+            recipeId = recipeId,
+            recipeName = savedStateHandle["recipeTitle"] ?: ""
+        )
+    )
 
     init {
         recipeRepository.findById(recipeId)
@@ -57,7 +62,7 @@ class ExecuteRecipeViewModel @Inject constructor(
     val screenState = _screenState.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = ExecuteRecipeScreenState()
+        initialValue = _screenState.value
     )
 
     fun onIngredientCheckChanged(ingredientIndex: Int, isChecked: Boolean) {

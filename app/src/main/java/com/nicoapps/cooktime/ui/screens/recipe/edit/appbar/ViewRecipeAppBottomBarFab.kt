@@ -22,12 +22,12 @@ fun ViewRecipeAppBottomBarFab(
     onClick: () -> Unit
 ) {
     AnimatedVisibility(
-        modifier = modifier,
         visible = isVisible,
         enter = defaultEnterAnimation(),
         exit = defaultExitAnimation()
     ) {
         ExtendedFloatingActionButton(
+            modifier = modifier,
             onClick = { onClick() },
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),

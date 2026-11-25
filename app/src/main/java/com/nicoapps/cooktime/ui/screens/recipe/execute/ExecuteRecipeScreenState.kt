@@ -4,6 +4,7 @@ import com.nicoapps.cooktime.model.Ingredient
 import com.nicoapps.cooktime.model.Instruction
 
 data class ExecuteRecipeScreenState(
+    val recipeId: Long = 0,
     val recipeName: String = "",
     val ingredients: List<IngredientState> = emptyList(),
     val instructions: List<InstructionState> = emptyList(),
