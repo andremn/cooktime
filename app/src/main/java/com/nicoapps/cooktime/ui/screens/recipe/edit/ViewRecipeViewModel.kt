@@ -29,7 +29,9 @@ class ViewRecipeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
-    private val recipeState = MutableStateFlow(RecipeState())
+    private val recipeState = MutableStateFlow(
+        RecipeState(name = savedStateHandle["recipeTitle"] ?: "")
+    )
     private val _screenState = MutableStateFlow(ScreenState())
 
     private lateinit var editingRecipe: Recipe
@@ -54,7 +56,7 @@ class ViewRecipeViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = ViewRecipeScreenState()
+        initialValue = createViewRecipeScreenState(_screenState.value, recipeState.value)
     )
 
     fun onSelectedTabChanged(tab: ViewRecipeScreenTab) {

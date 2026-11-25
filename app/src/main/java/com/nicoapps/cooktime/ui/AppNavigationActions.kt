@@ -51,8 +51,8 @@ class AppNavigationActions(
         }
     }
 
-    fun navigateToExecuteRecipe(recipeId: Long) {
-        val route = "$EXECUTE_RECIPE/${recipeId}"
+    fun navigateToExecuteRecipe(recipeId: Long, recipeName: String) {
+        val route = "$EXECUTE_RECIPE/${recipeId}?recipeTitle=${Uri.encode(recipeName)}"
 
         navController.navigate(route) {
             launchSingleTop = true

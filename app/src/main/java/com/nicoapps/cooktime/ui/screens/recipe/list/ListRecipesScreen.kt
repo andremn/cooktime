@@ -45,6 +45,11 @@ import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
 import com.nicoapps.cooktime.ui.components.search.SearchRecipesBar
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.defaultExitAnimation
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButtonDefaults
+import com.nicoapps.cooktime.ui.transitions.SharedElementKey
+import com.nicoapps.cooktime.ui.transitions.sharedContainer
+import com.nicoapps.cooktime.ui.transitions.sharedElement
 
 @Composable
 fun HomeScreen(
@@ -93,6 +98,10 @@ fun HomeScreen(
                 exit = defaultExitAnimation()
             ) {
                 FloatingActionButton(
+                    modifier = Modifier.sharedContainer(
+                        key = SharedElementKey.NewRecipeContainer,
+                        clipShape = FloatingActionButtonDefaults.shape
+                    ),
                     onClick = { appNavigationActions.navigateToNewRecipe() },
                 ) {
                     Icon(
@@ -131,6 +140,10 @@ fun HomeScreen(
                         ElevatedCard(
                             modifier = Modifier
                                 .padding(vertical = 5.dp)
+                                .sharedContainer(
+                                    key = SharedElementKey.RecipeContainer(recipe.id),
+                                    clipShape = CardDefaults.elevatedShape
+                                )
                                 .clickable {
                                     appNavigationActions.navigateToViewRecipe(recipe)
                                 }
@@ -139,6 +152,9 @@ fun HomeScreen(
                                 modifier = Modifier.padding(10.dp)
                             ) {
                                 Text(
+                                    modifier = Modifier.sharedElement(
+                                        SharedElementKey.RecipeTitle(recipe.id)
+                                    ),
                                     text = recipe.name,
                                     style = MaterialTheme.typography.headlineSmall
                                 )

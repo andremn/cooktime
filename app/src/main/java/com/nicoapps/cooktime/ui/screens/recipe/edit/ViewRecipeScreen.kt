@@ -50,6 +50,10 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
 import kotlinx.coroutines.launch
+import androidx.compose.material3.FloatingActionButtonDefaults
+import com.nicoapps.cooktime.ui.transitions.SharedElementKey
+import com.nicoapps.cooktime.ui.transitions.sharedContainer
+import com.nicoapps.cooktime.ui.transitions.sharedElement
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -130,11 +134,16 @@ fun ViewRecipeScreen(
     }
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.sharedContainer(
+            SharedElementKey.RecipeContainer(screenState.recipeId)
+        ),
         topBar = {
             AppTitleTopBar(
                 title = {
                     ViewRecipeAppTopBarTitle(
+                        modifier = Modifier.sharedElement(
+                            SharedElementKey.RecipeTitle(screenState.recipeId)
+                        ),
                         titleText = screenState.recipeName,
                         isEditing = screenState.isEditing,
                         onEditClick = viewModel::onEditNameClick
@@ -167,10 +176,15 @@ fun ViewRecipeScreen(
                 },
                 floatingActionButton = {
                     ViewRecipeAppBottomBarFab(
+                        modifier = Modifier.sharedContainer(
+                            key = SharedElementKey.ExecuteRecipeContainer(screenState.recipeId),
+                            clipShape = FloatingActionButtonDefaults.extendedFabShape
+                        ),
                         isVisible = screenState.isEditing.not(),
                         onClick = {
                             appNavigationActions.navigateToExecuteRecipe(
-                                recipeId = screenState.recipeId
+                                recipeId = screenState.recipeId,
+                                recipeName = screenState.recipeName
                             )
                         }
                     )
