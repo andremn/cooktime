@@ -14,7 +14,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,8 +61,9 @@ fun NewRecipeSteps(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         AnimatedContent(
-            modifier = modifier
-                .fillMaxHeight(.9f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
             targetState = currentStep,
             label = "newRecipeStepChangedAnimation",
             transitionSpec = {

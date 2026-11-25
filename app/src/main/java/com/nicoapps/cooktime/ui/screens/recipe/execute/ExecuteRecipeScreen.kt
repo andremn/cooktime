@@ -1,6 +1,7 @@
 package com.nicoapps.cooktime.ui.screens.recipe.execute
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -29,12 +32,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.model.Ingredient
-import com.nicoapps.cooktime.ui.AppNavGraphBottomBarState
-import com.nicoapps.cooktime.ui.AppNavGraphState
-import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
-import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AnimatedLineThroughText
+import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.components.recipe.unitLabel
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarFab
@@ -45,35 +45,12 @@ import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
 fun ExecuteRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ExecuteRecipeViewModel = hiltViewModel(),
-    appNavigationActions: AppNavigationActions,
-    onComposing: (AppNavGraphState) -> Unit
+    appNavigationActions: AppNavigationActions
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        onComposing(
-            AppNavGraphState(
-                topBar = AppNavGraphTopBarState(
-                    contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                    title = { Text(text = screenState.recipeName) }
-                ),
-                bottomBar = AppNavGraphBottomBarState(
-                    visible = true,
-                    actions = {
-                        ExecuteRecipeBottomAppBarActions(
-                            onResetClick = viewModel::onReset,
-                            onAlarmClick = { }
-                        )
-                    },
-                    floatingActionButton = {
-                        ExecuteRecipeBottomAppBarFab(
-                            onClick = viewModel::onSaveExecutionDialogConfirmed
-                        )
-                    }
-                )
-            )
-        )
-    }
+    val onBackPressedDispatcher =
+        checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
 
     BackHandler {
         viewModel.onBackPressed()
@@ -93,60 +70,88 @@ fun ExecuteRecipeScreen(
         )
     }
 
-    LazyColumn(
-        modifier = modifier
-            .padding(horizontal = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        item(key = "ingredientsSection") {
-            Section(R.string.view_recipe_ingredients_tab)
-        }
-
-        itemsIndexed(screenState.ingredients) { index, ingredientState ->
-            Row(
-                modifier = Modifier.toggleable(
-                    value = ingredientState.isChecked,
-                    role = Role.Checkbox,
-                    onValueChange = { viewModel.onIngredientCheckChanged(index, it) }
-                )
-            ) {
-                Checkbox(
-                    checked = ingredientState.isChecked,
-                    onCheckedChange = null
-                )
-
-                Column(
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    MainText(
-                        text = ingredientState.ingredient.name,
-                        isChecked = ingredientState.isChecked,
-                        supportingText = ingredientState.ingredient.buildAnnotatedString()
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            AppTitleTopBar(
+                title = {
+                    Text(text = screenState.recipeName)
+                },
+                onNavigationIconClick = { onBackPressedDispatcher.onBackPressed() }
+            )
+        },
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    ExecuteRecipeBottomAppBarActions(
+                        onResetClick = viewModel::onReset,
+                        onAlarmClick = { }
+                    )
+                },
+                floatingActionButton = {
+                    ExecuteRecipeBottomAppBarFab(
+                        onClick = viewModel::onSaveExecutionDialogConfirmed
                     )
                 }
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            item(key = "ingredientsSection") {
+                Section(R.string.view_recipe_ingredients_tab)
             }
-        }
 
-        item(key = "instructionsSection") {
-            Section(R.string.view_recipe_instructions_tab, spacerBeforeText = true)
-        }
+            itemsIndexed(screenState.ingredients) { index, ingredientState ->
+                Row(
+                    modifier = Modifier.toggleable(
+                        value = ingredientState.isChecked,
+                        role = Role.Checkbox,
+                        onValueChange = { viewModel.onIngredientCheckChanged(index, it) }
+                    )
+                ) {
+                    Checkbox(
+                        checked = ingredientState.isChecked,
+                        onCheckedChange = null
+                    )
 
-        itemsIndexed(screenState.instructions) { index, instructionState ->
-            Row(
-                modifier = Modifier.toggleable(
-                    value = instructionState.isChecked,
-                    role = Role.Checkbox,
-                    onValueChange = { viewModel.onInstructionCheckChanged(index, it) }
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                Checkbox(
-                    checked = instructionState.isChecked,
-                    onCheckedChange = null
-                )
+                    Column(
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        MainText(
+                            text = ingredientState.ingredient.name,
+                            isChecked = ingredientState.isChecked,
+                            supportingText = ingredientState.ingredient.buildAnnotatedString()
+                        )
+                    }
+                }
+            }
 
-                MainText(instructionState.instruction.text, instructionState.isChecked)
+            item(key = "instructionsSection") {
+                Section(R.string.view_recipe_instructions_tab, spacerBeforeText = true)
+            }
+
+            itemsIndexed(screenState.instructions) { index, instructionState ->
+                Row(
+                    modifier = Modifier.toggleable(
+                        value = instructionState.isChecked,
+                        role = Role.Checkbox,
+                        onValueChange = { viewModel.onInstructionCheckChanged(index, it) }
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Checkbox(
+                        checked = instructionState.isChecked,
+                        onCheckedChange = null
+                    )
+
+                    MainText(instructionState.instruction.text, instructionState.isChecked)
+                }
             }
         }
     }

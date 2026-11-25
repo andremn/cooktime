@@ -1,17 +1,22 @@
 package com.nicoapps.cooktime.ui.screens.recipe.edit
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
@@ -34,13 +39,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeRepositoryProvider
-import com.nicoapps.cooktime.ui.AppNavGraphBottomBarState
-import com.nicoapps.cooktime.ui.AppNavGraphState
-import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
-import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
-import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
+import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarFab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppTopBarTitle
@@ -49,7 +50,6 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -57,8 +57,7 @@ fun ViewRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ViewRecipeViewModel = hiltViewModel(),
     snackbarState: AppSnackbarState,
-    appNavigationActions: AppNavigationActions,
-    onComposing: (AppNavGraphState) -> Unit
+    appNavigationActions: AppNavigationActions
 ) {
     val tabs = setOf(
         stringResource(id = R.string.view_recipe_ingredients_tab),
@@ -71,11 +70,10 @@ fun ViewRecipeScreen(
     val recipeDeletedMessage = stringResource(R.string.view_recipe_deleted_message)
     val undoLabel = stringResource(R.string.view_recipe_deleted_undo)
 
-    LaunchedEffect(
-        screenState.recipeName,
-        screenState.isEditing,
-        screenState.isRecipeDeleted
-    ) {
+    val onBackPressedDispatcher =
+        checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
+
+    LaunchedEffect(screenState.isRecipeDeleted) {
         if (screenState.isRecipeDeleted) {
             val recipeId = screenState.recipeId
 
@@ -94,55 +92,6 @@ fun ViewRecipeScreen(
             )
 
             appNavigationActions.navigateBack()
-        } else {
-            onComposing(
-                AppNavGraphState(
-                    topBar = AppNavGraphTopBarState(
-                        contentType = AppNavGraphTopBarContentType.TITLE_ONLY,
-                        title = {
-                            ViewRecipeAppTopBarTitle(
-                                titleText = screenState.recipeName,
-                                isEditing = screenState.isEditing,
-                                onEditClick = viewModel::onEditNameClick
-                            )
-                        },
-                    ),
-                    bottomBar = AppNavGraphBottomBarState(
-                        visible = true,
-                        delayToBecomeVisible = DEFAULT_ANIMATION_DURATION_MILLIS.milliseconds,
-                        actions = {
-                            ViewRecipeAppBottomBarActions(
-                                isEditing = screenState.isEditing,
-                                isStarred = screenState.isRecipeStarred,
-                                isEditDoneEnabled = screenState.canSaveChanges,
-                                onEditClick = viewModel::onEditClick,
-                                onDeleteClick = viewModel::onRecipeDeleteRequest,
-                                onStarClick = {
-                                    viewModel.onRecipeStarredChanged(
-                                        screenState.isRecipeStarred.not()
-                                    )
-                                },
-                                onEditDoneClick = {
-                                    viewModel.onFinishEditing(saveChanges = true)
-                                },
-                                onEditCancelClick = {
-                                    viewModel.onFinishEditing(saveChanges = false)
-                                }
-                            )
-                        },
-                        floatingActionButton = {
-                            ViewRecipeAppBottomBarFab(
-                                isVisible = screenState.isEditing.not(),
-                                onClick = {
-                                    appNavigationActions.navigateToExecuteRecipe(
-                                        recipeId = screenState.recipeId
-                                    )
-                                }
-                            )
-                        }
-                    )
-                )
-            )
         }
     }
 
@@ -180,83 +129,136 @@ fun ViewRecipeScreen(
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        SecondaryTabRow(
-            selectedTabIndex = pagerState.currentPage,
-            indicator = {
-                SecondaryIndicator(
-                    Modifier.tabIndicatorOffset(pagerState.currentPage)
-                )
-            }
-        ) {
-            tabs.forEachIndexed { index, tab ->
-                Tab(
-                    text = {
-                        Text(
-                            text = tab
-                        )
-                    },
-                    selectedContentColor = MaterialTheme.colorScheme.primary,
-                    unselectedContentColor = MaterialTheme.colorScheme.inversePrimary,
-                    icon = {
-                        when (index) {
-                            ViewRecipeScreenTab.INGREDIENTS.index -> {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ingredients_icon),
-                                    contentDescription = null
-                                )
-                            }
-
-                            ViewRecipeScreenTab.INSTRUCTIONS.index -> {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.List,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    },
-                    selected = screenState.selectedTab.index == index,
-                    onClick = {
-                        viewModel.onSelectedTabChanged(
-                            ViewRecipeScreenTab.fromIndex(index)
-                        )
-                    }
-                )
-            }
-        }
-
-        HorizontalPager(
-            modifier = Modifier
-                .weight(1f),
-            state = pagerState,
-            verticalAlignment = Alignment.Top
-        ) { page ->
-            when (ViewRecipeScreenTab.fromIndex(page)) {
-                ViewRecipeScreenTab.INGREDIENTS -> {
-                    ViewRecipeIngredientsTab(
-                        modifier = Modifier.padding(top = 10.dp),
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            AppTitleTopBar(
+                title = {
+                    ViewRecipeAppTopBarTitle(
+                        titleText = screenState.recipeName,
                         isEditing = screenState.isEditing,
-                        ingredients = screenState.recipeIngredients,
-                        onIngredientAdded = viewModel::onRecipeIngredientAdded,
-                        onIngredientUpdated = viewModel::onRecipeIngredientUpdated,
-                        onIngredientRemoved = viewModel::onRecipeIngredientRemoved,
+                        onEditClick = viewModel::onEditNameClick
+                    )
+                },
+                onNavigationIconClick = { onBackPressedDispatcher.onBackPressed() }
+            )
+        },
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    ViewRecipeAppBottomBarActions(
+                        isEditing = screenState.isEditing,
+                        isStarred = screenState.isRecipeStarred,
+                        isEditDoneEnabled = screenState.canSaveChanges,
+                        onEditClick = viewModel::onEditClick,
+                        onDeleteClick = viewModel::onRecipeDeleteRequest,
+                        onStarClick = {
+                            viewModel.onRecipeStarredChanged(
+                                screenState.isRecipeStarred.not()
+                            )
+                        },
+                        onEditDoneClick = {
+                            viewModel.onFinishEditing(saveChanges = true)
+                        },
+                        onEditCancelClick = {
+                            viewModel.onFinishEditing(saveChanges = false)
+                        }
+                    )
+                },
+                floatingActionButton = {
+                    ViewRecipeAppBottomBarFab(
+                        isVisible = screenState.isEditing.not(),
+                        onClick = {
+                            appNavigationActions.navigateToExecuteRecipe(
+                                recipeId = screenState.recipeId
+                            )
+                        }
                     )
                 }
-
-                ViewRecipeScreenTab.INSTRUCTIONS -> {
-                    ViewRecipeInstructionsTab(
-                        modifier = Modifier.padding(top = 10.dp),
-                        isEditing = screenState.isEditing,
-                        recipeInstructions = screenState.recipeInstructions,
-                        onInstructionAdded = viewModel::onRecipeInstructionAdded,
-                        onInstructionUpdated = viewModel::onRecipeInstructionUpdated,
-                        onInstructionRemoved = viewModel::onRecipeInstructionRemoved
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .consumeWindowInsets(paddingValues)
+                .imePadding(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SecondaryTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                indicator = {
+                    SecondaryIndicator(
+                        Modifier.tabIndicatorOffset(pagerState.currentPage)
                     )
+                }
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        text = {
+                            Text(
+                                text = tab
+                            )
+                        },
+                        selectedContentColor = MaterialTheme.colorScheme.primary,
+                        unselectedContentColor = MaterialTheme.colorScheme.inversePrimary,
+                        icon = {
+                            when (index) {
+                                ViewRecipeScreenTab.INGREDIENTS.index -> {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ingredients_icon),
+                                        contentDescription = null
+                                    )
+                                }
+
+                                ViewRecipeScreenTab.INSTRUCTIONS.index -> {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.List,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
+                        },
+                        selected = screenState.selectedTab.index == index,
+                        onClick = {
+                            viewModel.onSelectedTabChanged(
+                                ViewRecipeScreenTab.fromIndex(index)
+                            )
+                        }
+                    )
+                }
+            }
+
+            HorizontalPager(
+                modifier = Modifier
+                    .weight(1f),
+                state = pagerState,
+                verticalAlignment = Alignment.Top
+            ) { page ->
+                when (ViewRecipeScreenTab.fromIndex(page)) {
+                    ViewRecipeScreenTab.INGREDIENTS -> {
+                        ViewRecipeIngredientsTab(
+                            modifier = Modifier.padding(top = 10.dp),
+                            isEditing = screenState.isEditing,
+                            ingredients = screenState.recipeIngredients,
+                            onIngredientAdded = viewModel::onRecipeIngredientAdded,
+                            onIngredientUpdated = viewModel::onRecipeIngredientUpdated,
+                            onIngredientRemoved = viewModel::onRecipeIngredientRemoved,
+                        )
+                    }
+
+                    ViewRecipeScreenTab.INSTRUCTIONS -> {
+                        ViewRecipeInstructionsTab(
+                            modifier = Modifier.padding(top = 10.dp),
+                            isEditing = screenState.isEditing,
+                            recipeInstructions = screenState.recipeInstructions,
+                            onInstructionAdded = viewModel::onRecipeInstructionAdded,
+                            onInstructionUpdated = viewModel::onRecipeInstructionUpdated,
+                            onInstructionRemoved = viewModel::onRecipeInstructionRemoved
+                        )
+                    }
                 }
             }
         }
@@ -267,7 +269,6 @@ fun ViewRecipeScreen(
 @Composable
 fun ViewRecipeScreenPreview() {
     ViewRecipeScreen(
-        onComposing = {},
         snackbarState = AppSnackbarState(SnackbarHostState(), rememberCoroutineScope()),
         appNavigationActions = AppNavigationActions(rememberNavController())
     )

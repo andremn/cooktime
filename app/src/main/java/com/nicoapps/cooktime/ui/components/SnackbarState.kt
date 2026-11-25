@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 data class AppSnackbarState(
-    private val snackbarHostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
     private val coroutineScope: CoroutineScope
 ) {
     fun show(
