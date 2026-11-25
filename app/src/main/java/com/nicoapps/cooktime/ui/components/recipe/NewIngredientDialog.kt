@@ -26,6 +26,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.dialogSurfaceColor
 import com.nicoapps.cooktime.ui.dialogTextFieldColors
+import com.nicoapps.cooktime.utils.FloatUtils.parseQuantity
 
 @Composable
 fun NewIngredientDialog(
@@ -37,11 +38,15 @@ fun NewIngredientDialog(
     onNameChanged: (String) -> Unit,
     onQuantityChanged: (String) -> Unit,
     onMeasurementUnitChanged: (String) -> Unit,
-    onCloseRequest: (Boolean) -> Unit
+    onConfirmed: (name: String, quantity: Float, measurementUnit: String) -> Unit,
+    onDismiss: () -> Unit
 ) {
     if (isOpen) {
+        val parsedQuantity = parseQuantity(quantity)
+        val showQuantityError = quantity.isNotBlank() && parsedQuantity == null
+
         Dialog(
-            onDismissRequest = { onCloseRequest(false) },
+            onDismissRequest = onDismiss,
             properties = DialogProperties(
                 usePlatformDefaultWidth = true,
                 decorFitsSystemWindows = false
@@ -102,8 +107,20 @@ fun NewIngredientDialog(
                             )
                         },
                         colors = dialogTextFieldColors(),
+                        isError = showQuantityError,
+                        supportingText = if (showQuantityError) {
+                            {
+                                Text(
+                                    text = stringResource(
+                                        R.string.new_recipe_add_ingredient_quantity_error
+                                    )
+                                )
+                            }
+                        } else {
+                            null
+                        },
                         keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
+                            keyboardType = KeyboardType.Decimal,
                             imeAction = ImeAction.Next
                         ),
                         onValueChange = {
@@ -140,7 +157,7 @@ fun NewIngredientDialog(
                             modifier = Modifier.padding(
                                 dimensionResource(id = R.dimen.dialog_buttons_spacing)
                             ),
-                            onClick = { onCloseRequest(false) }
+                            onClick = onDismiss
                         ) {
                             Text(
                                 text = stringResource(id = R.string.new_recipe_add_ingredient_cancel)
@@ -151,8 +168,10 @@ fun NewIngredientDialog(
                             modifier = Modifier.padding(
                                 dimensionResource(id = R.dimen.dialog_buttons_spacing)
                             ),
-                            enabled = name.isNotBlank() && quantity.isNotBlank(),
-                            onClick = { onCloseRequest(true) }
+                            enabled = name.isNotBlank() && parsedQuantity != null,
+                            onClick = {
+                                onConfirmed(name, checkNotNull(parsedQuantity), measurementUnit)
+                            }
                         ) {
                             Text(
                                 text = stringResource(id = R.string.new_recipe_add_ingredient_done)
@@ -176,6 +195,7 @@ fun NewIngredientDialogPreview() {
         onNameChanged = {},
         onQuantityChanged = {},
         onMeasurementUnitChanged = {},
-        onCloseRequest = {}
+        onConfirmed = { _, _, _ -> },
+        onDismiss = {}
     )
 }

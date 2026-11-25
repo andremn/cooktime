@@ -24,7 +24,9 @@
     <string name="new_recipe_add_ingredient_done">Done</string>
     <string name="new_recipe_add_ingredient_cancel">Cancel</string>
     <string name="new_recipe_new_ingredient_dialog_title">New ingredient</string>
-    <string name="new_recipe_new_ingredient_unitary">Units</string>
+    <string name="new_recipe_new_ingredient_unit_one">unit</string>
+    <string name="new_recipe_new_ingredient_unit_other">units</string>
+    <string name="new_recipe_add_ingredient_quantity_error">Enter a number greater than zero</string>
     <string name="new_recipe_add_ingredient_empty">Your ingredients will be displayed here when you add them</string>
     <string name="new_recipe_add_instruction_empty">Start adding instructions by inserting them in the field below</string>
     <string name="new_recipe_add_instruction_placeholder">Add instruction</string>

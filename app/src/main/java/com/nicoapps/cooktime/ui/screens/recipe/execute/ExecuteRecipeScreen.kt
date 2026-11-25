@@ -33,6 +33,7 @@ import com.nicoapps.cooktime.ui.AppNavGraphTopBarContentType
 import com.nicoapps.cooktime.ui.AppNavGraphTopBarState
 import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AnimatedLineThroughText
+import com.nicoapps.cooktime.ui.components.recipe.unitLabel
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarFab
 import com.nicoapps.cooktime.ui.screens.recipe.execute.dialogs.SaveExecutionDialog
@@ -187,11 +188,5 @@ private fun Section(@StringRes textResourceId: Int, spacerBeforeText: Boolean = 
 private fun Ingredient.buildAnnotatedString() = buildAnnotatedString {
     append(quantity.formatQuantity())
     append(" ")
-    append(
-        measurementUnit.orEmpty().ifEmpty {
-            stringResource(
-                id = R.string.new_recipe_new_ingredient_unitary
-            )
-        }.lowercase()
-    )
+    append(unitLabel())
 }

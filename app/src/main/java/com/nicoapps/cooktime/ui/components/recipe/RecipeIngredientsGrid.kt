@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,20 +41,16 @@ fun RecipeIngredientsGrid(
 ) {
     var isNewIngredientDialogOpen by remember { mutableStateOf(false) }
     var editingIngredientIndex by remember { mutableIntStateOf(-1) }
-    var editingIngredientId by remember { mutableLongStateOf(0) }
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var measurementUnit by remember { mutableStateOf("") }
 
-    fun clearFields() {
+    fun closeDialog() {
+        isNewIngredientDialogOpen = false
+        editingIngredientIndex = -1
         name = ""
         quantity = ""
         measurementUnit = ""
-    }
-
-    fun resetDialogState() {
-        isNewIngredientDialogOpen = false
-        editingIngredientIndex = -1
     }
 
     fun showQuantityDialog() {
@@ -92,7 +87,6 @@ fun RecipeIngredientsGrid(
                             onClick = {
                                 if (mode.isEditing()) {
                                     editingIngredientIndex = index
-                                    editingIngredientId = ingredient.id
                                     name = ingredient.name
                                     quantity = ingredient.quantity.formatQuantity()
                                     measurementUnit = ingredient.measurementUnit.orEmpty()
@@ -127,25 +121,31 @@ fun RecipeIngredientsGrid(
             onNameChanged = { name = it },
             onQuantityChanged = { quantity = it },
             onMeasurementUnitChanged = { measurementUnit = it },
-            onCloseRequest = { confirmed ->
-                if (confirmed) {
-                    val addedOrUpdatedIngredient = Ingredient(
-                        id = editingIngredientId,
-                        name = name,
-                        quantity = quantity.toFloatOrNull() ?: 0f,
-                        measurementUnit = measurementUnit
-                    )
+            onConfirmed = { confirmedName, confirmedQuantity, confirmedUnit ->
+                val editedIngredient = ingredients.getOrNull(editingIngredientIndex)
 
-                    if (editingIngredientIndex >= 0) {
-                        onIngredientUpdated(editingIngredientIndex, addedOrUpdatedIngredient)
-                    } else {
-                        onIngredientAdded(addedOrUpdatedIngredient)
-                    }
+                if (editedIngredient != null) {
+                    onIngredientUpdated(
+                        editingIngredientIndex,
+                        editedIngredient.copy(
+                            name = confirmedName,
+                            quantity = confirmedQuantity,
+                            measurementUnit = confirmedUnit
+                        )
+                    )
+                } else {
+                    onIngredientAdded(
+                        Ingredient(
+                            name = confirmedName,
+                            quantity = confirmedQuantity,
+                            measurementUnit = confirmedUnit
+                        )
+                    )
                 }
 
-                clearFields()
-                resetDialogState()
-            }
+                closeDialog()
+            },
+            onDismiss = { closeDialog() }
         )
     }
 }

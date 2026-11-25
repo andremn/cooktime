@@ -23,7 +23,9 @@
     <string name="new_recipe_add_ingredient_unit_placeholder">Unidade</string>
     <string name="new_recipe_add_ingredient_done">Pronto</string>
     <string name="new_recipe_add_ingredient_cancel">Cancelar</string>
-    <string name="new_recipe_new_ingredient_unitary">Unidades</string>
+    <string name="new_recipe_new_ingredient_unit_one">unidade</string>
+    <string name="new_recipe_new_ingredient_unit_other">unidades</string>
+    <string name="new_recipe_add_ingredient_quantity_error">Informe um número maior que zero</string>
     <string name="new_recipe_add_ingredient_empty">Seus ingredientes vão aparecer aqui quando você adicioná-los</string>
     <string name="new_recipe_add_instruction_empty">Adicione os passos digitando eles no campo abaixo</string>
     <string name="new_recipe_add_instruction_placeholder">Adicionar passo</string>
