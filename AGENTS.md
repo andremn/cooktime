@@ -19,7 +19,10 @@ Cook Time is a single-module Android app (`:app`) for managing recipes, written 
 ./gradlew connectedDebugAndroidTest          # instrumented tests (needs a running emulator/device)
 ./gradlew lintDebug                          # Android lint
 ./gradlew installDebug                       # install on the connected emulator/device
+adb shell am broadcast -n com.nicoapps.cooktime/.debug.SampleRecipesReceiver   # add sample recipes (debug builds)
 ```
+
+The sample recipes live in `app/src/debug/` (`SampleRecipes`). The command only adds the ones missing by name, so it's safe to run again. `connectedDebugAndroidTest` uninstalls the app when it finishes, which wipes its data, so run the command again after it.
 
 To run on an emulator, list the available AVDs with `emulator -list-avds` and start one with `emulator -avd <name>`. The binary is in the SDK's `emulator/` directory.
 
@@ -58,7 +61,8 @@ Package root: `app/src/main/java/com/nicoapps/cooktime/`.
 - Each screen owns its own Material 3 `Scaffold`, declaring its top bar, bottom bar and FAB directly in the composition, with no effect publishing UI state to a parent. Use `AppTitleTopBar` for a title with a back button. When adding a screen, follow this pattern (see `ViewRecipeScreen`).
 - The shared snackbar reaches screens as an explicit `AppSnackbarState` parameter; the screen that displays the message renders `SnackbarHost` with `appSnackbarState.snackbarHostState`.
 - Effects are reserved for events (showing a snackbar, navigating after saving or deleting, syncing the pager). Never publish UI state from an effect: predictive back composes the outgoing screen during the gesture, and stale shell state shows the previous screen's bars.
-- Routes are string constants in `AllDestinations`. Navigation goes through `AppNavigationActions`, and the destinations are registered in `ui/components/AppNavHost.kt`.
+- Routes are string constants in `AllDestinations`. Navigation goes through `AppNavigationActions`, and the destinations are registered in `ui/components/AppNavHost.kt` with its `screen(...)` helper, which provides the scopes shared element transitions need.
+- Screen transitions live in `ui/transitions/ScreenTransitions.kt`. Linked screens use a container transform: the element the user tapped carries `Modifier.sharedContainer(key)` and the destination's `Scaffold` the same key, and an element that moves from one screen to a different place on the other (the recipe name, from its card to the title) carries `Modifier.sharedElement(key)`. Keys are `SharedElementKey` values built from data known on the first frame (pass it in the route, like `recipeTitle`), or the transition won't match. Add a new linked pair to `containerTransformPairs`; every other pair of screens uses Material's fade through. Check transitions at a slow animator duration scale and with a cancelled predictive back gesture.
 - Screens live in `ui/screens/<feature>/<action>/` alongside their ViewModel and `*ScreenState`, with `appbar/`, `dialogs/`, `tabs/` and `steps/` subfolders as needed. Reusable composables go in `ui/components/`.
 - ViewModels are obtained with `hiltViewModel()` from `androidx.hilt.lifecycle.viewmodel.compose`.
 - The app is edge-to-edge (`enableEdgeToEdge()` in `MainActivity`), so new layouts must handle window insets themselves. A `Scaffold`'s bars apply the system bar insets; content with text fields applies `imePadding()` after `consumeWindowInsets(paddingValues)` so the focused field stays above the keyboard, and the activity uses `adjustResize` so the system doesn't pan the whole window.
