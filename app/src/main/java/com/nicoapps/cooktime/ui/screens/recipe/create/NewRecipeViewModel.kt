@@ -134,6 +134,12 @@ class NewRecipeViewModel @Inject constructor(
     }
 
     fun saveRecipe() {
+        if (_screenState.value.isSaving) {
+            return
+        }
+
+        _screenState.update { it.copy(isSaving = true) }
+
         databaseCoroutineScope.launch {
             recipeRepository.save(
                 Recipe(
@@ -178,6 +184,7 @@ data class NewRecipeScreenState(
     val recipeInstructions: List<Instruction> = emptyList(),
     val nextButtonEnabled: Boolean = false,
     val backHandlerEnabled: Boolean = false,
+    val isSaving: Boolean = false,
     val recipeSaved: Boolean = false
 )
 
