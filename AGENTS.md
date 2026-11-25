@@ -48,8 +48,9 @@ Package root: `app/src/main/java/com/nicoapps/cooktime/`.
 
 ### Room schema changes
 
-- The schema is exported to `app/schemas/` (configured through the `room.schemaLocation` KSP arg). Commit the generated JSON whenever the schema changes.
-- On every schema change, bump `version` in `CookTimeDatabase`, then add an `AutoMigration` there if Room can infer it. Otherwise add a manual `Migration` in `DatabaseApplicationModule.provideAppDatabase` (see `migration2to3`). Never drop user data with destructive migrations.
+- The schema is exported to `app/schemas/` by the Room Gradle plugin (`room { schemaDirectory(...) }`), which also exposes it to `androidTest`. Commit the generated JSON whenever the schema changes.
+- On every schema change, bump `version` in `CookTimeDatabase`, then add an `AutoMigration` there if Room can infer it. Otherwise add a manual `Migration` to `data/migrations/Migrations.kt` and include it in `ALL_MIGRATIONS`. Never drop user data with destructive migrations.
+- Cover every new version with a test in `app/src/androidTest/.../data/MigrationTest.kt` (`MigrationTestHelper`), starting from the oldest version.
 
 ### UI shell and navigation
 
