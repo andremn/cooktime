@@ -66,6 +66,11 @@ class LocalRecipeRepository @Inject constructor(
             recipes.map { it.toSummary() }
         }
 
+    override fun searchByName(query: String) =
+        database.recipeDao().searchByName(containsPattern(query)).map { recipes ->
+            recipes.map { it.toSummary() }
+        }
+
     private suspend fun deleteRemovedIngredients(recipe: Recipe) {
         val existingIngredients = database.ingredientDao().getAllByRecipeId(recipe.id)
         val ingredientsToRemove = existingIngredients.filterNot { entity ->
@@ -87,4 +92,17 @@ class LocalRecipeRepository @Inject constructor(
             database.instructionDao().deleteAll(instructionsToRemove)
         }
     }
+}
+
+/**
+ * A `LIKE` pattern that matches names containing [query] literally, escaping the wildcards `%` and
+ * `_` and the escape character itself with a backslash.
+ */
+internal fun containsPattern(query: String): String {
+    val escaped = query
+        .replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
+
+    return "%$escaped%"
 }

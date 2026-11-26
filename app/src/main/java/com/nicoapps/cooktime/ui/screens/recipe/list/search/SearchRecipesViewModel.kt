@@ -6,62 +6,53 @@ import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.data.RecipeRepository
 import com.nicoapps.cooktime.model.RecipeSummary
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchRecipesViewModel @Inject constructor(
     @LocalRepository private val recipeRepository: RecipeRepository
 ) : ViewModel() {
-    private val _recipes = recipeRepository.getAll()
-    private val _searchState = MutableStateFlow(SearchState())
+    private val searchText = MutableStateFlow("")
 
-    val screenState = _searchState.combine(_recipes) { searchState, recipes ->
-        var filteredRecipes = emptyList<RecipeSummary>()
-
-        if (searchState.searchText.isNotBlank()) {
-            filteredRecipes = recipes.filter {
-                it.name.contains(searchState.searchText, ignoreCase = true)
+    /**
+     * Recipes whose name contains the search text, queried once the user stops typing. A blank
+     * text clears the results right away, without querying.
+     */
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    val results: StateFlow<List<RecipeSummary>> = searchText
+        .map { it.trim() }
+        .distinctUntilChanged()
+        .debounce { query -> if (query.isEmpty()) 0L else DEBOUNCE_MILLIS }
+        .flatMapLatest { query ->
+            if (query.isEmpty()) {
+                flowOf(emptyList())
+            } else {
+                recipeRepository.searchByName(query)
             }
         }
-
-        SearchRecipesScreenState(
-            recipes = filteredRecipes,
-            searchText = searchState.searchText,
-            isSearchActive = searchState.isSearchActive
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = emptyList()
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        SearchRecipesScreenState()
-    )
 
-    fun onSearchTextChanged(searchText: String) =
-        _searchState.update {
-            it.copy(
-                searchText = searchText
-            )
-        }
+    fun onSearchTextChanged(text: String) {
+        searchText.value = text
+    }
 
-    fun onSearchActiveChanged(isSearchActive: Boolean) =
-        _searchState.update {
-            it.copy(
-                isSearchActive = isSearchActive
-            )
-        }
-
-    data class SearchRecipesScreenState(
-        val recipes: List<RecipeSummary> = emptyList(),
-        val searchText: String = "",
-        val isSearchActive: Boolean = false
-    )
-
-    private data class SearchState(
-        val searchText: String = "",
-        val isSearchActive: Boolean = false
-    )
+    private companion object {
+        private const val DEBOUNCE_MILLIS = 300L
+        private const val TIMEOUT_MILLIS = 5_000L
+    }
 }

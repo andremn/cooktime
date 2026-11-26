@@ -3,6 +3,7 @@ package com.nicoapps.cooktime.ui.screens.recipe.list.search
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,9 +37,9 @@ fun SearchRecipesBar(
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
-    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val results by viewModel.results.collectAsStateWithLifecycle()
     val searchBarState = rememberSearchBarState()
-    val textFieldState = rememberTextFieldState(initialText = screenState.searchText)
+    val textFieldState = rememberTextFieldState()
     val coroutineScope = rememberCoroutineScope()
     val currentOnActiveChange by rememberUpdatedState(onActiveChange)
 
@@ -52,7 +53,12 @@ fun SearchRecipesBar(
             .distinctUntilChanged()
             .drop(1)
             .collect { isActive ->
-                viewModel.onSearchActiveChanged(isActive)
+                // The text is kept only while the search is open: once it closes, the bar shows
+                // the placeholder again.
+                if (!isActive) {
+                    textFieldState.clearText()
+                }
+
                 currentOnActiveChange?.invoke(isActive)
             }
     }
@@ -90,7 +96,7 @@ fun SearchRecipesBar(
         colors = colors
     ) {
         SearchRecipesView(
-            recipes = screenState.recipes,
+            recipes = results,
             onRecipeSelected = { recipe ->
                 coroutineScope.launch { searchBarState.animateToCollapsed() }
                 onRecipeSelected(recipe)

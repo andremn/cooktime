@@ -65,8 +65,46 @@ class LocalRecipeRepositoryTest {
         assertTrue(repository.getAll().first().isEmpty())
     }
 
-    private fun recipe(createdAt: ZonedDateTime = ZonedDateTime.now()) = Recipe(
-        name = "Bolo",
+    @Test
+    fun searchByName_matchesPartOfTheNameIgnoringAsciiCase() = runBlocking {
+        repository.save(recipe(name = "Bolo de cenoura"))
+        repository.save(recipe(name = "Omelete"))
+
+        val names = repository.searchByName("CENOURA").first().map { it.name }
+
+        assertEquals(listOf("Bolo de cenoura"), names)
+    }
+
+    @Test
+    fun searchByName_leavesOutDeletedRecipes() = runBlocking {
+        repository.save(recipe(name = "Bolo"))
+        repository.deleteById(repository.getAll().first().single().id)
+
+        assertTrue(repository.searchByName("Bolo").first().isEmpty())
+    }
+
+    @Test
+    fun searchByName_treatsWildcardsLiterally() = runBlocking {
+        repository.save(recipe(name = "Bolo 100% integral"))
+        repository.save(recipe(name = "Bolo integral"))
+        repository.save(recipe(name = "Pão_de_queijo"))
+        repository.save(recipe(name = "Pão de queijo"))
+
+        assertEquals(
+            listOf("Bolo 100% integral"),
+            repository.searchByName("100%").first().map { it.name }
+        )
+        assertEquals(
+            listOf("Pão_de_queijo"),
+            repository.searchByName("_de_").first().map { it.name }
+        )
+    }
+
+    private fun recipe(
+        name: String = "Bolo",
+        createdAt: ZonedDateTime = ZonedDateTime.now()
+    ) = Recipe(
+        name = name,
         ingredients = listOf(ingredient()),
         instructions = listOf(Instruction(text = "Assar")),
         isStarred = false,

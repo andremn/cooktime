@@ -36,6 +36,13 @@ interface RecipeEntityDao {
     @Query("SELECT * FROM recipes WHERE isDeleted = false")
     fun getAll(): Flow<List<RecipeEntity>>
 
+    /**
+     * Recipes whose name contains [pattern], a `LIKE` pattern escaped with a backslash. SQLite's
+     * `LIKE` ignores case for ASCII letters only.
+     */
+    @Query("SELECT * FROM recipes WHERE isDeleted = false AND name LIKE :pattern ESCAPE '\\'")
+    fun searchByName(pattern: String): Flow<List<RecipeEntity>>
+
     @Transaction
     @Query("SELECT * FROM recipes WHERE id = :id AND isDeleted = false")
     fun getWithDetailsById(id: Long): Flow<RecipeWithDetailsEntity?>

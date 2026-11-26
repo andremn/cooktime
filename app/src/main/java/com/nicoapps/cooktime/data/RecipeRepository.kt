@@ -22,4 +22,7 @@ interface RecipeRepository {
 
     /** Lists the recipes that aren't deleted, without their ingredients and instructions. */
     fun getAll(): Flow<List<RecipeSummary>>
+
+    /** Lists the recipes that aren't deleted and whose name contains [query]. */
+    fun searchByName(query: String): Flow<List<RecipeSummary>>
 }
