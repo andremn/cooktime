@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +43,7 @@ import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.components.AppTextField
 import com.nicoapps.cooktime.ui.screens.recipe.draft.DraftInstruction
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -92,7 +94,7 @@ fun RecipeInstructionsColumn(
 
         if (isEditing && instructionAppended) {
             lazyColumnState.animateScrollToItem(instructions.lastIndex)
-            delay(BRING_INTO_VIEW_DELAY_MILLIS)
+            delay(BRING_INTO_VIEW_DELAY_MILLIS.milliseconds)
             bringIntoViewRequester.bringIntoView()
         }
     }
@@ -157,10 +159,15 @@ fun RecipeInstructionsColumn(
                     autoCorrectEnabled = true
                 ),
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null
-                    )
+                    IconButton(
+                        onClick = { addInstruction() },
+                        enabled = currentInstructionText.isNotBlank()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.cd_add_instruction)
+                        )
+                    }
                 },
                 onValueChange = {
                     currentInstructionText = it
