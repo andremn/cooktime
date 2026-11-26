@@ -3,6 +3,7 @@ package com.nicoapps.cooktime.ui.screens.recipe.list.search
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,6 +53,12 @@ fun SearchRecipesBar(
             .distinctUntilChanged()
             .drop(1)
             .collect { isActive ->
+                // The text is kept only while the search is open: once it closes, the bar shows
+                // the placeholder again.
+                if (!isActive) {
+                    textFieldState.clearText()
+                }
+
                 currentOnActiveChange?.invoke(isActive)
             }
     }
