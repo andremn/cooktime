@@ -17,7 +17,13 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.navigation.NavBackStackEntry
-import com.nicoapps.cooktime.ui.AllDestinations
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import com.nicoapps.cooktime.ui.ExecuteRecipe
+import com.nicoapps.cooktime.ui.Home
+import com.nicoapps.cooktime.ui.NewRecipe
+import com.nicoapps.cooktime.ui.ViewRecipe
+import kotlin.reflect.KClass
 
 /**
  * Scope of the [androidx.compose.animation.SharedTransitionLayout] around the app's NavHost.
@@ -121,16 +127,25 @@ private const val FADE_THROUGH_INITIAL_SCALE = 0.92f
  * it in would make the container see-through), and the outgoing one fades out.
  */
 private val containerTransformPairs = setOf(
-    setOf(AllDestinations.HOME, AllDestinations.VIEW_RECIPE),
-    setOf(AllDestinations.HOME, AllDestinations.NEW_RECIPE),
-    setOf(AllDestinations.VIEW_RECIPE, AllDestinations.EXECUTE_RECIPE)
+    Home::class to ViewRecipe::class,
+    Home::class to NewRecipe::class,
+    ViewRecipe::class to ExecuteRecipe::class
 )
 
-private val NavBackStackEntry.baseRoute: String?
-    get() = destination.route?.substringBefore('/')?.substringBefore('?')
+private fun AnimatedContentTransitionScope<NavBackStackEntry>.isContainerTransform(): Boolean {
+    val initialDestination = initialState.destination
+    val targetDestination = targetState.destination
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.isContainerTransform() =
-    setOf(initialState.baseRoute, targetState.baseRoute) in containerTransformPairs
+    return containerTransformPairs.any { (first, second) ->
+        (initialDestination.hasDestinationRoute(first) && targetDestination.hasDestinationRoute(second)) ||
+                (initialDestination.hasDestinationRoute(second) && targetDestination.hasDestinationRoute(first))
+    }
+}
+
+/** [NavDestination.hasRoute] only accepts [KClass] values of a known type. */
+@Suppress("UNCHECKED_CAST")
+private fun NavDestination.hasDestinationRoute(route: KClass<*>): Boolean =
+    hasRoute(route as KClass<Any>)
 
 /** Container transform between linked screens, Material's fade through between the others. */
 fun AnimatedContentTransitionScope<NavBackStackEntry>.screenEnterTransition(): EnterTransition =

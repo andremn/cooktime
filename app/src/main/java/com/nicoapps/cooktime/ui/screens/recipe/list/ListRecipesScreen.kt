@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
-import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
@@ -56,9 +55,10 @@ import com.nicoapps.cooktime.ui.transitions.sharedElement
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel = hiltViewModel(),
-    appNavigationActions: AppNavigationActions,
     appSnackbarState: AppSnackbarState,
-    onOpenDrawer: () -> Unit
+    onOpenDrawer: () -> Unit,
+    onRecipeClick: (recipeId: Long, recipeTitle: String) -> Unit,
+    onNewRecipeClick: () -> Unit
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
@@ -83,7 +83,7 @@ fun HomeScreen(
                     bottom = dimensionResource(id = R.dimen.search_bar_padding)
                 ),
                 onActiveChange = { isSearchBarActive = it },
-                onRecipeSelected = { appNavigationActions.navigateToViewRecipe(it) },
+                onRecipeSelected = { onRecipeClick(it.id, it.name) },
                 placeholder = {
                     Text(text = stringResource(R.string.search_recipes_placeholder))
                 },
@@ -112,7 +112,7 @@ fun HomeScreen(
                         key = SharedElementKey.NewRecipeContainer,
                         clipShape = FloatingActionButtonDefaults.shape
                     ),
-                    onClick = { appNavigationActions.navigateToNewRecipe() },
+                    onClick = { onNewRecipeClick() },
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
@@ -155,7 +155,7 @@ fun HomeScreen(
                                     clipShape = CardDefaults.elevatedShape
                                 )
                                 .clickable {
-                                    appNavigationActions.navigateToViewRecipe(recipe)
+                                    onRecipeClick(recipe.id, recipe.name)
                                 }
                         ) {
                             Column(
