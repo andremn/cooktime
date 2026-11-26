@@ -8,12 +8,10 @@
     <string name="new_recipe_name_step_placeholder">Digite um nome para sua deliciosa receita</string>
     <string name="user_profile_content_description">Foto de perfil</string>
     <string name="search_recipes_placeholder">Procurar receitas</string>
-    <string name="save_new_recipe_button_text">Salvar</string>
     <string name="start_recipe_button_text">Iniciar receita</string>
     <string name="new_recipe_title">Nova receita</string>
     <string name="new_recipe_name_step_finish">Finalizar</string>
     <string name="new_recipe_name_step_next">Próximo</string>
-    <string name="new_recipe_steps_step_title">Ah, antes de finalizar, você pode adicionar notas a sua receita aqui</string>
     <string name="new_recipe_name_empty_error">A receita precisa de um nome</string>
     <string name="new_recipe_new_ingredient_dialog_title">Novo ingrediente</string>
     <string name="new_recipe_add_ingredient_name_placeholder">Nome</string>

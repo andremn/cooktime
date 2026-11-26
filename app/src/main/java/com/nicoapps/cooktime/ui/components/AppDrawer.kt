@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -32,7 +31,6 @@ enum class AppDrawerItem {
     SETTINGS
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
     selectedItem: AppDrawerItem?,

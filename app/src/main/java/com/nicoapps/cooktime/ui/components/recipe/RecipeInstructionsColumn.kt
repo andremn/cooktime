@@ -1,7 +1,6 @@
 package com.nicoapps.cooktime.ui.components.recipe
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -44,7 +43,6 @@ import com.nicoapps.cooktime.ui.screens.recipe.draft.DraftInstruction
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RecipeInstructionsColumn(
     modifier: Modifier = Modifier,

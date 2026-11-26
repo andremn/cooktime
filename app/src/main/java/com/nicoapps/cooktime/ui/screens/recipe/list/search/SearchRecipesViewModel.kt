@@ -6,8 +6,6 @@ import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.data.RecipeRepository
 import com.nicoapps.cooktime.model.RecipeSummary
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +27,6 @@ class SearchRecipesViewModel @Inject constructor(
      * Recipes whose name contains the search text, queried once the user stops typing. A blank
      * text clears the results right away, without querying.
      */
-    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     val results: StateFlow<List<RecipeSummary>> = searchText
         .map { it.trim() }
         .distinctUntilChanged()

@@ -2,7 +2,6 @@ package com.nicoapps.cooktime.ui.screens.recipe.edit
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -49,7 +48,6 @@ import com.nicoapps.cooktime.ui.transitions.bottomBarTransition
 import com.nicoapps.cooktime.ui.transitions.screenContentTransition
 import com.nicoapps.cooktime.ui.transitions.topBarTransition
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ViewRecipeScreen(
     modifier: Modifier = Modifier,

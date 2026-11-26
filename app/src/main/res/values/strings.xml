@@ -11,10 +11,8 @@
     <string name="new_recipe_name_step_finish">Finish</string>
     <string name="user_profile_content_description">Profile picture</string>
     <string name="search_recipes_placeholder">Search recipes</string>
-    <string name="save_new_recipe_button_text">Save</string>
     <string name="start_recipe_button_text">Start recipe</string>
     <string name="new_recipe_title">New recipe</string>
-    <string name="new_recipe_steps_step_title">Oh, before you finish, you can add any notes to your recipe here</string>
     <string name="new_recipe_name_empty_error">The recipe needs a name</string>
     <string name="new_recipe_add_ingredient_name_placeholder">Name</string>
     <string name="new_recipe_add_ingredient_quantity_placeholder">Quantity</string>
