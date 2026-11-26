@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeRepository
-import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.model.RecipeSummary
 import com.nicoapps.cooktime.ui.extensions.runWrite
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +52,18 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
+    fun onUndoDelete(recipeId: Long) {
+        viewModelScope.launch {
+            runWrite(
+                onFailure = {
+                    errorMessageResourceId.value = R.string.error_restore_recipe
+                }
+            ) {
+                recipeRepository.undeleteById(recipeId)
+            }
+        }
+    }
+
     fun onErrorShown() {
         errorMessageResourceId.value = null
     }
@@ -59,6 +71,6 @@ class HomeScreenViewModel @Inject constructor(
 
 @Immutable
 data class HomeScreenState(
-    val recipes: List<Recipe> = emptyList(),
+    val recipes: List<RecipeSummary> = emptyList(),
     @StringRes val errorMessageResourceId: Int? = null
 )

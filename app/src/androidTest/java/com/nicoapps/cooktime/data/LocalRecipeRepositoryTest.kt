@@ -38,7 +38,7 @@ class LocalRecipeRepositoryTest {
     fun updatingRecipe_keepsOriginalCreatedAt() = runBlocking {
         val createdAt = ZonedDateTime.now().minusYears(1).withNano(0)
         repository.save(recipe(createdAt = createdAt))
-        val saved = repository.getAll().first().single()
+        val saved = repository.findById(repository.getAll().first().single().id).first()
 
         repository.save(
             saved.copy(
@@ -57,7 +57,7 @@ class LocalRecipeRepositoryTest {
     @Test
     fun updatingSoftDeletedRecipe_doesNotRestoreIt() = runBlocking {
         repository.save(recipe())
-        val saved = repository.getAll().first().single()
+        val saved = repository.findById(repository.getAll().first().single().id).first()
         repository.deleteById(saved.id)
 
         repository.save(saved.copy(name = "Edited while deleted"))

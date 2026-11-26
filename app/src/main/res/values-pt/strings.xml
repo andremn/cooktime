@@ -58,11 +58,12 @@
     <string name="cd_timer">Temporizador</string>
     <string name="cd_finish_recipe">Concluir receita</string>
     <string name="new_recipe_add_ingredient_button">+ Adicionar ingrediente</string>
-    <string name="view_recipe_deleted_message">Receita deletada</string>
-    <string name="view_recipe_deleted_undo">Desfazer</string>
+    <string name="home_recipe_deleted_message">Receita deletada</string>
+    <string name="home_recipe_deleted_undo">Desfazer</string>
     <string name="settings_placeholder_description">Em breve esta tela terá um design</string>
     <string name="error_save_recipe">Não foi possível salvar a receita. Tente novamente.</string>
     <string name="error_delete_recipe">Não foi possível deletar a receita. Tente novamente.</string>
+    <string name="error_restore_recipe">Não foi possível restaurar a receita. Tente novamente.</string>
     <string name="error_update_recipe_star">Não foi possível atualizar o favorito. Tente novamente.</string>
     <string name="error_save_recipe_execution">Não foi possível salvar esta execução. Tente novamente.</string>
 </resources>

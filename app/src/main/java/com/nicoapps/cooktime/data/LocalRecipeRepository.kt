@@ -5,6 +5,7 @@ import com.nicoapps.cooktime.mapper.IngredientMapper.toEntity
 import com.nicoapps.cooktime.mapper.InstructionMapper.toEntity
 import com.nicoapps.cooktime.mapper.RecipeMapper.toEntity
 import com.nicoapps.cooktime.mapper.RecipeMapper.toModel
+import com.nicoapps.cooktime.mapper.RecipeMapper.toSummary
 import com.nicoapps.cooktime.model.Recipe
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -62,9 +63,7 @@ class LocalRecipeRepository @Inject constructor(
 
     override fun getAll() =
         database.recipeDao().getAll().map { recipes ->
-            recipes.map { it.toModel() }
-        }.also {
-            println("getAll() called!")
+            recipes.map { it.toSummary() }
         }
 
     private suspend fun deleteRemovedIngredients(recipe: Recipe) {
