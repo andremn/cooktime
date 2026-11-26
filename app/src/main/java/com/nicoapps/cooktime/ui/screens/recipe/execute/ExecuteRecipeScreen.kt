@@ -35,7 +35,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.model.Ingredient
-import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AnimatedLineThroughText
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.components.recipe.unitLabel
@@ -51,7 +50,7 @@ import com.nicoapps.cooktime.ui.transitions.sharedContainer
 fun ExecuteRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ExecuteRecipeViewModel = hiltViewModel(),
-    appNavigationActions: AppNavigationActions
+    onFinished: () -> Unit
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
@@ -66,7 +65,7 @@ fun ExecuteRecipeScreen(
 
     LaunchedEffect(screenState.isExecutionSaved) {
         if (screenState.isExecutionSaved) {
-            appNavigationActions.navigateBack()
+            onFinished()
         }
     }
 
@@ -82,7 +81,7 @@ fun ExecuteRecipeScreen(
         SaveExecutionDialog(
             onDismissRequest = viewModel::dismissSaveExecutionDialog,
             onConfirmed = viewModel::onSaveExecutionDialogConfirmed,
-            onRejected = appNavigationActions::navigateBack
+            onRejected = onFinished
         )
     }
 

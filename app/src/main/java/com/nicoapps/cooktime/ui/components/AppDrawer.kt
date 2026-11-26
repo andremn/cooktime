@@ -29,12 +29,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.nicoapps.cooktime.R
-import com.nicoapps.cooktime.ui.AllDestinations
+
+/** The screens the drawer links, and the one it shows as selected. */
+enum class AppDrawerItem {
+    HOME,
+    SETTINGS
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
-    route: String,
+    selectedItem: AppDrawerItem?,
     modifier: Modifier = Modifier,
     navigateToHome: () -> Unit = {},
     navigateToSettings: () -> Unit = {},
@@ -52,7 +57,7 @@ fun AppDrawer(
                     style = MaterialTheme.typography.labelSmall
                 )
             },
-            selected = route == AllDestinations.HOME,
+            selected = selectedItem == AppDrawerItem.HOME,
             onClick = {
                 navigateToHome()
                 closeDrawer()
@@ -68,7 +73,7 @@ fun AppDrawer(
                     style = MaterialTheme.typography.labelSmall
                 )
             },
-            selected = route == AllDestinations.SETTINGS,
+            selected = selectedItem == AppDrawerItem.SETTINGS,
             onClick = {
                 navigateToSettings()
                 closeDrawer()
@@ -120,5 +125,5 @@ fun DrawerHeader(modifier: Modifier) {
 @Preview
 @Composable
 fun DrawerHeaderPreview() {
-    AppDrawer(modifier = Modifier, route = AllDestinations.HOME)
+    AppDrawer(modifier = Modifier, selectedItem = AppDrawerItem.HOME)
 }

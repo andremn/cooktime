@@ -5,16 +5,18 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.navigation.NamedNavArgument
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.nicoapps.cooktime.ui.AllDestinations
-import com.nicoapps.cooktime.ui.AppNavigationActions
+import com.nicoapps.cooktime.ui.ExecuteRecipe
+import com.nicoapps.cooktime.ui.Home
+import com.nicoapps.cooktime.ui.NewRecipe
+import com.nicoapps.cooktime.ui.Settings
+import com.nicoapps.cooktime.ui.ViewRecipe
 import com.nicoapps.cooktime.ui.screens.recipe.create.NewRecipeScreen
 import com.nicoapps.cooktime.ui.screens.recipe.edit.ViewRecipeScreen
 import com.nicoapps.cooktime.ui.screens.recipe.execute.ExecuteRecipeScreen
@@ -30,60 +32,76 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     appSnackbarState: AppSnackbarState,
-    navigationActions: AppNavigationActions,
     onOpenDrawer: () -> Unit
 ) {
     SharedTransitionLayout(modifier = modifier) {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             NavHost(
                 navController = navController,
-                startDestination = AllDestinations.HOME,
+                startDestination = Home,
                 enterTransition = { screenEnterTransition() },
                 exitTransition = { screenExitTransition() },
                 popEnterTransition = { screenEnterTransition() },
                 popExitTransition = { screenExitTransition() }
             ) {
-                screen(AllDestinations.HOME) {
+                screen<Home> { backStackEntry ->
                     HomeScreen(
-                        appNavigationActions = navigationActions,
                         appSnackbarState = appSnackbarState,
-                        onOpenDrawer = onOpenDrawer
+                        onOpenDrawer = onOpenDrawer,
+                        onRecipeClick = { recipeId, recipeTitle ->
+                            backStackEntry.ifResumed {
+                                navController.navigate(ViewRecipe(recipeId, recipeTitle)) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        },
+                        onNewRecipeClick = {
+                            backStackEntry.ifResumed {
+                                navController.navigate(NewRecipe) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
                     )
                 }
 
-                screen(AllDestinations.SETTINGS) {
+                screen<Settings> {
                     SettingsScreen()
                 }
 
-                screen(AllDestinations.NEW_RECIPE) {
+                screen<NewRecipe> {
                     NewRecipeScreen(
                         appSnackbarState = appSnackbarState,
-                        appNavigationActions = navigationActions
+                        onRecipeSaved = {
+                            navController.navigate(Home) {
+                                popUpTo<Home>()
+                                launchSingleTop = true
+                            }
+                        }
                     )
                 }
 
-                screen(
-                    route = "${AllDestinations.VIEW_RECIPE}/{recipeId}?recipeTitle={recipeTitle}",
-                    arguments = listOf(
-                        navArgument("recipeId") { type = NavType.LongType },
-                        recipeTitleArgument()
-                    )
-                ) {
+                screen<ViewRecipe> { backStackEntry ->
                     ViewRecipeScreen(
                         snackbarState = appSnackbarState,
-                        appNavigationActions = navigationActions
+                        onRecipeDeleted = {
+                            navController.popBackStackIfCurrent<ViewRecipe>()
+                        },
+                        onStartExecution = { recipeId, recipeTitle ->
+                            backStackEntry.ifResumed {
+                                navController.navigate(ExecuteRecipe(recipeId, recipeTitle)) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
                     )
                 }
 
-                screen(
-                    route = "${AllDestinations.EXECUTE_RECIPE}/{recipeId}?recipeTitle={recipeTitle}",
-                    arguments = listOf(
-                        navArgument("recipeId") { type = NavType.LongType },
-                        recipeTitleArgument()
-                    )
-                ) {
+                screen<ExecuteRecipe> {
                     ExecuteRecipeScreen(
-                        appNavigationActions = navigationActions
+                        onFinished = {
+                            navController.popBackStackIfCurrent<ExecuteRecipe>()
+                        }
                     )
                 }
             }
@@ -92,21 +110,33 @@ fun AppNavHost(
 }
 
 /**
- * The recipe name known when navigating, so the destination can show it, and animate it as a
- * shared element, before the recipe loads.
+ * Runs [block] only while this entry is the resumed screen, so a double tap or an event repeated
+ * during a transition doesn't stack the same screen twice.
  */
-private fun recipeTitleArgument() = navArgument("recipeTitle") {
-    type = NavType.StringType
-    defaultValue = ""
+private inline fun NavBackStackEntry.ifResumed(block: () -> Unit) {
+    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+        block()
+    }
 }
 
-/** A destination whose content can take part in shared element transitions. */
-private fun NavGraphBuilder.screen(
-    route: String,
-    arguments: List<NamedNavArgument> = emptyList(),
-    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+/**
+ * Pops the back stack only when this destination is the one on top, so a programmatic return that
+ * runs more than once doesn't pop a second screen.
+ */
+private inline fun <reified T : Any> NavHostController.popBackStackIfCurrent() {
+    if (currentDestination?.hasRoute<T>() == true) {
+        popBackStack()
+    }
+}
+
+/**
+ * Registers a destination written as a typed route, whose content takes part in shared element
+ * transitions.
+ */
+private inline fun <reified T : Any> NavGraphBuilder.screen(
+    noinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
-    composable(route = route, arguments = arguments) { backStackEntry ->
+    composable<T> { backStackEntry ->
         CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
             content(backStackEntry)
         }

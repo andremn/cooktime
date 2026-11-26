@@ -10,10 +10,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nicoapps.cooktime.ui.components.AppDrawer
+import com.nicoapps.cooktime.ui.components.AppDrawerItem
 import com.nicoapps.cooktime.ui.components.AppNavHost
 import com.nicoapps.cooktime.ui.components.rememberAppSnackbarState
 import kotlinx.coroutines.CoroutineScope
@@ -27,8 +29,12 @@ fun AppNavGraph(
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
 ) {
     val currentNavBackStackEntry by navHostController.currentBackStackEntryAsState()
-    val currentRoute = currentNavBackStackEntry?.destination?.route ?: AllDestinations.HOME
-    val navigationActions = remember(navHostController) { AppNavigationActions(navHostController) }
+    val currentDestination = currentNavBackStackEntry?.destination
+    val selectedDrawerItem = when {
+        currentDestination?.hasRoute<Settings>() == true -> AppDrawerItem.SETTINGS
+        currentDestination?.hasRoute<Home>() == true -> AppDrawerItem.HOME
+        else -> null
+    }
 
     // Living above the NavHost keeps a snackbar shown right before a destination change visible
     // on the destination the user lands on.
@@ -39,9 +45,18 @@ fun AppNavGraph(
         modifier = modifier,
         drawerContent = {
             AppDrawer(
-                route = currentRoute,
-                navigateToHome = { navigationActions.navigateToHome() },
-                navigateToSettings = { navigationActions.navigateToSettings() },
+                selectedItem = selectedDrawerItem,
+                navigateToHome = {
+                    navHostController.navigate(Home) {
+                        popUpTo<Home>()
+                        launchSingleTop = true
+                    }
+                },
+                navigateToSettings = {
+                    navHostController.navigate(Settings) {
+                        launchSingleTop = true
+                    }
+                },
                 closeDrawer = { coroutineScope.launch { drawerState.close() } },
                 modifier = Modifier
             )
@@ -51,7 +66,6 @@ fun AppNavGraph(
         AppNavHost(
             navController = navHostController,
             appSnackbarState = appSnackbarState,
-            navigationActions = navigationActions,
             onOpenDrawer = { coroutineScope.launch { drawerState.open() } }
         )
     }

@@ -5,10 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.serialization.saved
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeRepository
 import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.ui.ViewRecipe
 import com.nicoapps.cooktime.ui.extensions.runWrite
 import com.nicoapps.cooktime.ui.screens.recipe.draft.RecipeDraft
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,8 +30,9 @@ class ViewRecipeViewModel @Inject constructor(
     @LocalRepository private val recipeRepository: RecipeRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
-    private val recipeTitle: String = savedStateHandle["recipeTitle"] ?: ""
+    private val destination: ViewRecipe = savedStateHandle.toRoute()
+    private val recipeId: Long = destination.recipeId
+    private val recipeTitle: String = destination.recipeTitle
 
     private var savedDraft: RecipeDraft? by savedStateHandle.saved(
         serializer = RecipeDraft.serializer().nullable,

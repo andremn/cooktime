@@ -22,15 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.nicoapps.cooktime.R
-import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.create.steps.NewRecipeSteps
@@ -43,8 +40,8 @@ import kotlinx.coroutines.Dispatchers
 fun NewRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: NewRecipeViewModel = hiltViewModel(),
-    appNavigationActions: AppNavigationActions,
-    appSnackbarState: AppSnackbarState
+    appSnackbarState: AppSnackbarState,
+    onRecipeSaved: () -> Unit
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val animatedProgress by animateFloatAsState(
@@ -68,7 +65,7 @@ fun NewRecipeScreen(
         if (screenState.recipeSaved) {
             appSnackbarState.show(recipeSavedMessage)
 
-            appNavigationActions.navigateToHome()
+            onRecipeSaved()
         }
     }
 
@@ -144,7 +141,7 @@ fun NewRecipeScreen(
 @Composable
 fun NewRecipeScreenPreview() {
     NewRecipeScreen(
-        appNavigationActions = AppNavigationActions(NavHostController(LocalContext.current)),
+        onRecipeSaved = {},
         appSnackbarState = AppSnackbarState(
             SnackbarHostState(),
             CoroutineScope(Dispatchers.Default)

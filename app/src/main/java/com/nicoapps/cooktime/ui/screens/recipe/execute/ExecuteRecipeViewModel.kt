@@ -4,12 +4,14 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeExecutionRepository
 import com.nicoapps.cooktime.data.RecipeRepository
 import com.nicoapps.cooktime.data.entity.RecipeExecutionEntity
 import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.ui.ExecuteRecipe
 import com.nicoapps.cooktime.ui.extensions.runWrite
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,8 +28,9 @@ class ExecuteRecipeViewModel @Inject constructor(
     @LocalRepository private val recipeExecutionRepository: RecipeExecutionRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
-    private val recipeTitle: String = savedStateHandle["recipeTitle"] ?: ""
+    private val destination: ExecuteRecipe = savedStateHandle.toRoute()
+    private val recipeId: Long = destination.recipeId
+    private val recipeTitle: String = destination.recipeTitle
 
     private val checkedIngredientIds = savedStateHandle.getMutableStateFlow(
         KEY_CHECKED_INGREDIENTS,

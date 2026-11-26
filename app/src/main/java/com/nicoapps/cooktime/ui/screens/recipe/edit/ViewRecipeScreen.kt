@@ -39,10 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeRepositoryProvider
-import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
@@ -63,7 +61,8 @@ fun ViewRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ViewRecipeViewModel = hiltViewModel(),
     snackbarState: AppSnackbarState,
-    appNavigationActions: AppNavigationActions
+    onRecipeDeleted: () -> Unit,
+    onStartExecution: (recipeId: Long, recipeTitle: String) -> Unit
 ) {
     val tabs = setOf(
         stringResource(id = R.string.view_recipe_ingredients_tab),
@@ -99,7 +98,7 @@ fun ViewRecipeScreen(
                 }
             )
 
-            appNavigationActions.navigateBack()
+            onRecipeDeleted()
         }
     }
 
@@ -198,10 +197,7 @@ fun ViewRecipeScreen(
                         ),
                         isVisible = screenState.isEditing.not(),
                         onClick = {
-                            appNavigationActions.navigateToExecuteRecipe(
-                                recipeId = screenState.recipeId,
-                                recipeName = screenState.recipeName
-                            )
+                            onStartExecution(screenState.recipeId, screenState.recipeName)
                         }
                     )
                 }
@@ -315,6 +311,7 @@ fun ViewRecipeScreen(
 fun ViewRecipeScreenPreview() {
     ViewRecipeScreen(
         snackbarState = AppSnackbarState(SnackbarHostState(), rememberCoroutineScope()),
-        appNavigationActions = AppNavigationActions(rememberNavController())
+        onRecipeDeleted = {},
+        onStartExecution = { _, _ -> }
     )
 }
