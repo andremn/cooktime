@@ -46,7 +46,4 @@ interface RecipeEntityDao {
     @Transaction
     @Query("SELECT * FROM recipes WHERE id = :id AND isDeleted = false")
     fun getWithDetailsById(id: Long): Flow<RecipeWithDetailsEntity?>
-
-    @Query("SELECT * FROM recipes WHERE id = :id AND isDeleted = false")
-    fun getById(id: Long): Flow<RecipeEntity?>
 }

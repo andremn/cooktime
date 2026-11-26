@@ -48,11 +48,7 @@ fun AnimatedLineThroughText(
     }
 
     LaunchedEffect(isLinedThrough) {
-        when {
-            isLinedThrough -> length.animateTo(text.length, animationSpec)
-            !isLinedThrough -> length.animateTo(0, animationSpec)
-            else -> length.snapTo(0)
-        }
+        length.animateTo(if (isLinedThrough) text.length else 0, animationSpec)
     }
 
     LaunchedEffect(text) {
