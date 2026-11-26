@@ -14,18 +14,21 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
-import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,11 +52,10 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.DeleteRecipeAlertDia
 import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
-import kotlinx.coroutines.launch
-import androidx.compose.material3.FloatingActionButtonDefaults
 import com.nicoapps.cooktime.ui.transitions.SharedElementKey
 import com.nicoapps.cooktime.ui.transitions.sharedContainer
 import com.nicoapps.cooktime.ui.transitions.sharedElement
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -73,6 +75,8 @@ fun ViewRecipeScreen(
     val context = LocalContext.current
     val recipeDeletedMessage = stringResource(R.string.view_recipe_deleted_message)
     val undoLabel = stringResource(R.string.view_recipe_deleted_undo)
+    val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
+    val errorSnackbarHostState = remember { SnackbarHostState() }
 
     val onBackPressedDispatcher =
         checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
@@ -96,6 +100,14 @@ fun ViewRecipeScreen(
             )
 
             appNavigationActions.navigateBack()
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            errorSnackbarHostState.showSnackbar(errorMessage)
+
+            viewModel.onErrorShown()
         }
     }
 
@@ -152,6 +164,9 @@ fun ViewRecipeScreen(
                 onNavigationIconClick = { onBackPressedDispatcher.onBackPressed() }
             )
         },
+        snackbarHost = {
+            SnackbarHost(hostState = errorSnackbarHostState)
+        },
         bottomBar = {
             BottomAppBar(
                 actions = {
@@ -159,6 +174,7 @@ fun ViewRecipeScreen(
                         isEditing = screenState.isEditing,
                         isStarred = screenState.isRecipeStarred,
                         isEditDoneEnabled = screenState.canSaveChanges,
+                        isSaving = screenState.isSaving,
                         onEditClick = viewModel::onEditClick,
                         onDeleteClick = viewModel::onRecipeDeleteRequest,
                         onStarClick = {
@@ -256,10 +272,23 @@ fun ViewRecipeScreen(
                         ViewRecipeIngredientsTab(
                             modifier = Modifier.padding(top = 10.dp),
                             isEditing = screenState.isEditing,
-                            ingredients = screenState.recipeIngredients,
-                            onIngredientAdded = viewModel::onRecipeIngredientAdded,
-                            onIngredientUpdated = viewModel::onRecipeIngredientUpdated,
-                            onIngredientRemoved = viewModel::onRecipeIngredientRemoved,
+                            ingredients = screenState.recipeDraft.ingredients,
+                            onIngredientAdded = { name, quantity, measurementUnit ->
+                                viewModel.onRecipeIngredientAdded(
+                                    name,
+                                    quantity,
+                                    measurementUnit
+                                )
+                            },
+                            onIngredientUpdated = { key, name, quantity, measurementUnit ->
+                                viewModel.onRecipeIngredientUpdated(
+                                    key,
+                                    name,
+                                    quantity,
+                                    measurementUnit
+                                )
+                            },
+                            onIngredientRemoved = { viewModel.onRecipeIngredientRemoved(it) },
                         )
                     }
 
@@ -267,10 +296,12 @@ fun ViewRecipeScreen(
                         ViewRecipeInstructionsTab(
                             modifier = Modifier.padding(top = 10.dp),
                             isEditing = screenState.isEditing,
-                            recipeInstructions = screenState.recipeInstructions,
-                            onInstructionAdded = viewModel::onRecipeInstructionAdded,
-                            onInstructionUpdated = viewModel::onRecipeInstructionUpdated,
-                            onInstructionRemoved = viewModel::onRecipeInstructionRemoved
+                            recipeInstructions = screenState.recipeDraft.instructions,
+                            onInstructionAdded = { viewModel.onRecipeInstructionAdded(it) },
+                            onInstructionUpdated = { key, text ->
+                                viewModel.onRecipeInstructionUpdated(key, text)
+                            },
+                            onInstructionRemoved = { viewModel.onRecipeInstructionRemoved(it) }
                         )
                     }
                 }

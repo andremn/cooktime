@@ -60,4 +60,8 @@
     <string name="view_recipe_deleted_message">Recipe deleted</string>
     <string name="view_recipe_deleted_undo">Undo</string>
     <string name="settings_placeholder_description">This place will soon have a design</string>
+    <string name="error_save_recipe">Couldn\'t save the recipe. Try again.</string>
+    <string name="error_delete_recipe">Couldn\'t delete the recipe. Try again.</string>
+    <string name="error_update_recipe_star">Couldn\'t update the favorite. Try again.</string>
+    <string name="error_save_recipe_execution">Couldn\'t save this cooking session. Try again.</string>
 </resources>

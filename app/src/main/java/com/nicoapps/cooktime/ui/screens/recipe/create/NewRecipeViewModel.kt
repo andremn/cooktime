@@ -1,199 +1,187 @@
 package com.nicoapps.cooktime.ui.screens.recipe.create
 
-import androidx.compose.runtime.mutableStateListOf
+import androidx.annotation.StringRes
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.serialization.saved
 import androidx.lifecycle.viewModelScope
 import com.nicoapps.cooktime.LocalRepository
+import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeRepository
-import com.nicoapps.cooktime.model.Ingredient
-import com.nicoapps.cooktime.model.Instruction
-import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.ui.extensions.runWrite
+import com.nicoapps.cooktime.ui.screens.recipe.draft.RecipeDraft
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @HiltViewModel
 class NewRecipeViewModel @Inject constructor(
     @LocalRepository private val recipeRepository: RecipeRepository,
-    private val databaseCoroutineScope: CoroutineScope
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _ingredients = mutableStateListOf<Ingredient>()
-    private val _instructions = mutableStateListOf<Instruction>()
+    private var savedDraft: RecipeDraft by savedStateHandle.saved(
+        serializer = RecipeDraft.serializer(),
+        key = KEY_DRAFT
+    ) { RecipeDraft() }
+    private var savedStep: NewRecipeScreenStep by savedStateHandle.saved(
+        serializer = NewRecipeScreenStep.serializer(),
+        key = KEY_STEP
+    ) { NewRecipeScreenStep.NAME }
+
     private val _screenState = MutableStateFlow(
         NewRecipeScreenState(
-            currentProgress = calculateProgress(NewRecipeScreenStep.NAME),
-            recipeIngredients = _ingredients,
-            recipeInstructions = _instructions
+            draft = savedDraft,
+            currentStep = savedStep
         )
     )
-
-    val screenState = _screenState.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        _screenState.value
-    )
+    val screenState = _screenState.asStateFlow()
 
     fun nextStep() {
-        _screenState.update {
-            val nextStep = it.currentStep.nextStepOrNull() ?: it.currentStep
+        val nextStep = _screenState.value.currentStep.nextStepOrNull() ?: return
 
-            it.copy(
-                currentStep = nextStep,
-                currentProgress = calculateProgress(nextStep),
-                backHandlerEnabled = nextStep.isBackHandlerEnabled(),
-                nextButtonEnabled = isNextButtonEnabled(it, nextStep)
-            )
-        }
+        updateStep(nextStep)
     }
 
     fun previousStep() {
-        _screenState.update {
-            val previousStep = it.currentStep.previousStepOrNull() ?: it.currentStep
+        val previousStep = _screenState.value.currentStep.previousStepOrNull() ?: return
 
-            it.copy(
-                currentStep = previousStep,
-                currentProgress = calculateProgress(previousStep),
-                backHandlerEnabled = previousStep.isBackHandlerEnabled(),
-                nextButtonEnabled = isNextButtonEnabled(it, previousStep)
+        updateStep(previousStep)
+    }
+
+    fun onRecipeNameChanged(recipeName: String) =
+        updateDraft(_screenState.value.draft.rename(recipeName))
+
+    fun onRecipeIngredientAdded(name: String, quantity: Float, measurementUnit: String?) =
+        updateDraft(
+            _screenState.value.draft.addIngredient(
+                name = name,
+                quantity = quantity,
+                measurementUnit = measurementUnit
             )
-        }
-    }
+        )
 
-    fun onCurrentTitleChanged(title: String) {
-        _screenState.update {
-            it.copy(
-                currentTitle = title
+    fun onRecipeIngredientUpdated(
+        key: Long,
+        name: String,
+        quantity: Float,
+        measurementUnit: String?
+    ) =
+        updateDraft(
+            _screenState.value.draft.updateIngredient(
+                key = key,
+                name = name,
+                quantity = quantity,
+                measurementUnit = measurementUnit
             )
-        }
-    }
+        )
 
-    fun onRecipeNameChanged(recipeName: String) {
-        _screenState.update {
-            it.copy(
-                recipeName = recipeName,
-                nextButtonEnabled = recipeName.isNotBlank()
-            )
-        }
-    }
+    fun onRecipeIngredientRemoved(key: Long) =
+        updateDraft(_screenState.value.draft.removeIngredient(key))
 
-    fun onRecipeIngredientAdded(ingredient: Ingredient) {
-        _ingredients.add(ingredient)
+    fun onRecipeInstructionAdded(text: String) =
+        updateDraft(_screenState.value.draft.addInstruction(text))
 
-        _screenState.update {
-            it.copy(
-                nextButtonEnabled = _ingredients.isNotEmpty()
-            )
-        }
-    }
+    fun onRecipeInstructionUpdated(key: Long, text: String) =
+        updateDraft(_screenState.value.draft.updateInstruction(key, text))
 
-    fun onRecipeIngredientRemoved(ingredient: Ingredient) {
-        _ingredients.remove(ingredient)
-
-        _screenState.update {
-            it.copy(
-                nextButtonEnabled = _ingredients.isNotEmpty()
-            )
-        }
-    }
-
-    fun onRecipeIngredientUpdated(index: Int, ingredient: Ingredient) {
-        if (index in 0..<_ingredients.size) {
-            _ingredients[index] = ingredient
-        }
-    }
-
-    fun onRecipeInstructionAdded(instruction: Instruction) {
-        _instructions.add(instruction)
-
-        _screenState.update {
-            it.copy(
-                nextButtonEnabled = _instructions.isNotEmpty()
-            )
-        }
-    }
-
-    fun onRecipeInstructionRemoved(instruction: Instruction) {
-        _instructions.remove(instruction)
-
-        _screenState.update {
-            it.copy(
-                nextButtonEnabled = _instructions.isNotEmpty()
-            )
-        }
-    }
-
-    fun onRecipeInstructionUpdated(index: Int, instruction: Instruction) {
-        if (index >= 0 && index < _instructions.size) {
-            _instructions[index] = instruction
-        }
-    }
+    fun onRecipeInstructionRemoved(key: Long) =
+        updateDraft(_screenState.value.draft.removeInstruction(key))
 
     fun saveRecipe() {
-        if (_screenState.value.isSaving) {
+        val currentState = _screenState.value
+
+        if (currentState.isSaving || !currentState.draft.isValid) {
             return
         }
 
-        _screenState.update { it.copy(isSaving = true) }
+        _screenState.update {
+            it.copy(isSaving = true)
+        }
 
-        databaseCoroutineScope.launch {
-            recipeRepository.save(
-                Recipe(
-                    name = screenState.value.recipeName,
-                    ingredients = screenState.value.recipeIngredients,
-                    instructions = screenState.value.recipeInstructions,
-                    isStarred = false
-                )
-            )
+        viewModelScope.launch {
+            val saved = runWrite(
+                onFailure = {
+                    _screenState.update {
+                        it.copy(
+                            isSaving = false,
+                            errorMessageResourceId = R.string.error_save_recipe
+                        )
+                    }
+                }
+            ) {
+                recipeRepository.save(currentState.draft.toRecipe())
+            }
 
-            _screenState.update {
-                it.copy(
-                    recipeSaved = true
-                )
+            if (saved) {
+                _screenState.update {
+                    it.copy(recipeSaved = true)
+                }
             }
         }
     }
 
-    private fun isNextButtonEnabled(
-        currentState: NewRecipeScreenState,
-        targetStep: NewRecipeScreenStep
-    ) =
-        when (targetStep) {
-            NewRecipeScreenStep.NAME -> currentState.recipeName.isNotBlank()
-            NewRecipeScreenStep.INGREDIENTS -> currentState.recipeIngredients.isNotEmpty()
-            NewRecipeScreenStep.INSTRUCTIONS -> currentState.recipeInstructions.isNotEmpty()
+    fun onErrorShown() =
+        _screenState.update {
+            it.copy(errorMessageResourceId = null)
         }
 
-    private fun NewRecipeScreenStep.isBackHandlerEnabled() =
-        !isFistStep()
+    private fun updateDraft(draft: RecipeDraft) {
+        savedDraft = draft
 
-    private fun calculateProgress(step: NewRecipeScreenStep) =
-        step.stepIndex.inc() / NewRecipeScreenStep.entries.size.toFloat()
+        _screenState.update {
+            it.copy(draft = draft)
+        }
+    }
+
+    private fun updateStep(step: NewRecipeScreenStep) {
+        savedStep = step
+
+        _screenState.update {
+            it.copy(currentStep = step)
+        }
+    }
+
+    private companion object {
+        const val KEY_DRAFT = "recipeDraft"
+        const val KEY_STEP = "currentStep"
+    }
 }
 
 data class NewRecipeScreenState(
+    val draft: RecipeDraft = RecipeDraft(),
     val currentStep: NewRecipeScreenStep = NewRecipeScreenStep.NAME,
-    val currentProgress: Float = 0f,
-    val currentTitle: String = "",
-    val recipeName: String = "",
-    val recipeIngredients: List<Ingredient> = emptyList(),
-    val recipeInstructions: List<Instruction> = emptyList(),
-    val nextButtonEnabled: Boolean = false,
-    val backHandlerEnabled: Boolean = false,
     val isSaving: Boolean = false,
-    val recipeSaved: Boolean = false
-)
+    val recipeSaved: Boolean = false,
+    @StringRes val errorMessageResourceId: Int? = null
+) {
+    val currentProgress: Float
+        get() = currentStep.stepIndex.inc() / NewRecipeScreenStep.entries.size.toFloat()
 
-enum class NewRecipeScreenStep(val stepIndex: Int) {
-    NAME(0),
-    INGREDIENTS(1),
-    INSTRUCTIONS(2);
+    val backHandlerEnabled: Boolean
+        get() = !currentStep.isFirstStep()
 
-    fun isFistStep() =
+    val nextButtonEnabled: Boolean
+        get() = !isSaving && when (currentStep) {
+            NewRecipeScreenStep.NAME -> draft.isNameValid
+            NewRecipeScreenStep.INGREDIENTS -> draft.areIngredientsValid
+            NewRecipeScreenStep.INSTRUCTIONS -> draft.isValid
+        }
+}
+
+@Serializable
+enum class NewRecipeScreenStep(
+    @StringRes val titleResourceId: Int,
+    val stepIndex: Int
+) {
+    NAME(R.string.new_recipe_name_step_title, 0),
+    INGREDIENTS(R.string.new_recipe_ingredients_step_title, 1),
+    INSTRUCTIONS(R.string.new_recipe_instructions_step_title, 2);
+
+    fun isFirstStep() =
         stepIndex == NAME.stepIndex
 
     fun isLastStep() =
@@ -206,7 +194,6 @@ enum class NewRecipeScreenStep(val stepIndex: Int) {
 
         return fromStepIndex(stepIndex.inc())
     }
-
 
     fun previousStepOrNull(): NewRecipeScreenStep? {
         if (stepIndex == NAME.stepIndex) {

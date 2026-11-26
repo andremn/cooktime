@@ -22,6 +22,7 @@ fun ViewRecipeAppBottomBarActions(
     isEditing: Boolean,
     isStarred: Boolean,
     isEditDoneEnabled: Boolean,
+    isSaving: Boolean,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onStarClick: () -> Unit,
@@ -38,7 +39,7 @@ fun ViewRecipeAppBottomBarActions(
         ) {
             if (editing) {
                 IconButton(
-                    enabled = isEditDoneEnabled,
+                    enabled = isEditDoneEnabled && !isSaving,
                     onClick = { onEditDoneClick() }
                 ) {
                     Icon(
@@ -48,6 +49,7 @@ fun ViewRecipeAppBottomBarActions(
                 }
 
                 IconButton(
+                    enabled = !isSaving,
                     onClick = { onEditCancelClick() }
                 ) {
                     Icon(
