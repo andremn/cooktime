@@ -36,9 +36,9 @@ fun SearchRecipesBar(
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
-    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val results by viewModel.results.collectAsStateWithLifecycle()
     val searchBarState = rememberSearchBarState()
-    val textFieldState = rememberTextFieldState(initialText = screenState.searchText)
+    val textFieldState = rememberTextFieldState()
     val coroutineScope = rememberCoroutineScope()
     val currentOnActiveChange by rememberUpdatedState(onActiveChange)
 
@@ -52,7 +52,6 @@ fun SearchRecipesBar(
             .distinctUntilChanged()
             .drop(1)
             .collect { isActive ->
-                viewModel.onSearchActiveChanged(isActive)
                 currentOnActiveChange?.invoke(isActive)
             }
     }
@@ -90,7 +89,7 @@ fun SearchRecipesBar(
         colors = colors
     ) {
         SearchRecipesView(
-            recipes = screenState.recipes,
+            recipes = results,
             onRecipeSelected = { recipe ->
                 coroutineScope.launch { searchBarState.animateToCollapsed() }
                 onRecipeSelected(recipe)
