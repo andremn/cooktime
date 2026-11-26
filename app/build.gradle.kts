@@ -2,6 +2,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.dagger.hilt.android")
     id("androidx.room")
 }
@@ -63,6 +64,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.1")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.1")
     implementation("androidx.activity:activity-ktx:1.13.0")
     implementation(platform("androidx.compose:compose-bom:2026.11.01"))
     implementation("androidx.compose.ui:ui")
@@ -87,6 +89,8 @@ dependencies {
     // Lifecycle pulls kotlinx-serialization 1.7.x into the app; room-testing needs a newer
     // runtime, and AGP aligns test and app classpaths, so the app has to declare it.
     implementation(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.13.0"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json")
     implementation("androidx.room:room-runtime:2.8.5")
     implementation("androidx.room:room-ktx:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")
