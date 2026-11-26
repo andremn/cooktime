@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,11 +46,9 @@ import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
 import com.nicoapps.cooktime.ui.components.search.SearchRecipesBar
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.defaultExitAnimation
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButtonDefaults
-import com.nicoapps.cooktime.ui.transitions.SharedElementKey
-import com.nicoapps.cooktime.ui.transitions.sharedContainer
-import com.nicoapps.cooktime.ui.transitions.sharedElement
+import com.nicoapps.cooktime.ui.transitions.floatingActionButtonTransition
+import com.nicoapps.cooktime.ui.transitions.screenContentTransition
+import com.nicoapps.cooktime.ui.transitions.topBarTransition
 
 @Composable
 fun HomeScreen(
@@ -74,12 +73,13 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier,
+        containerColor = Color.Transparent,
         snackbarHost = {
             SnackbarHost(hostState = appSnackbarState.snackbarHostState)
         },
         topBar = {
             SearchRecipesBar(
-                modifier = Modifier.padding(
+                modifier = Modifier.topBarTransition().padding(
                     bottom = dimensionResource(id = R.dimen.search_bar_padding)
                 ),
                 onActiveChange = { isSearchBarActive = it },
@@ -108,10 +108,7 @@ fun HomeScreen(
                 exit = defaultExitAnimation()
             ) {
                 FloatingActionButton(
-                    modifier = Modifier.sharedContainer(
-                        key = SharedElementKey.NewRecipeContainer,
-                        clipShape = FloatingActionButtonDefaults.shape
-                    ),
+                    modifier = Modifier.floatingActionButtonTransition(),
                     onClick = { onNewRecipeClick() },
                 ) {
                     Icon(
@@ -125,6 +122,7 @@ fun HomeScreen(
         if (screenState.recipes.isEmpty()) {
             Box(
                 modifier = Modifier
+                    .screenContentTransition()
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 2.dp),
@@ -141,6 +139,7 @@ fun HomeScreen(
                 columns = StaggeredGridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
+                    .screenContentTransition()
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 10.dp)
@@ -150,10 +149,6 @@ fun HomeScreen(
                         ElevatedCard(
                             modifier = Modifier
                                 .padding(vertical = 5.dp)
-                                .sharedContainer(
-                                    key = SharedElementKey.RecipeContainer(recipe.id),
-                                    clipShape = CardDefaults.elevatedShape
-                                )
                                 .clickable {
                                     onRecipeClick(recipe.id, recipe.name)
                                 }
@@ -162,9 +157,6 @@ fun HomeScreen(
                                 modifier = Modifier.padding(10.dp)
                             ) {
                                 Text(
-                                    modifier = Modifier.sharedElement(
-                                        SharedElementKey.RecipeTitle(recipe.id)
-                                    ),
                                     text = recipe.name,
                                     style = MaterialTheme.typography.headlineSmall
                                 )

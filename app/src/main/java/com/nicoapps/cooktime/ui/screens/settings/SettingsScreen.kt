@@ -11,9 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
+import com.nicoapps.cooktime.ui.transitions.screenContentTransition
+import com.nicoapps.cooktime.ui.transitions.topBarTransition
 
 @Composable
 fun SettingsScreen(
@@ -24,8 +27,10 @@ fun SettingsScreen(
 
     Scaffold(
         modifier = modifier,
+        containerColor = Color.Transparent,
         topBar = {
             AppTitleTopBar(
+                modifier = Modifier.topBarTransition(),
                 title = {
                     Text(text = stringResource(R.string.settings_title))
                 },
@@ -35,6 +40,7 @@ fun SettingsScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .screenContentTransition()
                 .fillMaxSize()
                 .padding(paddingValues),
             verticalArrangement = Arrangement.Center,

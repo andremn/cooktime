@@ -1,167 +1,124 @@
 package com.nicoapps.cooktime.ui.transitions
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
-import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.draw.clipToBounds
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
-import com.nicoapps.cooktime.ui.ExecuteRecipe
-import com.nicoapps.cooktime.ui.Home
-import com.nicoapps.cooktime.ui.NewRecipe
-import com.nicoapps.cooktime.ui.ViewRecipe
-import kotlin.reflect.KClass
+import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
+import com.nicoapps.cooktime.ui.defaultAnimationSpec
 
 /**
- * Scope of the [androidx.compose.animation.SharedTransitionLayout] around the app's NavHost.
- * Null outside it (previews, isolated UI tests), where shared elements are simply not animated.
+ * Visibility scope of the NavHost entry the current screen belongs to. Null outside the NavHost
+ * (previews, isolated UI tests), where screens are simply not animated.
  */
-val LocalSharedTransitionScope = staticCompositionLocalOf<SharedTransitionScope?> { null }
-
-/** Visibility scope of the NavHost entry the current screen belongs to. */
 val LocalNavAnimatedVisibilityScope = staticCompositionLocalOf<AnimatedVisibilityScope?> { null }
 
 /**
- * Keys pairing an element on one screen with its counterpart on the next. Both sides must be
- * composed with an equal key for the transition to run; otherwise each side just follows its
- * screen's enter or exit transition.
+ * The entry below the current one on the NavHost's back stack, used to tell a forward navigation
+ * from a return.
  */
-sealed interface SharedElementKey {
-    /** A recipe card on the home screen and the whole recipe screen it opens. */
-    data class RecipeContainer(val recipeId: Long) : SharedElementKey
+val LocalPreviousNavBackStackEntry = compositionLocalOf<NavBackStackEntry?> { null }
 
-    /** The recipe name on its card and as the recipe screen's title. */
-    data class RecipeTitle(val recipeId: Long) : SharedElementKey
-
-    /**
-     * The start button on the recipe screen and the whole execution screen it opens, bars
-     * included, so the screen visibly grows out of the button.
-     */
-    data class ExecuteRecipeContainer(val recipeId: Long) : SharedElementKey
-
-    /** The home screen's new recipe button and the whole new recipe screen it opens. */
-    data object NewRecipeContainer : SharedElementKey
-}
+/*
+ * The NavHost itself doesn't move the screens (see AppNavHost): each part of a screen animates on
+ * its own, so the bars stay in place while their content changes and the screen's content
+ * slides, as when the app had a single shared scaffold. Screens draw no background of their own,
+ * so both screens' content is visible while one slides over the other.
+ */
 
 /**
- * A container transform: the element grows into (or shrinks back from) the element with the
- * same [key] on the other screen while the contents of both sides cross-fade. Each side keeps
- * the layout of its final size and is revealed by the animated bounds, so text never re-wraps
- * mid-transition. The cross-fade is short, so the container turns opaque early instead of
- * showing the screen underneath through it.
+ * Keeps the incoming screen in place for as long as its parts animate. A NavHost transition with
+ * no duration of its own would make a back navigation, which runs as a seekable transition,
+ * jump straight to the destination.
  */
-fun Modifier.sharedContainer(
-    key: SharedElementKey,
-    clipShape: Shape = RectangleShape
-): Modifier = sharedBounds(
-    key,
-    clipShape,
-    resizeMode = RemeasureToBounds,
-    keepFinalLayout = true,
-    contentFadeMillis = CONTAINER_CONTENT_FADE_MILLIS,
-    zIndexInOverlay = 0f
+fun screenHoldEnterTransition(): EnterTransition =
+    fadeIn(defaultAnimationSpec(durationMillis = SCREEN_HOLD_MILLIS), initialAlpha = 1f)
+
+/** Keeps the outgoing screen in place for as long as its parts animate. */
+fun screenHoldExitTransition(): ExitTransition =
+    fadeOut(defaultAnimationSpec(durationMillis = SCREEN_HOLD_MILLIS), targetAlpha = 1f)
+
+/** Long enough for the delayed floating action button to finish rising. */
+private const val SCREEN_HOLD_MILLIS = DEFAULT_ANIMATION_DURATION_MILLIS * 2
+
+/** The screen's content slides up into place and down out of the way, in both directions. */
+fun Modifier.screenContentTransition(): Modifier = navAnimateEnterExit(
+    enter = { slideInVertically(defaultAnimationSpec()) { height -> height } },
+    exit = { slideOutVertically(defaultAnimationSpec()) { height -> height } }
 )
 
 /**
- * An element that stays in place, or moves, between two screens, cross-fading its content.
- * Drawn above any [sharedContainer] it is nested in.
+ * The top bar stays in place while its content changes: going forward, the new content comes
+ * from above and the old one leaves downwards; going back, the other way around.
  */
-fun Modifier.sharedElement(key: SharedElementKey): Modifier = sharedBounds(
-    key,
-    RectangleShape,
-    resizeMode = scaleToBounds(),
-    keepFinalLayout = false,
-    contentFadeMillis = TRANSITION_DURATION_MILLIS,
-    zIndexInOverlay = 1f
+fun Modifier.topBarTransition(): Modifier = clipToBounds().navAnimateEnterExit(
+    enter = { isReturning ->
+        slideInVertically(defaultAnimationSpec()) { height ->
+            if (isReturning) height else -height
+        } + fadeIn(defaultAnimationSpec())
+    },
+    exit = { isReturning ->
+        slideOutVertically(defaultAnimationSpec()) { height ->
+            if (isReturning) -height else height
+        } + fadeOut(defaultAnimationSpec())
+    }
 )
 
-private fun Modifier.sharedBounds(
-    key: SharedElementKey,
-    clipShape: Shape,
-    resizeMode: SharedTransitionScope.ResizeMode,
-    keepFinalLayout: Boolean,
-    contentFadeMillis: Int,
-    zIndexInOverlay: Float
+/** The bottom bar's content rises into place and sinks out of the way. */
+fun Modifier.bottomBarTransition(): Modifier = clipToBounds().navAnimateEnterExit(
+    enter = { slideInVertically(defaultAnimationSpec()) { height -> height } + fadeIn() },
+    exit = { slideOutVertically(defaultAnimationSpec()) { height -> height } + fadeOut() }
+)
+
+/** A floating action button rises from below the screen once the content is in place. */
+fun Modifier.floatingActionButtonTransition(): Modifier = navAnimateEnterExit(
+    enter = {
+        slideInVertically(
+            defaultAnimationSpec(delayMillis = DEFAULT_ANIMATION_DURATION_MILLIS)
+        ) { height -> height * 3 }
+    },
+    exit = {
+        slideOutVertically(defaultAnimationSpec()) { height -> height } +
+                fadeOut(defaultAnimationSpec())
+    }
+)
+
+private fun Modifier.navAnimateEnterExit(
+    enter: (isReturning: Boolean) -> EnterTransition,
+    exit: (isReturning: Boolean) -> ExitTransition
 ): Modifier = composed {
-    val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedVisibilityScope = LocalNavAnimatedVisibilityScope.current
+    val previousEntry = LocalPreviousNavBackStackEntry.current
 
-    if (sharedTransitionScope == null || animatedVisibilityScope == null) {
+    if (animatedVisibilityScope == null) {
         Modifier
     } else {
-        with(sharedTransitionScope) {
-            Modifier.sharedBounds(
-                sharedContentState = rememberSharedContentState(key),
-                animatedVisibilityScope = animatedVisibilityScope,
-                enter = fadeIn(tween(contentFadeMillis)),
-                exit = fadeOut(tween(contentFadeMillis)),
-                resizeMode = resizeMode,
-                clipInOverlayDuringTransition = OverlayClip(clipShape),
-                zIndexInOverlay = zIndexInOverlay
-            ).let { if (keepFinalLayout) it.skipToLookaheadSize() else it }
+        with(animatedVisibilityScope) {
+            val isReturning = isReturning(previousEntry)
+
+            Modifier.animateEnterExit(enter = enter(isReturning), exit = exit(isReturning))
         }
     }
 }
 
-private const val TRANSITION_DURATION_MILLIS = 300
-private const val FADE_OUT_DURATION_MILLIS = 90
-private const val CONTAINER_CONTENT_FADE_MILLIS = 100
-private const val FADE_THROUGH_INITIAL_SCALE = 0.92f
-
 /**
- * Destinations linked by a container transform. Between them the shared elements do the
- * motion: the incoming screen appears at once, since its container already reveals it (fading
- * it in would make the container see-through), and the outgoing one fades out.
+ * Whether the NavHost is going back. Going forward leaves the screen being left right below the
+ * destination; a return pops it, so it's no longer there (back navigation completes before the
+ * transition starts, since back isn't predictive inside the app).
  */
-private val containerTransformPairs = setOf(
-    Home::class to ViewRecipe::class,
-    Home::class to NewRecipe::class,
-    ViewRecipe::class to ExecuteRecipe::class
-)
+private fun AnimatedVisibilityScope.isReturning(previousEntry: NavBackStackEntry?): Boolean {
+    val navTransition = transition.parentTransition ?: return false
+    val initialEntry = navTransition.currentState as? NavBackStackEntry ?: return false
+    val targetEntry = navTransition.targetState as? NavBackStackEntry ?: return false
 
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.isContainerTransform(): Boolean {
-    val initialDestination = initialState.destination
-    val targetDestination = targetState.destination
-
-    return containerTransformPairs.any { (first, second) ->
-        (initialDestination.hasDestinationRoute(first) && targetDestination.hasDestinationRoute(second)) ||
-                (initialDestination.hasDestinationRoute(second) && targetDestination.hasDestinationRoute(first))
-    }
+    return initialEntry.id != targetEntry.id && initialEntry.id != previousEntry?.id
 }
-
-/** [NavDestination.hasRoute] only accepts [KClass] values of a known type. */
-@Suppress("UNCHECKED_CAST")
-private fun NavDestination.hasDestinationRoute(route: KClass<*>): Boolean =
-    hasRoute(route as KClass<Any>)
-
-/** Container transform between linked screens, Material's fade through between the others. */
-fun AnimatedContentTransitionScope<NavBackStackEntry>.screenEnterTransition(): EnterTransition =
-    if (isContainerTransform()) {
-        EnterTransition.None
-    } else {
-        val incomingSpec = tween<Float>(
-            durationMillis = TRANSITION_DURATION_MILLIS - FADE_OUT_DURATION_MILLIS,
-            delayMillis = FADE_OUT_DURATION_MILLIS
-        )
-        fadeIn(incomingSpec) + scaleIn(incomingSpec, initialScale = FADE_THROUGH_INITIAL_SCALE)
-    }
-
-fun AnimatedContentTransitionScope<NavBackStackEntry>.screenExitTransition(): ExitTransition =
-    if (isContainerTransform()) {
-        fadeOut(tween(TRANSITION_DURATION_MILLIS))
-    } else {
-        fadeOut(tween(FADE_OUT_DURATION_MILLIS))
-    }

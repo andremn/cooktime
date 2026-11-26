@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
@@ -41,10 +42,10 @@ import com.nicoapps.cooktime.ui.components.recipe.unitLabel
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.execute.appbar.ExecuteRecipeBottomAppBarFab
 import com.nicoapps.cooktime.ui.screens.recipe.execute.dialogs.SaveExecutionDialog
+import com.nicoapps.cooktime.ui.transitions.bottomBarTransition
+import com.nicoapps.cooktime.ui.transitions.screenContentTransition
+import com.nicoapps.cooktime.ui.transitions.topBarTransition
 import com.nicoapps.cooktime.utils.FloatUtils.formatQuantity
-import androidx.compose.material3.FloatingActionButtonDefaults
-import com.nicoapps.cooktime.ui.transitions.SharedElementKey
-import com.nicoapps.cooktime.ui.transitions.sharedContainer
 
 @Composable
 fun ExecuteRecipeScreen(
@@ -86,12 +87,11 @@ fun ExecuteRecipeScreen(
     }
 
     Scaffold(
-        modifier = modifier.sharedContainer(
-            key = SharedElementKey.ExecuteRecipeContainer(screenState.recipeId),
-            clipShape = FloatingActionButtonDefaults.extendedFabShape
-        ),
+        modifier = modifier,
+        containerColor = Color.Transparent,
         topBar = {
             AppTitleTopBar(
+                modifier = Modifier.topBarTransition(),
                 title = {
                     Text(text = screenState.recipeName)
                 },
@@ -103,6 +103,7 @@ fun ExecuteRecipeScreen(
         },
         bottomBar = {
             BottomAppBar(
+                modifier = Modifier.bottomBarTransition(),
                 actions = {
                     ExecuteRecipeBottomAppBarActions(
                         onResetClick = viewModel::onReset,
@@ -119,6 +120,7 @@ fun ExecuteRecipeScreen(
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
+                .screenContentTransition()
                 .padding(paddingValues)
                 .padding(horizontal = 10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
