@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.nicoapps.cooktime.ApplicationScope
 import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.data.RecipeRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,12 +26,13 @@ class SampleRecipesReceiver : BroadcastReceiver() {
     lateinit var recipeRepository: RecipeRepository
 
     @Inject
-    lateinit var databaseCoroutineScope: CoroutineScope
+    @ApplicationScope
+    lateinit var applicationScope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
 
-        databaseCoroutineScope.launch {
+        applicationScope.launch {
             try {
                 val existingNames = recipeRepository.getAll().first().map { it.name }.toSet()
                 val missing = SampleRecipes.all.filterNot { it.name in existingNames }

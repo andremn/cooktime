@@ -28,30 +28,25 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.nicoapps.cooktime.R
-import com.nicoapps.cooktime.model.Ingredient
-import com.nicoapps.cooktime.model.Instruction
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.screens.recipe.create.NewRecipeScreenStep
+import com.nicoapps.cooktime.ui.screens.recipe.draft.RecipeDraft
 
 @Composable
 fun NewRecipeSteps(
     modifier: Modifier = Modifier,
     currentStep: NewRecipeScreenStep,
-    recipeName: String,
-    recipeIngredients: List<Ingredient>,
-    recipeInstructions: List<Instruction>,
-    currentTitle: String,
+    draft: RecipeDraft,
     nextButtonEnabled: Boolean,
     onNextClicked: () -> Unit,
     onFinishClicked: () -> Unit,
-    onCurrentTitleChanged: (String) -> Unit,
     onRecipeNameChanged: (String) -> Unit,
-    onRecipeIngredientAdded: (Ingredient) -> Unit,
-    onRecipeIngredientUpdated: (Int, Ingredient) -> Unit,
-    onRecipeIngredientRemoved: (Ingredient) -> Unit,
-    onRecipeInstructionAdded: (Instruction) -> Unit,
-    onRecipeInstructionUpdated: (Int, Instruction) -> Unit,
-    onRecipeInstructionRemoved: (Instruction) -> Unit,
+    onRecipeIngredientAdded: (String, Float, String?) -> Unit,
+    onRecipeIngredientUpdated: (Long, String, Float, String?) -> Unit,
+    onRecipeIngredientRemoved: (Long) -> Unit,
+    onRecipeInstructionAdded: (String) -> Unit,
+    onRecipeInstructionUpdated: (Long, String) -> Unit,
+    onRecipeInstructionRemoved: (Long) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -81,8 +76,8 @@ fun NewRecipeSteps(
                         animationSpec = defaultAnimationSpec()
                     ) togetherWith
                             slideOutHorizontally { width -> -width } + fadeOut(
-                        animationSpec = defaultAnimationSpec()
-                    )
+                                animationSpec = defaultAnimationSpec()
+                            )
                 }.using(
                     SizeTransform(clip = true)
                 )
@@ -96,15 +91,14 @@ fun NewRecipeSteps(
                     modifier = modifier,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge,
-                    text = currentTitle
+                    text = stringResource(currentStep.titleResourceId)
                 )
 
                 when (currentStep) {
                     NewRecipeScreenStep.NAME -> {
                         NewRecipeNameStep(
                             modifier = modifier,
-                            recipeName = recipeName,
-                            onCurrentTitleChanged = { onCurrentTitleChanged(it) },
+                            recipeName = draft.name,
                             onRecipeNameChanged = { onRecipeNameChanged(it) }
                         )
                     }
@@ -112,24 +106,24 @@ fun NewRecipeSteps(
                     NewRecipeScreenStep.INGREDIENTS -> {
                         NewRecipeIngredientsStep(
                             modifier = modifier,
-                            onCurrentTitleChanged = { onCurrentTitleChanged(it) },
-                            ingredients = recipeIngredients,
-                            onIngredientAdded = { onRecipeIngredientAdded(it) },
-                            onIngredientUpdated = { index, ingredient ->
-                                onRecipeIngredientUpdated(index, ingredient)
+                            ingredients = draft.ingredients,
+                            onIngredientAdded = { name, quantity, measurementUnit ->
+                                onRecipeIngredientAdded(name, quantity, measurementUnit)
                             },
-                            onIngredientRemoved = { onRecipeIngredientRemoved(it) },
+                            onIngredientUpdated = { key, name, quantity, measurementUnit ->
+                                onRecipeIngredientUpdated(key, name, quantity, measurementUnit)
+                            },
+                            onIngredientRemoved = { onRecipeIngredientRemoved(it) }
                         )
                     }
 
                     NewRecipeScreenStep.INSTRUCTIONS -> {
                         NewRecipeInstructionsStep(
                             modifier = modifier,
-                            instructions = recipeInstructions,
-                            onCurrentTitleChanged = { onCurrentTitleChanged(it) },
+                            instructions = draft.instructions,
                             onInstructionAdded = { onRecipeInstructionAdded(it) },
-                            onInstructionUpdated = { index, value ->
-                                onRecipeInstructionUpdated(index, value)
+                            onInstructionUpdated = { key, text ->
+                                onRecipeInstructionUpdated(key, text)
                             },
                             onInstructionRemoved = { onRecipeInstructionRemoved(it) }
                         )

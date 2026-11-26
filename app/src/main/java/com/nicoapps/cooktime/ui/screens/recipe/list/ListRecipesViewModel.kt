@@ -1,27 +1,35 @@
 package com.nicoapps.cooktime.ui.screens.recipe.list
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nicoapps.cooktime.LocalRepository
+import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeRepository
 import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.ui.extensions.runWrite
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    @LocalRepository private val recipeRepository: RecipeRepository,
-    private val databaseCoroutineScope: CoroutineScope
+    @LocalRepository private val recipeRepository: RecipeRepository
 ) : ViewModel() {
-    val screenState = recipeRepository.getAll().map {
+    private val errorMessageResourceId = MutableStateFlow<Int?>(null)
+
+    val screenState = combine(
+        recipeRepository.getAll(),
+        errorMessageResourceId
+    ) { recipes, errorMessageResourceId ->
         HomeScreenState(
-            recipes = it
+            recipes = recipes,
+            errorMessageResourceId = errorMessageResourceId
         )
     }.stateIn(
         viewModelScope,
@@ -30,16 +38,27 @@ class HomeScreenViewModel @Inject constructor(
     )
 
     fun onStarChanged(recipeId: Long, isStarred: Boolean) {
-        databaseCoroutineScope.launch {
-            recipeRepository.updateIsStarred(
-                id = recipeId,
-                isStarred = isStarred
-            )
+        viewModelScope.launch {
+            runWrite(
+                onFailure = {
+                    errorMessageResourceId.value = R.string.error_update_recipe_star
+                }
+            ) {
+                recipeRepository.updateIsStarred(
+                    id = recipeId,
+                    isStarred = isStarred
+                )
+            }
         }
+    }
+
+    fun onErrorShown() {
+        errorMessageResourceId.value = null
     }
 }
 
 @Immutable
 data class HomeScreenState(
-    val recipes: List<Recipe> = emptyList()
+    val recipes: List<Recipe> = emptyList(),
+    @StringRes val errorMessageResourceId: Int? = null
 )

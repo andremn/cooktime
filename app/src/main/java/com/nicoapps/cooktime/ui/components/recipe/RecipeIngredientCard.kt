@@ -32,12 +32,14 @@ import com.nicoapps.cooktime.utils.FloatUtils.isSingularQuantity
 fun RecipeIngredientCard(
     modifier: Modifier = Modifier,
     showRemoveIcon: Boolean,
-    ingredient: Ingredient,
-    onClick: (Ingredient) -> Unit,
-    onRemoveClick: ((Ingredient) -> Unit)?
+    name: String,
+    quantity: Float,
+    measurementUnit: String?,
+    onClick: () -> Unit,
+    onRemoveClick: (() -> Unit)?
 ) {
     Card(
-        onClick = { onClick(ingredient) }
+        onClick = onClick
     ) {
         Box(
             modifier = modifier
@@ -48,14 +50,14 @@ fun RecipeIngredientCard(
                     modifier = Modifier
                         .align(Alignment.TopEnd),
                     onClick = {
-                        onRemoveClick?.invoke(ingredient)
+                        onRemoveClick?.invoke()
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = stringResource(
                             R.string.cd_remove_ingredient,
-                            ingredient.name
+                            name
                         )
                     )
                 }
@@ -69,7 +71,7 @@ fun RecipeIngredientCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = ingredient.name,
+                    text = name,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -80,7 +82,7 @@ fun RecipeIngredientCard(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = ingredient.quantity.formatQuantity(),
+                        text = quantity.formatQuantity(),
                         style = MaterialTheme.typography.bodyLarge
                     )
 
@@ -89,7 +91,7 @@ fun RecipeIngredientCard(
                     )
 
                     Text(
-                        text = ingredient.unitLabel(),
+                        text = unitLabel(quantity, measurementUnit),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -100,7 +102,11 @@ fun RecipeIngredientCard(
 
 /** The ingredient's unit, or "unit"/"units" (localized, by plural rules) when it has none. */
 @Composable
-fun Ingredient.unitLabel(): String =
+fun Ingredient.unitLabel(): String = unitLabel(quantity, measurementUnit)
+
+/** The unit, or "unit"/"units" (localized, by plural rules) when there is none. */
+@Composable
+fun unitLabel(quantity: Float, measurementUnit: String?): String =
     measurementUnit.orEmpty().lowercase().ifEmpty {
         stringResource(
             id = if (quantity.isSingularQuantity()) {

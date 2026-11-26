@@ -9,11 +9,11 @@ import com.nicoapps.cooktime.data.entity.InstructionEntity
 @Dao
 abstract class InstructionEntityDao {
     @Upsert
-    abstract fun upsertAll(instructions: List<InstructionEntity>)
+    abstract suspend fun upsertAll(instructions: List<InstructionEntity>)
 
     @Delete
-    abstract fun deleteAll(instructions: List<InstructionEntity>)
+    abstract suspend fun deleteAll(instructions: List<InstructionEntity>)
 
     @Query("SELECT * FROM instructions WHERE recipeId = :recipeId")
-    abstract fun getAllByRecipeId(recipeId: Long): List<InstructionEntity>
+    abstract suspend fun getAllByRecipeId(recipeId: Long): List<InstructionEntity>
 }

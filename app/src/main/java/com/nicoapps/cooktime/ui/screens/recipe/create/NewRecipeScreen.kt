@@ -9,14 +9,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -31,11 +34,10 @@ import com.nicoapps.cooktime.ui.AppNavigationActions
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.create.steps.NewRecipeSteps
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import androidx.compose.material3.FloatingActionButtonDefaults
 import com.nicoapps.cooktime.ui.transitions.SharedElementKey
 import com.nicoapps.cooktime.ui.transitions.sharedContainer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun NewRecipeScreen(
@@ -50,12 +52,14 @@ fun NewRecipeScreen(
         targetValue = screenState.currentProgress,
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
     )
-    val title = if (screenState.currentStep.isFistStep()) {
+    val title = if (screenState.currentStep.isFirstStep()) {
         stringResource(R.string.new_recipe_title)
     } else {
-        screenState.recipeName.ifBlank { stringResource(R.string.new_recipe_title) }
+        screenState.draft.name.ifBlank { stringResource(R.string.new_recipe_title) }
     }
     val recipeSavedMessage = stringResource(R.string.new_recipe_saved_message)
+    val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
+    val errorSnackbarHostState = remember { SnackbarHostState() }
 
     val onBackPressedDispatcher =
         checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
@@ -68,7 +72,15 @@ fun NewRecipeScreen(
         }
     }
 
-    BackHandler(!screenState.currentStep.isFistStep()) {
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            errorSnackbarHostState.showSnackbar(errorMessage)
+
+            viewModel.onErrorShown()
+        }
+    }
+
+    BackHandler(screenState.backHandlerEnabled) {
         viewModel.previousStep()
     }
 
@@ -84,6 +96,9 @@ fun NewRecipeScreen(
                 },
                 onNavigationIconClick = { onBackPressedDispatcher.onBackPressed() }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = errorSnackbarHostState)
         }
     ) { paddingValues ->
         Column(
@@ -102,24 +117,22 @@ fun NewRecipeScreen(
             )
 
             NewRecipeSteps(
-                recipeName = screenState.recipeName,
-                recipeIngredients = screenState.recipeIngredients,
-                recipeInstructions = screenState.recipeInstructions,
-                currentTitle = screenState.currentTitle,
+                draft = screenState.draft,
                 currentStep = screenState.currentStep,
-                nextButtonEnabled = screenState.nextButtonEnabled && !screenState.isSaving,
+                nextButtonEnabled = screenState.nextButtonEnabled,
                 onNextClicked = { viewModel.nextStep() },
                 onFinishClicked = { viewModel.saveRecipe() },
-                onCurrentTitleChanged = { viewModel.onCurrentTitleChanged(it) },
                 onRecipeNameChanged = { viewModel.onRecipeNameChanged(it) },
-                onRecipeIngredientAdded = { viewModel.onRecipeIngredientAdded(it) },
-                onRecipeIngredientUpdated = { index, ingredient ->
-                    viewModel.onRecipeIngredientUpdated(index, ingredient)
+                onRecipeIngredientAdded = { name, quantity, measurementUnit ->
+                    viewModel.onRecipeIngredientAdded(name, quantity, measurementUnit)
+                },
+                onRecipeIngredientUpdated = { key, name, quantity, measurementUnit ->
+                    viewModel.onRecipeIngredientUpdated(key, name, quantity, measurementUnit)
                 },
                 onRecipeIngredientRemoved = { viewModel.onRecipeIngredientRemoved(it) },
                 onRecipeInstructionAdded = { viewModel.onRecipeInstructionAdded(it) },
-                onRecipeInstructionUpdated = { index, instruction ->
-                    viewModel.onRecipeInstructionUpdated(index, instruction)
+                onRecipeInstructionUpdated = { key, text ->
+                    viewModel.onRecipeInstructionUpdated(key, text)
                 },
                 onRecipeInstructionRemoved = { viewModel.onRecipeInstructionRemoved(it) },
             )

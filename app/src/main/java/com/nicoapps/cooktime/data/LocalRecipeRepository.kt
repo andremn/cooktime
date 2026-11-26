@@ -67,7 +67,7 @@ class LocalRecipeRepository @Inject constructor(
             println("getAll() called!")
         }
 
-    private fun deleteRemovedIngredients(recipe: Recipe) {
+    private suspend fun deleteRemovedIngredients(recipe: Recipe) {
         val existingIngredients = database.ingredientDao().getAllByRecipeId(recipe.id)
         val ingredientsToRemove = existingIngredients.filterNot { entity ->
             recipe.ingredients.any { it.id == entity.id }
@@ -78,7 +78,7 @@ class LocalRecipeRepository @Inject constructor(
         }
     }
 
-    private fun deleteRemovedInstructions(recipe: Recipe) {
+    private suspend fun deleteRemovedInstructions(recipe: Recipe) {
         val existingInstructions = database.instructionDao().getAllByRecipeId(recipe.id)
         val instructionsToRemove = existingInstructions.filterNot { entity ->
             recipe.instructions.any { it.id == entity.id }

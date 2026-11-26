@@ -9,17 +9,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,6 +54,8 @@ fun ExecuteRecipeScreen(
     appNavigationActions: AppNavigationActions
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
+    val errorSnackbarHostState = remember { SnackbarHostState() }
 
     val onBackPressedDispatcher =
         checkNotNull(LocalOnBackPressedDispatcherOwner.current).onBackPressedDispatcher
@@ -62,6 +67,14 @@ fun ExecuteRecipeScreen(
     LaunchedEffect(screenState.isExecutionSaved) {
         if (screenState.isExecutionSaved) {
             appNavigationActions.navigateBack()
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            errorSnackbarHostState.showSnackbar(errorMessage)
+
+            viewModel.onErrorShown()
         }
     }
 
@@ -85,6 +98,9 @@ fun ExecuteRecipeScreen(
                 },
                 onNavigationIconClick = { onBackPressedDispatcher.onBackPressed() }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = errorSnackbarHostState)
         },
         bottomBar = {
             BottomAppBar(
@@ -112,12 +128,12 @@ fun ExecuteRecipeScreen(
                 Section(R.string.view_recipe_ingredients_tab)
             }
 
-            itemsIndexed(screenState.ingredients) { index, ingredientState ->
+            items(screenState.ingredients) { ingredientState ->
                 Row(
                     modifier = Modifier.toggleable(
                         value = ingredientState.isChecked,
                         role = Role.Checkbox,
-                        onValueChange = { viewModel.onIngredientCheckChanged(index, it) }
+                        onValueChange = { viewModel.onIngredientCheckChanged(ingredientState.ingredient.id, it) }
                     )
                 ) {
                     Checkbox(
@@ -141,12 +157,12 @@ fun ExecuteRecipeScreen(
                 Section(R.string.view_recipe_instructions_tab, spacerBeforeText = true)
             }
 
-            itemsIndexed(screenState.instructions) { index, instructionState ->
+            items(screenState.instructions) { instructionState ->
                 Row(
                     modifier = Modifier.toggleable(
                         value = instructionState.isChecked,
                         role = Role.Checkbox,
-                        onValueChange = { viewModel.onInstructionCheckChanged(index, it) }
+                        onValueChange = { viewModel.onInstructionCheckChanged(instructionState.instruction.id, it) }
                     ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
