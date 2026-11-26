@@ -53,6 +53,7 @@
     <string name="cd_rename_recipe">Renomear receita</string>
     <string name="cd_remove_ingredient">Remover ingrediente %1$s</string>
     <string name="cd_remove_instruction">Remover passo %1$d</string>
+    <string name="cd_add_instruction">Adicionar passo</string>
     <string name="cd_uncheck_all">Desmarcar todos os itens</string>
     <string name="cd_timer">Temporizador</string>
     <string name="cd_finish_recipe">Concluir receita</string>
