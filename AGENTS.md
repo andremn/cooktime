@@ -45,7 +45,7 @@ Package root: `app/src/main/java/com/nicoapps/cooktime/`.
 `ViewModel` → `RecipeRepository` / `RecipeExecutionRepository` (interfaces in `data/`) → `Local*Repository` → Room DAOs → entities.
 
 - **Model vs. entity**: UI and ViewModels work only with `model/` classes (`Recipe`, `Ingredient`, `Instruction`). Room classes live in `data/entity/`, and `mapper/` converts between the two. Don't leak entities above the repository layer.
-- **DI (Hilt)**: Repositories are bound in `RepositoryApplicationModule` behind the `@LocalRepository` qualifier, so inject them with that qualifier. `DatabaseApplicationModule` provides the Room database and an app-wide IO `CoroutineScope`. `RecipeRepositoryProvider` is a Hilt entry point for places that can't use constructor injection.
+- **DI (Hilt)**: Repositories are bound in `RepositoryApplicationModule` behind the `@LocalRepository` qualifier, so inject them with that qualifier. `DatabaseApplicationModule` provides the Room database. `ApplicationScopeModule` provides an app-wide scope behind the `@ApplicationScope` qualifier for work that must outlive screens; only the debug sample-recipe receiver uses it. ViewModels run writes in `viewModelScope`. `RecipeRepositoryProvider` is a Hilt entry point for places that can't use constructor injection.
 - **Reads** are exposed as `Flow`, and ViewModels turn them into a single `StateFlow` screen state with `combine`/`stateIn`. **Writes** are `suspend` functions.
 - **Soft delete**: deleting a recipe sets `isDeleted` (`deleteById` / `undeleteById`), which allows undo. Queries must filter out deleted recipes.
 
