@@ -14,7 +14,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,9 +50,9 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.DeleteRecipeAlertDia
 import com.nicoapps.cooktime.ui.screens.recipe.edit.dialogs.EditRecipeNameDialog
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeIngredientsTab
 import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsTab
-import com.nicoapps.cooktime.ui.transitions.SharedElementKey
-import com.nicoapps.cooktime.ui.transitions.sharedContainer
-import com.nicoapps.cooktime.ui.transitions.sharedElement
+import com.nicoapps.cooktime.ui.transitions.bottomBarTransition
+import com.nicoapps.cooktime.ui.transitions.screenContentTransition
+import com.nicoapps.cooktime.ui.transitions.topBarTransition
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -145,16 +145,13 @@ fun ViewRecipeScreen(
     }
 
     Scaffold(
-        modifier = modifier.sharedContainer(
-            SharedElementKey.RecipeContainer(screenState.recipeId)
-        ),
+        modifier = modifier,
+        containerColor = Color.Transparent,
         topBar = {
             AppTitleTopBar(
+                modifier = Modifier.topBarTransition(),
                 title = {
                     ViewRecipeAppTopBarTitle(
-                        modifier = Modifier.sharedElement(
-                            SharedElementKey.RecipeTitle(screenState.recipeId)
-                        ),
                         titleText = screenState.recipeName,
                         isEditing = screenState.isEditing,
                         onEditClick = viewModel::onEditNameClick
@@ -168,6 +165,7 @@ fun ViewRecipeScreen(
         },
         bottomBar = {
             BottomAppBar(
+                modifier = Modifier.bottomBarTransition(),
                 actions = {
                     ViewRecipeAppBottomBarActions(
                         isEditing = screenState.isEditing,
@@ -191,10 +189,6 @@ fun ViewRecipeScreen(
                 },
                 floatingActionButton = {
                     ViewRecipeAppBottomBarFab(
-                        modifier = Modifier.sharedContainer(
-                            key = SharedElementKey.ExecuteRecipeContainer(screenState.recipeId),
-                            clipShape = FloatingActionButtonDefaults.extendedFabShape
-                        ),
                         isVisible = screenState.isEditing.not(),
                         onClick = {
                             onStartExecution(screenState.recipeId, screenState.recipeName)
@@ -206,6 +200,7 @@ fun ViewRecipeScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .screenContentTransition()
                 .fillMaxSize()
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues)

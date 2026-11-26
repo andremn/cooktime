@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
@@ -22,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,8 +31,8 @@ import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.create.steps.NewRecipeSteps
-import com.nicoapps.cooktime.ui.transitions.SharedElementKey
-import com.nicoapps.cooktime.ui.transitions.sharedContainer
+import com.nicoapps.cooktime.ui.transitions.screenContentTransition
+import com.nicoapps.cooktime.ui.transitions.topBarTransition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -82,12 +82,11 @@ fun NewRecipeScreen(
     }
 
     Scaffold(
-        modifier = modifier.sharedContainer(
-            key = SharedElementKey.NewRecipeContainer,
-            clipShape = FloatingActionButtonDefaults.shape
-        ),
+        modifier = modifier,
+        containerColor = Color.Transparent,
         topBar = {
             AppTitleTopBar(
+                modifier = Modifier.topBarTransition(),
                 title = {
                     Text(text = title)
                 },
@@ -100,6 +99,7 @@ fun NewRecipeScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .screenContentTransition()
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues)
                 .imePadding()

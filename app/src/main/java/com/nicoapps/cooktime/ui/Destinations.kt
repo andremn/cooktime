@@ -16,8 +16,8 @@ data object Settings
 data object NewRecipe
 
 /**
- * [recipeTitle] is the recipe name known when navigating, so the screen can show it, and animate
- * it as a shared element, before the recipe loads.
+ * [recipeTitle] is the recipe name known when navigating, so the screen can show it as its title
+ * while the transition runs, before the recipe loads.
  */
 @Serializable
 data class ViewRecipe(
