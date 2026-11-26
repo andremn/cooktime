@@ -5,7 +5,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -58,7 +57,6 @@ fun RecipeIngredientsGrid(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (ingredients.isEmpty()) {
@@ -69,9 +67,11 @@ fun RecipeIngredientsGrid(
             )
         } else {
             LazyVerticalStaggeredGrid(
-                modifier = modifier
+                // Takes the height left after the add button, so a long list scrolls inside
+                // the screen.
+                modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp)
+                    .weight(1f, fill = false)
                     .animateContentSize(),
                 columns = StaggeredGridCells.Adaptive(150.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),

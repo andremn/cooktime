@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -101,7 +100,6 @@ fun RecipeInstructionsColumn(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (instructions.isEmpty()) {
@@ -114,9 +112,12 @@ fun RecipeInstructionsColumn(
             )
         } else {
             LazyColumn(
+                // Takes the height left after the new instruction field, so a long list scrolls
+                // inside the screen and shrinks with the keyboard instead of pushing the field
+                // below it.
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp)
+                    .weight(1f, fill = false)
                     .animateContentSize(),
                 state = lazyColumnState,
                 verticalArrangement = Arrangement.Bottom,
