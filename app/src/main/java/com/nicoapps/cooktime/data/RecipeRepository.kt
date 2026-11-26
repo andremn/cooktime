@@ -1,6 +1,7 @@
 package com.nicoapps.cooktime.data
 
 import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.model.RecipeSummary
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {
@@ -19,5 +20,6 @@ interface RecipeRepository {
 
     fun findById(id: Long): Flow<Recipe?>
 
-    fun getAll(): Flow<List<Recipe>>
+    /** Lists the recipes that aren't deleted, without their ingredients and instructions. */
+    fun getAll(): Flow<List<RecipeSummary>>
 }

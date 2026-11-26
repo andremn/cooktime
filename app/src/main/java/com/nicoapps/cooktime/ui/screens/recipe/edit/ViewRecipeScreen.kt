@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.Text
@@ -28,11 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,8 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nicoapps.cooktime.R
-import com.nicoapps.cooktime.data.RecipeRepositoryProvider
-import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.AppTitleTopBar
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarActions
 import com.nicoapps.cooktime.ui.screens.recipe.edit.appbar.ViewRecipeAppBottomBarFab
@@ -53,15 +48,13 @@ import com.nicoapps.cooktime.ui.screens.recipe.edit.tabs.ViewRecipeInstructionsT
 import com.nicoapps.cooktime.ui.transitions.bottomBarTransition
 import com.nicoapps.cooktime.ui.transitions.screenContentTransition
 import com.nicoapps.cooktime.ui.transitions.topBarTransition
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ViewRecipeScreen(
     modifier: Modifier = Modifier,
     viewModel: ViewRecipeViewModel = hiltViewModel(),
-    snackbarState: AppSnackbarState,
-    onRecipeDeleted: () -> Unit,
+    onRecipeDeleted: (recipeId: Long) -> Unit,
     onStartExecution: (recipeId: Long, recipeTitle: String) -> Unit
 ) {
     val tabs = setOf(
@@ -71,9 +64,6 @@ fun ViewRecipeScreen(
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState { tabs.size }
-    val context = LocalContext.current
-    val recipeDeletedMessage = stringResource(R.string.view_recipe_deleted_message)
-    val undoLabel = stringResource(R.string.view_recipe_deleted_undo)
     val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
     val errorSnackbarHostState = remember { SnackbarHostState() }
 
@@ -82,23 +72,7 @@ fun ViewRecipeScreen(
 
     LaunchedEffect(screenState.isRecipeDeleted) {
         if (screenState.isRecipeDeleted) {
-            val recipeId = screenState.recipeId
-
-            snackbarState.show(
-                recipeDeletedMessage,
-                actionLabel = undoLabel,
-                onDismissed = {
-                    if (it == SnackbarResult.ActionPerformed) {
-                        launch {
-                            RecipeRepositoryProvider
-                                .getRecipeRepository(context)
-                                .undeleteById(recipeId)
-                        }
-                    }
-                }
-            )
-
-            onRecipeDeleted()
+            onRecipeDeleted(screenState.recipeId)
         }
     }
 
@@ -305,7 +279,6 @@ fun ViewRecipeScreen(
 @Composable
 fun ViewRecipeScreenPreview() {
     ViewRecipeScreen(
-        snackbarState = AppSnackbarState(SnackbarHostState(), rememberCoroutineScope()),
         onRecipeDeleted = {},
         onStartExecution = { _, _ -> }
     )

@@ -21,7 +21,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,9 +45,9 @@ import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.ui.DEFAULT_ANIMATION_DURATION_MILLIS
 import com.nicoapps.cooktime.ui.components.AppSnackbarState
 import com.nicoapps.cooktime.ui.components.recipe.StarredRecipeIcon
-import com.nicoapps.cooktime.ui.components.search.SearchRecipesBar
 import com.nicoapps.cooktime.ui.defaultAnimationSpec
 import com.nicoapps.cooktime.ui.defaultExitAnimation
+import com.nicoapps.cooktime.ui.screens.recipe.list.search.SearchRecipesBar
 import com.nicoapps.cooktime.ui.transitions.floatingActionButtonTransition
 import com.nicoapps.cooktime.ui.transitions.screenContentTransition
 import com.nicoapps.cooktime.ui.transitions.topBarTransition
@@ -55,13 +57,36 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel = hiltViewModel(),
     appSnackbarState: AppSnackbarState,
+    deletedRecipeId: Long?,
+    onDeletedRecipeHandled: () -> Unit,
     onOpenDrawer: () -> Unit,
     onRecipeClick: (recipeId: Long, recipeTitle: String) -> Unit,
     onNewRecipeClick: () -> Unit
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val errorMessage = screenState.errorMessageResourceId?.let { stringResource(it) }
+    val recipeDeletedMessage = stringResource(R.string.home_recipe_deleted_message)
+    val undoLabel = stringResource(R.string.home_recipe_deleted_undo)
     var isSearchBarActive by remember { mutableStateOf(false) }
+
+    // Shown here rather than by the recipe screen, so the undo is handled by this screen's
+    // ViewModel. If the screen is recreated while it's visible, the effect runs again and shows it
+    // again, since the id is only cleared once the snackbar is dismissed.
+    LaunchedEffect(deletedRecipeId) {
+        if (deletedRecipeId != null) {
+            val result = appSnackbarState.snackbarHostState.showSnackbar(
+                message = recipeDeletedMessage,
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short
+            )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.onUndoDelete(deletedRecipeId)
+            }
+
+            onDeletedRecipeHandled()
+        }
+    }
 
     LaunchedEffect(errorMessage) {
         if (errorMessage != null) {

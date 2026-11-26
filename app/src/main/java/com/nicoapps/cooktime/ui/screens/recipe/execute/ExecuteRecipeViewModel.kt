@@ -9,8 +9,8 @@ import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.R
 import com.nicoapps.cooktime.data.RecipeExecutionRepository
 import com.nicoapps.cooktime.data.RecipeRepository
-import com.nicoapps.cooktime.data.entity.RecipeExecutionEntity
 import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.model.RecipeExecution
 import com.nicoapps.cooktime.ui.ExecuteRecipe
 import com.nicoapps.cooktime.ui.extensions.runWrite
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -119,7 +119,7 @@ class ExecuteRecipeViewModel @Inject constructor(
                 }
             ) {
                 recipeExecutionRepository.save(
-                    RecipeExecutionEntity(
+                    RecipeExecution(
                         recipeId = recipeId
                     )
                 )

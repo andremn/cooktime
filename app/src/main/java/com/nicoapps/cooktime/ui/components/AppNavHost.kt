@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
@@ -53,8 +54,16 @@ fun AppNavHost(
             popExitTransition = { screenHoldExitTransition() }
         ) {
             screen<Home> { backStackEntry ->
+                val deletedRecipeId by backStackEntry.savedStateHandle
+                    .getStateFlow<Long?>(KEY_DELETED_RECIPE_ID, null)
+                    .collectAsStateWithLifecycle()
+
                 HomeScreen(
                     appSnackbarState = appSnackbarState,
+                    deletedRecipeId = deletedRecipeId,
+                    onDeletedRecipeHandled = {
+                        backStackEntry.savedStateHandle.remove<Long>(KEY_DELETED_RECIPE_ID)
+                    },
                     onOpenDrawer = onOpenDrawer,
                     onRecipeClick = { recipeId, recipeTitle ->
                         backStackEntry.ifResumed {
@@ -91,9 +100,14 @@ fun AppNavHost(
 
             screen<ViewRecipe> { backStackEntry ->
                 ViewRecipeScreen(
-                    snackbarState = appSnackbarState,
-                    onRecipeDeleted = {
-                        navController.popBackStackIfCurrent<ViewRecipe>()
+                    onRecipeDeleted = { recipeId ->
+                        if (navController.currentDestination?.hasRoute<ViewRecipe>() == true) {
+                            // Returned to Home as a result, which shows the undo snackbar.
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set(KEY_DELETED_RECIPE_ID, recipeId)
+                            navController.popBackStack()
+                        }
                     },
                     onStartExecution = { recipeId, recipeTitle ->
                         backStackEntry.ifResumed {
@@ -123,6 +137,9 @@ fun AppNavHost(
         navController.popBackStack()
     }
 }
+
+/** Key of the navigation result a deleted recipe's id returns to [Home] in. */
+private const val KEY_DELETED_RECIPE_ID = "deletedRecipeId"
 
 /**
  * Runs [block] only while this entry is the resumed screen, so a double tap or an event repeated

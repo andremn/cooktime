@@ -1,10 +1,10 @@
-package com.nicoapps.cooktime.ui.components.search
+package com.nicoapps.cooktime.ui.screens.recipe.list.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nicoapps.cooktime.LocalRepository
 import com.nicoapps.cooktime.data.RecipeRepository
-import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.model.RecipeSummary
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +21,7 @@ class SearchRecipesViewModel @Inject constructor(
     private val _searchState = MutableStateFlow(SearchState())
 
     val screenState = _searchState.combine(_recipes) { searchState, recipes ->
-        var filteredRecipes = emptyList<Recipe>()
+        var filteredRecipes = emptyList<RecipeSummary>()
 
         if (searchState.searchText.isNotBlank()) {
             filteredRecipes = recipes.filter {
@@ -55,7 +55,7 @@ class SearchRecipesViewModel @Inject constructor(
         }
 
     data class SearchRecipesScreenState(
-        val recipes: List<Recipe> = emptyList(),
+        val recipes: List<RecipeSummary> = emptyList(),
         val searchText: String = "",
         val isSearchActive: Boolean = false
     )

@@ -1,7 +1,7 @@
 package com.nicoapps.cooktime.data
 
-import com.nicoapps.cooktime.data.entity.RecipeExecutionEntity
+import com.nicoapps.cooktime.model.RecipeExecution
 
 interface RecipeExecutionRepository {
-    suspend fun save(recipeExecution: RecipeExecutionEntity)
+    suspend fun save(recipeExecution: RecipeExecution)
 }

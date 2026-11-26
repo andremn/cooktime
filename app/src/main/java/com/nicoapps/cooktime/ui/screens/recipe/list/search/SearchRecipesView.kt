@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.components.search
+package com.nicoapps.cooktime.ui.screens.recipe.list.search
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -14,15 +14,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.model.RecipeSummary
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @Composable
 fun SearchRecipesView(
     modifier: Modifier = Modifier,
-    recipes: List<Recipe>,
-    onRecipeSelected: (Recipe) -> Unit
+    recipes: List<RecipeSummary>,
+    onRecipeSelected: (RecipeSummary) -> Unit
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT) }
 

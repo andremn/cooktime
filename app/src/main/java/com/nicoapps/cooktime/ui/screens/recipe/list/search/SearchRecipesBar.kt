@@ -1,4 +1,4 @@
-package com.nicoapps.cooktime.ui.components.search
+package com.nicoapps.cooktime.ui.screens.recipe.list.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nicoapps.cooktime.model.Recipe
+import com.nicoapps.cooktime.model.RecipeSummary
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -32,7 +32,7 @@ fun SearchRecipesBar(
     modifier: Modifier = Modifier,
     viewModel: SearchRecipesViewModel = hiltViewModel(),
     onActiveChange: ((Boolean) -> Unit)? = null,
-    onRecipeSelected: (Recipe) -> Unit,
+    onRecipeSelected: (RecipeSummary) -> Unit,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null
 ) {
